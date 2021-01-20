@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1.没有scheduled方式初始化的，需要我们手动调用addTimer:forMode:方法，将timer添加到一个runloop中. 举例： //默认添加到RunLoop中 NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerFired:) user">
+<meta name="keywords" content="timer">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深挖NSTimer">
+<meta property="og:url" content="http://foerst.github.io/blog/2016/07/06/深挖NSTimer.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="1.没有scheduled方式初始化的，需要我们手动调用addTimer:forMode:方法，将timer添加到一个runloop中. 举例： //默认添加到RunLoop中 NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerFired:) user">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.500Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深挖NSTimer">
+<meta name="twitter:description" content="1.没有scheduled方式初始化的，需要我们手动调用addTimer:forMode:方法，将timer添加到一个runloop中. 举例： //默认添加到RunLoop中 NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerFired:) user">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2016/07/06/深挖NSTimer.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>深挖NSTimer | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2016/07/06/深挖NSTimer.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">深挖NSTimer
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-07-06 00:00:00" itemprop="dateCreated datePublished" datetime="2016-07-06T00:00:00+08:00">2016-07-06</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/summary/" itemprop="url" rel="index"><span itemprop="name">summary</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <!--来挖挖NSTimer使用中的一些坑-->
+<p>1.没有scheduled方式初始化的，需要我们手动调用addTimer:forMode:方法，将timer添加到一个runloop中.</p>
+<p>举例：</p>
+<pre><code>//默认添加到RunLoop中
+NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerFired:) userInfo:nil repeats:NO];
+//手动添加到RunLoop中
+NSTimer *timer2 = [NSTimer timerWithTimeInterval:3.0 target:self selector:@selector(timerFired:) userInfo:nil repeats:NO];
+[[NSRunLoop currentRunLoop] addTimer:timer2 forMode:NSDefaultRunLoopMode];
+</code></pre> <a id="more"></a>
+<p> 2.scheduled方式创建的timer不会立即执行，需要调用fire函数或者手动调用一次目标方法。</p>
+<p> 3.timer并不是一种实时机制，会存在延迟，而且延迟的程度跟当前线程的执行情况有关。通常会有50ms-100ms的延迟。NSTimer不是一个实时系统，因此不管是一次性的还是周期性的timer的实际触发事件的时间可能都会跟我们预想的会有出入。差距的大小跟当前我们程序的执行情况有关系，比如可能程序是多线程的，而你的timer只是添加在某一个线程的runloop的某一种指定的runloopmode中，由于多线程通常都是分时执行的，而且每次执行的mode也可能随着实际情况发生变化。</p>
+<p> 4.当用户滑动显示屏，则会出现Timer失效，方法不调用的情况</p>
+<p> 因为一般Timer是运行在RunLoop的default mode上，而ScrollView在用户滑动时，主线程RunLoop会切换到UITrackingRunLoopMode。而这个时候，Timer就不会运行,方法得不到fire。</p>
+<p> 第一种解决方法:修改RunLoop 运行模式为 NSRunLoopCommonModes</p>
+<pre><code>_timer = [NSTimer timerWithTimeInterval:5 target:self selector:@selector(update:) userInfo:nil repeats:YES];
+[[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
+</code></pre><p> 第二种解决方法:在子线程中启动timer，添加timer到runloop,注意：子线程中RunLoop需要手动配置开启。</p>
+<pre><code> - (void)viewDidLoad {
+     [super viewDidLoad];
+     NSThread *thread  = [[NSThread alloc] initWithTarget:self selector:@selector(threadEntry) object:nil];
+    thread.name = @&quot;TimerThread&quot;;
+    [thread start];
+    _timerThread = thread;
+}
+
+- (void)threadEntry {
+    _timer = [NSTimer timerWithTimeInterval:5 target:self selector:@selector(update:) userInfo:nil repeats:YES];
+    //子线程RunLoop手动配置开启
+    NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+    [runLoop addTimer:_timer forMode:NSRunLoopCommonModes];
+    [runLoop run];
+}
+
+- (void)cancel {
+    //NSTimer要在同一个线程中创建和关闭。因为创建的Timer的时候已经把Timer加入到该线程对应的RunLoop中，这个RunLoop设置了这个Timer为一个事件。因此要在同一个线程中才能cancel这个Timer。
+    [self performSelector:@selector(invalidTimer) onThread:_timerThread withObject:nil waitUntilDone:YES];
+}
+
+- (void)invalidTimer {
+    if (_timer) {
+        [_timer invalidate];
+        _timer = nil;
+    }
+}
+</code></pre><p> 5.更为实时的timer,GCDtimer</p>
+<pre><code>uint64_t interval = 1 * NSEC_PER_SEC;
+//创建一个专门执行timer回调的GCD队列
+dispatch_queue_t queue = dispatch_queue_create(&quot;timerQueue&quot;, 0);
+_timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+//使用dispatch_source_set_timer函数设置timer参数
+dispatch_source_set_timer(_timer, dispatch_time(DISPATCH_TIME_NOW, 0), interval, 0);
+//设置回调
+dispatch_source_set_event_handler(_timer, ^(){
+    NSLog(@&quot;Timer %@&quot;, [NSThread currentThread]);
+});
+dispatch_resume(_timer);//dispatch_source默认是Suspended状态，通过dispatch_resume函数开始它
+</code></pre><p> 其中的dispatch_source_set_timer的最后一个参数，是最后一个参数（leeway），它告诉系统我们需要计时器触发的精准程度。所有的计时器都不会保证100%精准，这个参数用来告诉系统你希望系统保证精准的努力程度。如果你希望一个计时器每5秒触发一次，并且越准越好，那么你传递0为参数。另外，如果是一个周期性任务，比如检查email，那么你会希望每10分钟检查一次，但是不用那么精准。所以你可以传入60，告诉系统60秒的误差是可接受的。它的意义在于降低资源消耗。</p>
+<p> 6.GCD方式的一次性timer</p>
+<pre><code>dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{        NSLog(@&quot;dispatch_after enter timer&quot;);
+   });
+</code></pre><p> 7.递归调用实现的timer</p>
+<pre><code> - (void)dispatchAfterTimer {
+    __weak typeof (self) weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@&quot;dispatch_after enter timer,thread = %@&quot;, [NSThread currentThread]);
+        [weakSelf dispatchAfterTimer];
+    });
+}
+</code></pre><p>8.NSTimer都会对它的target强引用，我们需要小心对待这个target的生命周期问题。</p>
+<p> 比如这样的代码：</p>
+<pre><code>self.detectTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+target:self
+selector:@selector(someMethod)
+userInfo:nil
+repeats:YES];
+
+- (void)dealloc {
+    [self.detectTimer invalidate];
+    self.detectTimer = nil;
+}
+</code></pre><p> 由于timer对target:self的retain，造成self退出后根本没有调用dealloc，以至于viewController不会被释放导致内存泄露。</p>
+<p> 那么怎么解决这一问题呢？</p>
+<p> 方法一：把计时器的释放操作放到viewWillDisappear中来管理。</p>
+<p> 代码大概长这样：</p>
+<pre><code>- (void)viewWillDisappear:(BOOL)animated {
+   [super viewWillDisappear:animated];
+   [self.detectTimer invalidate];
+   self.detectTimer = nil;
+}
+</code></pre><p>当页面需要频繁地切入切出时这个方法缺点明显。</p>
+<p>方法二：使用<a href="https://github.com/mindsnacks/MSWeakTimer" target="_blank" rel="noopener">MSWeaker</a> </p>
+<p>MSWeaker实现了一个利用GCD的弱引用的timer。原理是利用一个新的对象,在这个对象中创建了一个队列,然后在这个队列中创建gcd timer.注意其中用到了dispatch_set_target_queue(self.privateSerialQueue, dispatchQueue); 这个是将privateSerialQueue队列的执行操作放到队列dispatchQueue 中去.参考代码：</p>
+<pre><code>NSString *privateQueueName = [NSString stringWithFormat:@&quot;com.mindsnacks.msweaktimer.%p&quot;, self];
+        self.privateSerialQueue = dispatch_queue_create([privateQueueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
+        dispatch_set_target_queue(self.privateSerialQueue, dispatchQueue);
+
+self.timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER,
+                                            0,
+                                            0,
+                                            self.privateSerialQueue);
+
+- (void)resetTimerProperties
+{
+    int64_t intervalInNanoseconds = (int64_t)(self.timeInterval * NSEC_PER_SEC);
+    int64_t toleranceInNanoseconds = (int64_t)(self.tolerance * NSEC_PER_SEC);
+
+    dispatch_source_set_timer(self.timer,
+                              dispatch_time(DISPATCH_TIME_NOW, intervalInNanoseconds),
+                              (uint64_t)intervalInNanoseconds,
+                              toleranceInNanoseconds
+                              );
+}
+
+- (void)schedule
+{
+    [self resetTimerProperties];
+
+    __weak MSWeakTimer *weakSelf = self;
+
+    dispatch_source_set_event_handler(self.timer, ^{
+        [weakSelf timerFired];
+    });
+
+    dispatch_resume(self.timer);
+}
+</code></pre><p>方法三：考虑引入一个对象,在这个对象中弱引用self,然后将这个对象传递给timer的构建方法 这里可以参考<a href="https://github.com/ibireme/YYKit/blob/master/YYKit/Utility/YYWeakProxy.h" target="_blank" rel="noopener">YYWeakProxy</a>建立这个对象.</p>
+<pre><code>@interface YYWeakProxy : NSProxy
+@property (nonatomic, weak, readonly) id target;
+- (instancetype)initWithTarget:(id)target;
++ (instancetype)proxyWithTarget:(id)target;
+@end
+@implementation YYWeakProxy
+- (instancetype)initWithTarget:(id)target {
+_target = target;
+return self;
+}
++ (instancetype)proxyWithTarget:(id)target {
+return [[YYWeakProxy alloc] initWithTarget:target];
+}
+//当不能识别方法时候,就会调用这个方法,在这个方法中,我们可以将不能识别的传递给其它对象处理
+//由于这里对所有的不能处理的都传递给_target了,所以methodSignatureForSelector和forwardInvocation不可能被执行的,所以不用再重载了吧
+//其实还是需要重载methodSignatureForSelector和forwardInvocation的,为什么呢?因为_target是弱引用的,所以当_target可能释放了,当它被释放了的情况下,那么forwardingTargetForSelector就是返回nil了.然后methodSignatureForSelector和forwardInvocation没实现的话,就直接crash了!!!
+//这也是为什么这两个方法中随便写的!!!
+- (id)forwardingTargetForSelector:(SEL)selector {
+return _target;
+}
+- (void)forwardInvocation:(NSInvocation *)invocation {
+void *null = NULL;
+[invocation setReturnValue:&amp;null];
+}
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+return [NSObject instanceMethodSignatureForSelector:@selector(init)];
+}
+- (BOOL)respondsToSelector:(SEL)aSelector {
+return [_target respondsToSelector:aSelector];
+}
+- (BOOL)isEqual:(id)object {
+return [_target isEqual:object];
+}
+- (NSUInteger)hash {
+return [_target hash];
+}
+- (Class)superclass {
+return [_target superclass];
+}
+- (Class)class {
+return [_target class];
+}
+- (BOOL)isKindOfClass:(Class)aClass {
+return [_target isKindOfClass:aClass];
+}
+- (BOOL)isMemberOfClass:(Class)aClass {
+return [_target isMemberOfClass:aClass];
+}
+- (BOOL)conformsToProtocol:(Protocol *)aProtocol {
+return [_target conformsToProtocol:aProtocol];
+}
+- (BOOL)isProxy {
+return YES;
+}
+- (NSString *)description {
+return [_target description];
+}
+- (NSString *)debugDescription {
+return [_target debugDescription];
+}
+@end
+</code></pre><p>使用方式：</p>
+<pre><code>self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:[YYWeakProxy proxyWithTarget:self ] selector:@selector(animationTimerDidFired:)  userInfo:nil repeats:YES];
+</code></pre><p>方法四：block方式来解决循环引用</p>
+<pre><code>@interface NSTimer (XXBlocksSupport)
++ (NSTimer *)xx_scheduledTimerWithTimeInterval:(NSTimeInterval)interval
+                                     block:(void(^)())block
+                                   repeats:(BOOL)repeats;
+@end
+@implementation NSTimer (XXBlocksSupport)
++ (NSTimer *)xx_scheduledTimerWithTimeInterval:(NSTimeInterval)interval
+                                     block:(void(^)())block
+                                   repeats:(BOOL)repeats
+{
+return [self scheduledTimerWithTimeInterval:interval
+                                      target:self
+                                    selector:@selector(xx_blockInvoke:)
+                                    userInfo:[block copy]
+                                     repeats:repeats];
+}
++ (void)xx_blockInvoke:(NSTimer *)timer {
+void (^block)() = timer.userinfo;
+if(block) {
+    block();
+}
+}
+@end
+</code></pre><p>  注意以上NSTimer的target是NSTimer类对象,类对象本身是个单例,此处虽然也是循环引用,但是由于类对象不需要回收,所以没有问题.但是这种方式要注意block的间接循环引用,当然了,解决block的间接循环引用很简单,定义一个weak变量,在block中使用weak变量即可</p>
+<p>  参考：</p>
+<p>  <a href="http://www.jianshu.com/p/1dbd7a228a22" target="_blank" rel="noopener">用Block解决NSTimer循环引用</a></p>
+<p>  <a href="http://blog.csdn.net/majiakun1/article/details/43700773" target="_blank" rel="noopener">weak NSTimer</a></p>
+<p>  <a href="http://blog.csdn.net/tangaowen/article/details/46823199" target="_blank" rel="noopener">弱引用NSTimer对象</a></p>
+<p>  <a href="http://blog.csdn.net/yohunl/article/details/50614903" target="_blank" rel="noopener">NSTimer和实现弱引用的timer的方式</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/timer/" rel="tag"># timer</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/05/30/ionic混合应用开发.html" rel="next" title="ionic混合应用开发">
+                <i class="fa fa-chevron-left"></i> ionic混合应用开发
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/07/09/OC Runtime简述.html" rel="prev" title="OC Runtime简述">
+                OC Runtime简述 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2016/07/06/深挖NSTimer.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

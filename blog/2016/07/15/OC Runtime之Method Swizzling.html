@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="什么是Method SwizzlingMethod Swizzling，即方法交换，它通过在运行时重新映射方法（Selector）对应的实现(IMP)来达到“偷天换日”的目的。 Method Swizzling工作原理通过改变类的调度表（dispatch table）中选择器到最终函数间的映射关系，Objectvie-C中方法的调用能够在运行时进行改变。">
+<meta name="keywords" content="Method Swizzling,+load vs. +initialize">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OC Runtime之Method Swizzling">
+<meta property="og:url" content="http://foerst.github.io/blog/2016/07/15/OC Runtime之Method Swizzling.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="什么是Method SwizzlingMethod Swizzling，即方法交换，它通过在运行时重新映射方法（Selector）对应的实现(IMP)来达到“偷天换日”的目的。 Method Swizzling工作原理通过改变类的调度表（dispatch table）中选择器到最终函数间的映射关系，Objectvie-C中方法的调用能够在运行时进行改变。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.503Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OC Runtime之Method Swizzling">
+<meta name="twitter:description" content="什么是Method SwizzlingMethod Swizzling，即方法交换，它通过在运行时重新映射方法（Selector）对应的实现(IMP)来达到“偷天换日”的目的。 Method Swizzling工作原理通过改变类的调度表（dispatch table）中选择器到最终函数间的映射关系，Objectvie-C中方法的调用能够在运行时进行改变。">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2016/07/15/OC Runtime之Method Swizzling.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>OC Runtime之Method Swizzling | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2016/07/15/OC Runtime之Method Swizzling.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">OC Runtime之Method Swizzling
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-07-15 00:00:00" itemprop="dateCreated datePublished" datetime="2016-07-15T00:00:00+08:00">2016-07-15</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Runtime/" itemprop="url" rel="index"><span itemprop="name">Runtime</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="什么是Method-Swizzling"><a href="#什么是Method-Swizzling" class="headerlink" title="什么是Method Swizzling"></a>什么是Method Swizzling</h4><p>Method Swizzling，即方法交换，它通过在运行时重新映射方法（Selector）对应的实现(IMP)来达到“偷天换日”的目的。</p>
+<h4 id="Method-Swizzling工作原理"><a href="#Method-Swizzling工作原理" class="headerlink" title="Method Swizzling工作原理"></a>Method Swizzling工作原理</h4><p>通过改变类的调度表（dispatch table）中选择器到最终函数间的映射关系，Objectvie-C中方法的调用能够在运行时进行改变。<br><a id="more"></a></p>
+<h4 id="Method-Swizzling的实现"><a href="#Method-Swizzling的实现" class="headerlink" title="Method Swizzling的实现"></a>Method Swizzling的实现</h4><p>用方法交换实现：当UIViewController或它子类的任何实例触发viewWillAppear:方法都会打印一条log日志。</p>
+<pre><code>#import &lt;objc/runtime.h&gt;
+
+@implementation UIViewController (Tracking) 
+
++ (void)load { 
+    static dispatch_once_t onceToken; 
+    dispatch_once(&amp;onceToken, ^{ 
+        Class class = [self class]; //self当前是类对象，[self class]还是类对象本身
+
+        // 交换类方法时使用
+        // Class class = object_getClass((id)self);//self当前是类对象，object_getClass((id)self)返回元类（meta class）
+
+
+        SEL originalSelector = @selector(viewWillAppear:); 
+        SEL swizzledSelector = @selector(xxx_viewWillAppear:); 
+
+        Method originalMethod = class_getInstanceMethod(class, originalSelector); 
+        Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector); 
+       //如果类中不存在要替换的方法，那就先用class_addMethod和class_replaceMethod函数添加和替换两个方法的实现；
+        BOOL didAddMethod = 
+            class_addMethod(class, 
+                originalSelector, 
+                method_getImplementation(swizzledMethod), 
+                method_getTypeEncoding(swizzledMethod)); 
+
+        if (didAddMethod) { 
+            class_replaceMethod(class, 
+                swizzledSelector, 
+                method_getImplementation(originalMethod), 
+                method_getTypeEncoding(originalMethod)); 
+        } else { 
+            method_exchangeImplementations(originalMethod, swizzledMethod); 
+        } 
+    }); 
+} 
+
+#pragma mark - Method Swizzling 
+
+- (void)xxx_viewWillAppear:(BOOL)animated { 
+    [self xxx_viewWillAppear:animated]; 
+    NSLog(@&quot;viewWillAppear: %@&quot;, self); 
+} 
+
+@end 
+</code></pre><ol>
+<li><p>+load vs. +initialize</p>
+<ul>
+<li><p>+ (void)load;</p>
+<p> <code>The load message is sent to classes and categories that are both dynamically loaded and statically linked, but only if the newly loaded class or category implements a method that can respond.</code></p>
+<p> <code>The order of initialization is as follows:</code></p>
+<p> <code>All initializers in any framework you link to.</code></p>
+<p> <code>All +load methods in your image.</code></p>
+<p> <code>All C++ static initializers and C/C++ attribute(constructor) functions in your image.</code></p>
+<p> <code>All initializers in frameworks that link to you.</code><br> <code>In addition:</code></p>
+<p> <code>A class’s +load method is called after all of its superclasses’ +load methods.
+ A category +load method is called after the class’s own +load method.
+ In a custom implementation of load you can therefore safely message other unrelated classes from the same image, but any load methods implemented by those classes may not have run yet.</code></p>
+<ul>
+<li><code>+ (void)load;</code> 在类文件被加载到 runtime 时被调用，即使没有被 #import 引用。调用顺序是  <code>super class</code> -&gt; <code>self class</code> -&gt; <code>category</code>。 每次 runtime 启动只会调用一次该方法。</li>
+<li><code>+ (void)load;</code> 调用的时候尚未有自动释放池，所以如果 <code>+ (void)load;</code> 中的内容使用到了自动释放池，则代码需要用 <code>@autoreleasepool{}</code> 包含。</li>
+<li>对应Category中的 <code>+ (void)load;</code> 方法并不会覆盖类自身中的 <code>+ (void)load;</code> 方法，两个 <code>+ (void)load;</code> 方法都会调用，而且Category的 <code>+ (void)load;</code>方法在类自身的 <code>+ (void)load;</code>方法之后调用。</li>
+</ul>
+</li>
+<li><p>+ (void)initialize;</p>
+<p>  <code>The runtime sends initialize to each class in a program just before the class, or any class that inherits from it, is sent its first message from within the program. The runtime sends the initialize message to classes in a thread-safe manner. Superclasses receive this message before their subclasses.The superclass implementation may be called multiple times if subclasses do not implement initialize—the runtime will call the inherited implementation—or if subclasses explicitly call [super initialize].</code></p>
+<ul>
+<li><code>+ (void)initialize;</code> 在该类第一次发送消息<code>（objc_msgSend(receiver, selector)）</code>时被调用。</li>
+<li><p>在应用程序的生命周期中，runtime 只会向每个类发送一次 <code>+ (void)initialize;</code>消息，如果该类是子类，且该子类中没有实现 <code>+ (void)initialize;</code>方法，或者子类显示调用父类实现 <code>[super initialize]</code>, 那么则会调用其父类的实现。也就是说，父类的 <code>+ (void)initialize;</code> 可能会被调用多次。如果不想子类使用父类的 <code>+ (void)initialize;</code> 方法可以</p>
+<pre><code>+ (void)initialize {
+    if (self == [ClassName self]) {
+        // ... do the initialization ...
+    }
+}
+</code></pre></li>
+<li><p>如果类包含分类，且分类重写了 + (void)initialize; 方法，那么则会调用分类的 + (void)initialize; 实现，而原类的该方法实现不会被调用，这个机制同 NSObject 的其他方法(除 + (void)load 方法) 一样，即如果原类同该类的分类包含有相同的方法实现，那么原类的该方法被隐藏而无法被调用。</p>
+</li>
+<li><p>父类的 + (void)initialize; 方法先于子类的 + (void)initialize; 方法调用。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>选择器（typedef struct objc_selector *SEL）：选择器用于表示一个方法在运行时的名字，一个方法的选择器是一个注册到（或映射到）Objective-C运行时中的C字符串，它是由编译器生成并在类加载的时候被运行时系统自动映射。</p>
+</li>
+<li><p>方法（typedef struct objc_method *Method）：一个代表类定义中一个方法的不明类型。</p>
+</li>
+<li><p>实现（typedef id (*IMP)(id, SEL, …)）：这种数据类型是实现某个方法的函数开始位置的指针，函数使用的是基于当前CPU架构的标准C调用规约。第一个参数是指向self的指针（也就是该类的某个实例的内存空间，或者对于类方法来说，是指向元类（metaclass）的指针）。第二个参数是方法的选择器，后面跟的都是参数。</p>
+<p> 理解这些概念之间关系最好的方式是：一个类（Class）维护一张调度表（dispatch table）用于解析运行时发送的消息；调度表中的每个实体（entry）都是一个方法（Method），其中key值是一个唯一的名字——选择器（SEL），它对应到一个实现（IMP）——实际上就是指向标准C函数的指针。</p>
+<p> 最后一段，xxx_viewWillAppear:方法的定义看似是递归调用引发死循环，其实不会的。因为[self xxx_viewWillAppear:animated]消息会动态找到xxx_viewWillAppear:方法的实现，而它的实现已经被我们与viewWillAppear:方法实现进行了互换，所以这段代码不仅不会死循环，如果你把[self xxx_viewWillAppear:animated]换成[self viewWillAppear:animated]反而会引发死循环。</p>
+</li>
+</ol>
+<h4 id="Method-Swizzling适用场景"><a href="#Method-Swizzling适用场景" class="headerlink" title="Method Swizzling适用场景"></a>Method Swizzling适用场景</h4><p>Method Swizzling适用于向视图控制器的生命周期中注入操作、事件的响应、视图的绘制，或Foundation中的网络堆栈</p>
+<h4 id="Method-Swizzling反作用"><a href="#Method-Swizzling反作用" class="headerlink" title="Method Swizzling反作用"></a>Method Swizzling反作用</h4><p>方法交换是全局的，容易导致不可预料的行为和结果，很难调试发现。曾经遇到同事在分类中交换掉UIViewController的dealloc方法，然而他在替换方法中只是输出当前类的名称，结果导致各种莫名crash（点击文本框都会崩）…，所以使用方法交换时，一定要始终调用方法的原始实现。另外，给swizzled方法加上前缀，可以避免冲突。</p>
+<h5 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h5><p><a href="http://broccoliii.me/2016/04/03/Objective-C_initialize_load/" target="_blank" rel="noopener">load&amp;initialize</a></p>
+<p>NSHipster原文：<a href="http://nshipster.com/method-swizzling/" target="_blank" rel="noopener"><em>http://nshipster.com/method-swizzling/</em></a></p>
+<p>中文翻译<a href="http://www.cocoachina.com/ios/20140225/7880.html" target="_blank" rel="noopener"><em>http://www.cocoachina.com/ios/20140225/7880.html</em></a></p>
+<p>博客<a href="http://blog.csdn.net/yiyaaixuexi/article/details/9374411" target="_blank" rel="noopener"><em>http://blog.csdn.net/yiyaaixuexi/article/details/9374411</em></a></p>
+<p><a href="https://github.com/rentzsch/jrswizzle" target="_blank" rel="noopener">JRSwizzle</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Method-Swizzling/" rel="tag"># Method Swizzling</a>
+          
+            <a href="/tags/load-vs-initialize/" rel="tag"># +load vs. +initialize</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/07/11/OC Runtime之Associated Objects.html" rel="next" title="OC Runtime之Associated Objects">
+                <i class="fa fa-chevron-left"></i> OC Runtime之Associated Objects
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/07/19/OC Runtime实践.html" rel="prev" title="OC Runtime实践">
+                OC Runtime实践 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是Method-Swizzling"><span class="nav-number">1.</span> <span class="nav-text">什么是Method Swizzling</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Method-Swizzling工作原理"><span class="nav-number">2.</span> <span class="nav-text">Method Swizzling工作原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Method-Swizzling的实现"><span class="nav-number">3.</span> <span class="nav-text">Method Swizzling的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Method-Swizzling适用场景"><span class="nav-number">4.</span> <span class="nav-text">Method Swizzling适用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Method-Swizzling反作用"><span class="nav-number">5.</span> <span class="nav-text">Method Swizzling反作用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#参考资料："><span class="nav-number">5.1.</span> <span class="nav-text">参考资料：</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2016/07/15/OC Runtime之Method Swizzling.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="引言关于什么是OC Runtime这里不再赘述，可以参考Objective-C Runtime简述这篇文章。这里讨论Objective-C Runtime在实际开发中是如何使用的，并举栗子加以说明。要使用runtime，要先引入头文件#import &amp;lt;objc/runtime.h&amp;gt;。">
+<meta name="keywords" content="runtime实践">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OC Runtime实践">
+<meta property="og:url" content="http://foerst.github.io/blog/2016/07/19/OC Runtime实践.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="引言关于什么是OC Runtime这里不再赘述，可以参考Objective-C Runtime简述这篇文章。这里讨论Objective-C Runtime在实际开发中是如何使用的，并举栗子加以说明。要使用runtime，要先引入头文件#import &amp;lt;objc/runtime.h&amp;gt;。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.503Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OC Runtime实践">
+<meta name="twitter:description" content="引言关于什么是OC Runtime这里不再赘述，可以参考Objective-C Runtime简述这篇文章。这里讨论Objective-C Runtime在实际开发中是如何使用的，并举栗子加以说明。要使用runtime，要先引入头文件#import &amp;lt;objc/runtime.h&amp;gt;。">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2016/07/19/OC Runtime实践.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>OC Runtime实践 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2016/07/19/OC Runtime实践.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">OC Runtime实践
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-07-19 00:00:00" itemprop="dateCreated datePublished" datetime="2016-07-19T00:00:00+08:00">2016-07-19</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Runtime/" itemprop="url" rel="index"><span itemprop="name">Runtime</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h3><p>关于什么是OC Runtime这里不再赘述，可以参考<a href="http://iosdevp.github.io/blog/2016/07/09/Objective-C%20Runtime简述.html" target="_blank" rel="noopener">Objective-C Runtime简述</a>这篇文章。<br>这里讨论Objective-C Runtime在实际开发中是如何使用的，并举栗子加以说明。要使用runtime，要先引入头文件<code>#import &lt;objc/runtime.h&gt;</code>。</p>
+<a id="more"></a>
+<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><h4 id="1-动态的添加成员变量和方法-修改成员变量值"><a href="#1-动态的添加成员变量和方法-修改成员变量值" class="headerlink" title="1.动态的添加成员变量和方法,修改成员变量值"></a>1.动态的添加成员变量和方法,修改成员变量值</h4><pre><code> //1.修改实例变量值
+void changeInstanceVariableValue() {
+    Person *person = [Person new];
+    person.name = @&quot;Tom&quot;;
+    NSLog(@&quot;name==%@&quot;, person.name);
+    unsigned int count = 0;
+    Ivar *ivars = class_copyIvarList([person class], &amp;count);
+    for (int i = 0; i &lt; count; i++) {
+        Ivar ivar = ivars[i];
+        const char *varName = ivar_getName(ivar);
+        NSString *name = [NSString stringWithUTF8String:varName];
+        if ([name isEqualToString:@&quot;_name&quot;]) {
+            object_setIvar(person, ivar, @&quot;Jerry&quot;);
+            break;
+        }
+    }
+    NSLog(@&quot;修改后 name==%@&quot;, person.name);
+}
+
+//c形式的函数，必须有两个指定参数(id self,SEL _cmd)，参考oc runtime 消息（message）
+void run(id self, SEL _cmd) {
+    NSLog(@&quot;%@ is running!&quot;, self);
+}
+
+//2.添加方法
+//&quot;v@:&quot; 表示函数类型，v代表无返回值void，如果是i则代表int；@代表 id sel; : 代表 SEL _cmd;
+void addMethod() {
+    class_addMethod([Person class], @selector(run), (IMP)run, &quot;v@:&quot;);
+    Person *person = [Person new];
+    person.name = @&quot;Tom&quot;;
+    //    [p run];
+    [person performSelector:@selector(run)];
+}
+</code></pre><h4 id="2-交换方法的实现-拦截并替换方法"><a href="#2-交换方法的实现-拦截并替换方法" class="headerlink" title="2.交换方法的实现,拦截并替换方法"></a>2.交换方法的实现,拦截并替换方法</h4><p>OC Method Siwzzling的实现原理就是方法交换。利用方法交换，可以替换系统方法，在系统方法上增加额外的功能，比如打印一些必要的参数。</p>
+<pre><code>//3.交换方法实现
+void exchangeMethodImplementation() {
+    Method eatMethod = class_getInstanceMethod([Person class], @selector(eat));
+    Method sleepMethod = class_getInstanceMethod([Person class], @selector(sleep));
+    method_exchangeImplementations(eatMethod, sleepMethod);
+    Person *person = [Person new];
+    person.name = @&quot;Tom&quot;;
+    [person eat];
+    [person sleep];
+}
+</code></pre><h4 id="3-实现分类也可以增加属性"><a href="#3-实现分类也可以增加属性" class="headerlink" title="3.实现分类也可以增加属性"></a>3.实现分类也可以增加属性</h4><p>利用Associated Object可以实现分类添加属性。可以参考之前的博客:<a href="http://iosdevp.github.io/blog/2016/07/11/Objective-C%20Runtime之Associated%20Objects.html" target="_blank" rel="noopener">Objective-C Runtime之Associated Objects</a></p>
+<h4 id="4-实现NSCoding的自动归档和自动解档"><a href="#4-实现NSCoding的自动归档和自动解档" class="headerlink" title="4.实现NSCoding的自动归档和自动解档"></a>4.实现NSCoding的自动归档和自动解档</h4><p>自定义模型要实现归档和解档需要实现<code>NSCoding</code>协议的<code>- (instancetype)initWithCoder:(NSCoder *)aDecoder</code>和<code>- (void)encodeWithCoder:(NSCoder *)aCoder</code>方法。<br>比如：Person类有名字、年龄、身高和体重4个属性：</p>
+<pre><code>@interface Person : NSObject
+@property (copy, nonatomic) NSString *name;  ///&lt; 名字
+@property (assign, nonatomic) NSInteger age;  ///&lt; 年龄
+@property (assign, nonatomic) float height;  ///&lt; 身高
+@property (assign, nonatomic) float width;  ///&lt; 体重
+@end
+</code></pre><p>通常归档和解档时的实现方式是这样的：</p>
+<pre><code>//解档
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super init]) {
+        _name = [aDecoder decodeObjectForKey:@&quot;name&quot;];
+        _age = [aDecoder decodeIntegerForKey:@&quot;age&quot;];
+        _height = [aDecoder decodeFloatForKey:@&quot;height&quot;];
+        _width = [aDecoder decodeFloatForKey:@&quot;width&quot;];
+    }
+    return self;
+}
+//归档
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    [aCoder encodeObject:_name forKey:@&quot;name&quot;];
+    [aCoder encodeInteger:_age forKey:@&quot;age&quot;];
+    [aCoder encodeFloat:_height forKey:@&quot;height&quot;];
+    [aCoder encodeFloat:_width forKey:@&quot;width&quot;];
+}
+</code></pre><p>一旦模型类的属性多时，这种重复劳动显得毫无意义。既然模型类继承自NSOject类，我们可以给NSObject增加<code>实现自动归档和解档功能的分类</code>，从而一劳永逸。</p>
+<pre><code>//NSObject+AutoArchive.h
+#import &lt;Foundation/Foundation.h&gt;
+
+//将归解档两个方法定义为宏，方便调用
+#define  NSOBJECT_AUTOARCHIVE_METHOD \
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {\
+    if (self = [super init]) {\
+        [self decode:aDecoder];\
+    }\
+    return self;\
+}\
+\
+- (void)encodeWithCoder:(NSCoder *)aCoder {\
+    [self encode:aCoder];\
+}
+
+@interface NSObject (AutoArchive)
+//不需要归解档的属性数组
+- (NSArray *)ignoredPropertyNames;
+//Archiver
+- (void)encode:(NSCoder *)aCoder;
+//Unarchiver
+- (void)decode:(NSCoder *)aDecoder;
+@end
+
+//NSObject+AutoArchive.m
+#import &quot;NSObject+AutoArchive.h&quot;
+#import &lt;objc/runtime.h&gt;
+
+@implementation NSObject (AutoArchive)
+
+- (NSArray *)ignoredPropertyNames {
+    return nil;
+}
+
+- (void)encode:(NSCoder *)aCoder {
+    // 一层层父类往上查找，对父类的属性执行归档方法
+    Class c = self.class;
+    while (c &amp;&amp;c != [NSObject class]) {
+        unsigned int count = 0;
+        Ivar *ivars = class_copyIvarList([self class], &amp;count);
+        for (int i = 0; i &lt; count; ++i) {
+            Ivar ivar = ivars[i];
+            NSString *ivarName = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+            if ([self respondsToSelector:@selector(ignoredPropertyNames)]) {
+                if ([[self ignoredPropertyNames] containsObject:ivarName]) {
+                    continue;
+                }
+            }
+            //        ivarName = [ivarName substringFromIndex:1];
+            id value = [self valueForKey:ivarName];
+            [aCoder encodeObject:value forKey:ivarName];
+        }
+        free(ivars);
+        c = [c superclass];
+    }
+}
+
+- (void)decode:(NSCoder *)aDecoder {
+    // 一层层父类往上查找，对父类的属性执行解档方法
+    Class c = self.class;
+    while (c &amp;&amp;c != [NSObject class]) {
+        unsigned int count = 0;
+        Ivar *ivars = class_copyIvarList([self class], &amp;count);
+        for (int i = 0; i &lt; count; ++i) {
+            Ivar ivar = ivars[i];
+            NSString *ivarName = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+            if ([self respondsToSelector:@selector(ignoredPropertyNames)]) {
+                if ([[self ignoredPropertyNames] containsObject:ivarName]) {
+                    continue;
+                }
+            }
+            //        ivarName = [ivarName substringFromIndex:1];
+            id value = [aDecoder decodeObjectForKey:ivarName];
+            [self setValue:value forKey:ivarName];
+        }
+        free(ivars);
+        c = [c superclass];
+    }
+}
+@end
+</code></pre><p>于是乎，Person类的归档和解档就可以这样写：</p>
+<pre><code>#import &quot;Person.h&quot;
+#import &quot;NSObject+AutoArchive.h&quot;
+
+@interface Person ()&lt;NSCoding&gt;
+@end
+
+@implementation Person
+NSOBJECT_AUTOARCHIVE_METHOD
+@end
+</code></pre><p>是不是变得很简洁了啊，如果有不需要归解档的属性就实现ignoredPropertyNames方法。源码可以参考这里。</p>
+<h4 id="5-实现字典和模型的自动转换"><a href="#5-实现字典和模型的自动转换" class="headerlink" title="5.实现字典和模型的自动转换"></a>5.实现字典和模型的自动转换</h4><p>字典转模型的应用可以说是每个app必然会使用的场景,实现原理大概是：利用runtime遍历模型中所有属性，根据属性名，去字典中查找key，取出对应的值，给模型的属性赋值(ps:也可以使用KVC的<code>setValuesForKeysWithDictionary:</code>方法来字典转模型，但对于属性是其他模型或者模型数组的情况，我们需要重写<code>setValue:forUndefinedKey:</code>方法来判断key,防止crash,这样是不是还复杂一些、效率更低呢)。</p>
+<p>字典转模型我们需要考虑三种特殊情况：</p>
+<ol>
+<li>当字典的key和模型的属性匹配不上</li>
+<li>模型中嵌套模型（模型属性是另外一个模型对象）</li>
+<li>数组中装着模型（模型的属性是一个数组，数组中是一个个模型对象）</li>
+</ol>
+<p>对于第一种情况，若模型属性个数小于字典键值数，这时候不需要任何处理，因为runtime是先遍历模型所有属性，再去字典中根据属性名找对应值进行赋值，多余的键值对不会去遍历；若模型属性个数大于字典键值数，在字典中取不到值，利用kvc赋值nil时会抛出异常,所以要判断一下，取值为nil时，直接跳过。代码如下：</p>
+<pre><code>- (void)setDict:(NSDictionary *)dict {
+    unsigned int count = 0;
+    Ivar *ivars = class_copyIvarList([self class], &amp;count);
+    for (int i = 0; i &lt; count; ++i) {
+        Ivar ivar = ivars[i];
+        NSString *ivarName = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+        // 成员变量名转为属性名（去掉下划线 _ ）
+        ivarName = [ivarName substringFromIndex:1];
+        // 取出字典的值
+        id value = [dict objectForKey:ivarName];
+        if (!value) {//取值为nil时，直接跳过
+            continue;
+        }//kvc赋值
+        [self setValue:value forKey:ivarName];
+    }
+    free(ivars);
+}
+</code></pre><p>对于第二种情况，我们要取得嵌套模型的类型，然后递归生成模型对象再赋值给外层模型的对应模型属性，runtime的ivar_getTypeEncoding 方法获取模型对象类型，比如<code>NSString *name</code>–对应–&gt;<code>@&quot;NSString&quot;</code>, <code>Person *p</code>–对应–&gt;<code>@&quot;Person&quot;</code>, <code>NSInteger age</code>–对应–&gt;<code>i</code>(可参看runtime type encoding)。注意的是，这里要剔除Foundation框架的以NS为前缀的类。代码如下：</p>
+<pre><code>- (void)setDict:(NSDictionary *)dict {
+    unsigned int count = 0;
+    Ivar *ivars = class_copyIvarList([self class], &amp;count);
+    for (int i = 0; i &lt; count; ++i) {
+        Ivar ivar = ivars[i];
+        NSString *ivarName = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+        // 成员变量名转为属性名（去掉下划线 _ ）
+        ivarName = [ivarName substringFromIndex:1];
+        // 取出字典的值
+        id value = [dict objectForKey:ivarName];
+        if (!value) {//取值为nil时，直接跳过
+            continue;
+        }
+        // 获得成员变量的类型
+        NSString *ivarType = [NSString stringWithCString:ivar_getTypeEncoding(ivar) encoding:NSUTF8StringEncoding];
+        if ([ivarType hasPrefix:@&quot;@&quot;]) { //是对象
+            ivarType = [ivarType substringWithRange:NSMakeRange(2, ivarType.length-3)]; //@&quot;Person&quot;-----&gt;Person
+            if (![ivarType hasPrefix:@&quot;NS&quot;]) {//去除NS类
+                Class class = NSClassFromString(ivarType);
+                value =  [class objectWithDict:value];
+            }
+        }
+        //kvc赋值
+        [self setValue:value forKey:ivarName];
+    }
+    free(ivars);
+}
+</code></pre><p>第三种情况是模型的属性是一个数组，数组中是一个个模型对象,对象类型未知，调用<code>objectClassName</code>方法获取对象类型，然后递归创建对象类型，加入数组中，最后赋值给外层模型的数组属性，代码如下：</p>
+<pre><code>- (void)setDict:(NSDictionary *)dict {
+    unsigned int count = 0;
+    Ivar *ivars = class_copyIvarList([self class], &amp;count);
+    for (int i = 0; i &lt; count; ++i) {
+        Ivar ivar = ivars[i];
+        NSString *ivarName = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+        // 成员变量名转为属性名（去掉下划线 _ ）
+        ivarName = [ivarName substringFromIndex:1];
+        // 取出字典的值
+        id value = [dict objectForKey:ivarName];
+        if (!value) {//取值为nil时，直接跳过
+            continue;
+        }
+        // 获得成员变量的类型
+        NSString *ivarType = [NSString stringWithCString:ivar_getTypeEncoding(ivar) encoding:NSUTF8StringEncoding];
+        if ([ivarType hasPrefix:@&quot;@&quot;]) { //是对象
+            ivarType = [ivarType substringWithRange:NSMakeRange(2, ivarType.length-3)]; //@&quot;Person&quot;-----&gt;Person
+            if (![ivarType hasPrefix:@&quot;NS&quot;]) {//去除NS类
+                Class class = NSClassFromString(ivarType);
+                value =  [class objectWithDict:value];
+            } else if ([ivarType isEqualToString:@&quot;NSArray&quot;]) {//数组
+                if ([self respondsToSelector:@selector(objectClassName)]) {
+                    NSString *objectClassName = [self objectClassName];
+                    if (objectClassName) {
+                        Class class = NSClassFromString(objectClassName);
+                        NSMutableArray *arr = [NSMutableArray array];
+                        for (id item in value) {
+                            [arr addObject:[class objectWithDict:item]];
+                        }
+                        value = arr;
+                    }
+                }
+            }
+        }
+        //kvc赋值
+        [self setValue:value forKey:ivarName];
+    }
+    free(ivars);
+}
+</code></pre><p>就像归档一样，可以增加<code>Class c = self.class;
+        while (c &amp;&amp;c != [NSObject class]) {...c = [c superclass]};</code>来从子类到父类进行字典转换。</p>
+<h5 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h5><p><a href="https://github.com/Tuccuay/RuntimeSummary" target="_blank" rel="noopener">https://github.com/Tuccuay/RuntimeSummary</a></p>
+<p><a href="https://github.com/mantle/mantle" target="_blank" rel="noopener">Mantle</a> </p>
+<p>JSONModel</p>
+<p>MJExtension</p>
+<p>YYModel</p>
+<p><a href="https://segmentfault.com/a/1190000003882034" target="_blank" rel="noopener">https://segmentfault.com/a/1190000003882034</a></p>
+<p><a href="http://www.jianshu.com/p/ab966e8a82e2" target="_blank" rel="noopener">http://www.jianshu.com/p/ab966e8a82e2</a></p>
+<p><a href="http://www.jianshu.com/p/46dd81402f63" target="_blank" rel="noopener">http://www.jianshu.com/p/46dd81402f63</a></p>
+<p><a href="http://www.jianshu.com/p/8916ad5662a2" target="_blank" rel="noopener">http://www.jianshu.com/p/8916ad5662a2</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/runtime实践/" rel="tag"># runtime实践</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/07/15/OC Runtime之Method Swizzling.html" rel="next" title="OC Runtime之Method Swizzling">
+                <i class="fa fa-chevron-left"></i> OC Runtime之Method Swizzling
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/08/30/iOS 3D Touch使用简介.html" rel="prev" title="iOS 3D Touch使用简介">
+                iOS 3D Touch使用简介 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实践"><span class="nav-number">2.</span> <span class="nav-text">实践</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-动态的添加成员变量和方法-修改成员变量值"><span class="nav-number">2.1.</span> <span class="nav-text">1.动态的添加成员变量和方法,修改成员变量值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-交换方法的实现-拦截并替换方法"><span class="nav-number">2.2.</span> <span class="nav-text">2.交换方法的实现,拦截并替换方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-实现分类也可以增加属性"><span class="nav-number">2.3.</span> <span class="nav-text">3.实现分类也可以增加属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-实现NSCoding的自动归档和自动解档"><span class="nav-number">2.4.</span> <span class="nav-text">4.实现NSCoding的自动归档和自动解档</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-实现字典和模型的自动转换"><span class="nav-number">2.5.</span> <span class="nav-text">5.实现字典和模型的自动转换</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#参考"><span class="nav-number">2.5.1.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2016/07/19/OC Runtime实践.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

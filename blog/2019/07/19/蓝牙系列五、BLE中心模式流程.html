@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="BLE中心模式流程-codingBLE中心模式流程 1.建立中心角色 2.扫描外设(Discover Peripheral) 3.连接外设(Connect Peripheral) 4.扫描外设中的服务和特征(Discover Services And Characteristics) 4.1 获取外设的services 4.2 获取外设的Characteristics,获取characterist">
+<meta name="keywords" content="蓝牙">
+<meta property="og:type" content="article">
+<meta property="og:title" content="蓝牙系列五、BLE中心模式流程">
+<meta property="og:url" content="http://foerst.github.io/blog/2019/07/19/蓝牙系列五、BLE中心模式流程.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="BLE中心模式流程-codingBLE中心模式流程 1.建立中心角色 2.扫描外设(Discover Peripheral) 3.连接外设(Connect Peripheral) 4.扫描外设中的服务和特征(Discover Services And Characteristics) 4.1 获取外设的services 4.2 获取外设的Characteristics,获取characterist">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/07/19/Snip20150928_5.png">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.654Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="蓝牙系列五、BLE中心模式流程">
+<meta name="twitter:description" content="BLE中心模式流程-codingBLE中心模式流程 1.建立中心角色 2.扫描外设(Discover Peripheral) 3.连接外设(Connect Peripheral) 4.扫描外设中的服务和特征(Discover Services And Characteristics) 4.1 获取外设的services 4.2 获取外设的Characteristics,获取characterist">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2019/07/19/Snip20150928_5.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2019/07/19/蓝牙系列五、BLE中心模式流程.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>蓝牙系列五、BLE中心模式流程 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2019/07/19/蓝牙系列五、BLE中心模式流程.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">蓝牙系列五、BLE中心模式流程
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-07-19 00:00:00" itemprop="dateCreated datePublished" datetime="2019-07-19T00:00:00+08:00">2019-07-19</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/蓝牙/" itemprop="url" rel="index"><span itemprop="name">蓝牙</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="BLE中心模式流程-coding"><a href="#BLE中心模式流程-coding" class="headerlink" title="BLE中心模式流程-coding"></a>BLE中心模式流程-coding</h1><h2 id="BLE中心模式流程"><a href="#BLE中心模式流程" class="headerlink" title="BLE中心模式流程"></a>BLE中心模式流程</h2><ul>
+<li>1.建立中心角色</li>
+<li>2.扫描外设(Discover Peripheral)</li>
+<li>3.连接外设(Connect Peripheral)</li>
+<li>4.扫描外设中的服务和特征(Discover Services And Characteristics)<ul>
+<li>4.1 获取外设的services</li>
+<li>4.2 获取外设的Characteristics,获取characteristics的值,,获取Characteristics的Descriptor和Descriptor的值</li>
+</ul>
+</li>
+<li>5.利用特征与外设做数据交互(Explore And Interact)</li>
+<li>6.订阅Characteristic的通知</li>
+<li>7.断开连接(Disconnect)</li>
+</ul>
+<a id="more"></a>
+<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><ul>
+<li>1.Xcode7.0</li>
+<li>2.手机</li>
+<li>3.外设(手机+LightBlue)</li>
+</ul>
+<h2 id="实现步骤"><a href="#实现步骤" class="headerlink" title="实现步骤"></a>实现步骤</h2><h4 id="1-导入CB头文件-建立主设备管理类-设置主设备代理"><a href="#1-导入CB头文件-建立主设备管理类-设置主设备代理" class="headerlink" title="1.导入CB头文件,建立主设备管理类,设置主设备代理"></a>1.导入CB头文件,建立主设备管理类,设置主设备代理</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">&lt;CoreBluetooth/CoreBluetooth.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">XMGBLEController</span> () &lt;<span class="title">CBCentralManagerDelegate</span>&gt;</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) CBCentralManager *cMgr; <span class="comment">/**&lt; 中心管理设备 */</span></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">XMGBLEController</span></span></span><br><span class="line"><span class="meta">#pragma mark - 懒加载</span></span><br><span class="line"><span class="comment">// 1.建立中心管理者</span></span><br><span class="line">- (CBCentralManager *)cMgr</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!_cMgr) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         设置主设备的代理,CBCentralManagerDelegate</span></span><br><span class="line"><span class="comment">         必须实现的：</span></span><br><span class="line"><span class="comment">         - (void)centralManagerDidUpdateState:(CBCentralManager *)central;//主设备状态改变调用，在初始化CBCentralManager的适合会打开设备，只有当设备正确打开后才能使用</span></span><br><span class="line"><span class="comment">         其他选择实现的委托中比较重要的：</span></span><br><span class="line"><span class="comment">         - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI; //找到外设</span></span><br><span class="line"><span class="comment">         - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral;//连接外设成功</span></span><br><span class="line"><span class="comment">         - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error;//外设连接失败</span></span><br><span class="line"><span class="comment">         - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error;//断开外设</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        _cMgr = [[CBCentralManager alloc] initWithDelegate:<span class="keyword">self</span> queue:dispatch_get_main_queue()]; <span class="comment">// 线程不传默认是主线程</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> _cMgr;</span><br><span class="line">&#125;</span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line">    <span class="keyword">self</span>.title = <span class="string">@"BLE"</span>;</span><br><span class="line">    <span class="keyword">self</span>.view.backgroundColor = [<span class="built_in">UIColor</span> orangeColor];</span><br><span class="line">    <span class="comment">// 初始化</span></span><br><span class="line">    [<span class="keyword">self</span> cMgr];</span><br><span class="line">    <span class="comment">// 不能在此处扫描,因为状态还没变为打开</span></span><br><span class="line">    <span class="comment">//[self.cMgr scanForPeripheralsWithServices:nil options:nil];</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-扫描外设"><a href="#2-扫描外设" class="headerlink" title="2.扫描外设"></a>2.扫描外设</h4><ul>
+<li>扫描的方法防治cMgr成功打开的代理方法中</li>
+<li>只有设备成功打开,才能开始扫描,否则会报错</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#pragma mark - CBCentralManagerDelegate</span></span><br><span class="line"><span class="comment">// 中心管理者状态改变, 在初始化CBCentralManager的时候会打开设备，只有当设备正确打开后才能使用</span></span><br><span class="line">- (<span class="keyword">void</span>)centralManagerDidUpdateState:(CBCentralManager *)central</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">    <span class="keyword">switch</span> (central.state) &#123;</span><br><span class="line">        <span class="keyword">case</span> CBCentralManagerStateUnknown:</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"&gt;&gt;&gt;CBCentralManagerStateUnknown"</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> CBCentralManagerStateResetting:</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"&gt;&gt;&gt;CBCentralManagerStateResetting"</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> CBCentralManagerStateUnsupported:</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"&gt;&gt;&gt;CBCentralManagerStateUnsupported"</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> CBCentralManagerStateUnauthorized:</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"&gt;&gt;&gt;CBCentralManagerStateUnauthorized"</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> CBCentralManagerStatePoweredOff:</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"&gt;&gt;&gt;CBCentralManagerStatePoweredOff"</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> CBCentralManagerStatePoweredOn:</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"&gt;&gt;&gt;CBCentralManagerStatePoweredOn"</span>);</span><br><span class="line">            <span class="comment">// 2.开始扫描周围的外设</span></span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">             第一个参数nil就是扫描周围所有的外设，扫描到外设后会进入</span></span><br><span class="line"><span class="comment">             - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI;</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            [<span class="keyword">self</span>.cMgr scanForPeripheralsWithServices:<span class="literal">nil</span> options:<span class="literal">nil</span>];</span><br><span class="line"></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 扫描到设备会进入到此代理方法</span></span><br><span class="line">- (<span class="keyword">void</span>)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(<span class="built_in">NSDictionary</span>&lt;<span class="built_in">NSString</span> *,<span class="keyword">id</span>&gt; *)advertisementData RSSI:(<span class="built_in">NSNumber</span> *)RSSI</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d, per = %@, data = %@, rssi = %@"</span>, __FUNCTION__, __LINE__, peripheral, advertisementData, RSSI);</span><br><span class="line">    <span class="comment">// 接下来连接设备</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-连接外设"><a href="#3-连接外设" class="headerlink" title="3.连接外设"></a>3.连接外设</h4><ul>
+<li>扫描手环,打印结果<br><img src="/blog/2019/07/19/Snip20150928_5.png" alt="图4.2.1"></li>
+<li>根据打印结果</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 扫描到设备会进入到此代理方法</span></span><br><span class="line">- (<span class="keyword">void</span>)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(<span class="built_in">NSDictionary</span>&lt;<span class="built_in">NSString</span> *,<span class="keyword">id</span>&gt; *)advertisementData RSSI:(<span class="built_in">NSNumber</span> *)RSSI</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d, per = %@, data = %@, rssi = %@"</span>, __FUNCTION__, __LINE__, peripheral, advertisementData, RSSI);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3.接下来可以连接设备</span></span><br><span class="line">    <span class="comment">//如果你没有设备，可以下载一个app叫lightbule的app去模拟一个设备</span></span><br><span class="line">    <span class="comment">//这里自己去设置下连接规则，我设置的是二维码扫描到的运动手环的设备号</span></span><br><span class="line">    <span class="comment">// 判断设备号是否扫描到</span></span><br><span class="line">    <span class="keyword">if</span> ([peripheral.name isEqualToString:<span class="string">@"OBand-75"</span>]) &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         一个主设备最多能连7个外设，每个外设最多只能给一个主设备连接,连接成功，失败，断开会进入各自的委托</span></span><br><span class="line"><span class="comment">         - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral;//连接外设成功的委托</span></span><br><span class="line"><span class="comment">         - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error;//外设连接失败的委托</span></span><br><span class="line"><span class="comment">         - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error;//断开外设的委托</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="comment">// 保存外设,否则方法结束就销毁</span></span><br><span class="line">        <span class="keyword">self</span>.per = peripheral;</span><br><span class="line">        [<span class="keyword">self</span>.cMgr connectPeripheral:<span class="keyword">self</span>.per options:<span class="literal">nil</span>];</span><br><span class="line">    &#125;<span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 此处Alert提示未扫描到设备,重新扫描</span></span><br><span class="line"><span class="meta">#warning noCode</span></span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"没扫描到 &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;  %s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 外设连接成功</span></span><br><span class="line">- (<span class="keyword">void</span>)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"&gt;&gt;&gt;连接到名称为（%@）的设备-成功"</span>,peripheral.name);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 外设连接失败</span></span><br><span class="line">- (<span class="keyword">void</span>)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(<span class="built_in">NSError</span> *)error</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 断开连接(丢失连接)</span></span><br><span class="line">- (<span class="keyword">void</span>)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(<span class="built_in">NSError</span> *)error</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="4-扫描外设中的服务和特征"><a href="#4-扫描外设中的服务和特征" class="headerlink" title="4.扫描外设中的服务和特征"></a>4.扫描外设中的服务和特征</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">设备链接成功后,就可以扫描设备的服务(services)了,同样是通过代理,扫描到结果后会触发某代理方法.</span><br><span class="line">注意:此时CBCentralManagerDelegate已经不能满足需求,需要新的CBPeripheralDelegate来搞定.</span><br><span class="line">该协议中包含了central与peripheral的许多回调方法</span><br><span class="line">(eg.:获取services,获取characteristics,获取characteristics的值,获取characteristics的Descriptor以及Descriptor的值,写数据,读RSSI,用通知的方式订阅数据等等).</span><br></pre></td></tr></table></figure>
+<ul>
+<li>4.1 获取外设的services<ul>
+<li>首先设置外设的代理,并搜寻services</li>
+<li>然后在代理方法<code>peripheral:didDiscoverServices:</code>中遍历services</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 外设连接成功</span></span><br><span class="line">- (<span class="keyword">void</span>)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"&gt;&gt;&gt;连接到名称为（%@）的设备-成功"</span>,peripheral.name);</span><br><span class="line">    <span class="comment">//设置的peripheral代理CBPeripheralDelegate</span></span><br><span class="line">    <span class="comment">//@interface ViewController : UIViewController&lt;CBCentralManagerDelegate,CBPeripheralDelegate&gt;</span></span><br><span class="line">    [peripheral setDelegate:<span class="keyword">self</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">//扫描外设Services，成功后会进入方法：-(void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error&#123;</span></span><br><span class="line">    [peripheral discoverServices:<span class="literal">nil</span>];</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     Discovers the specified services of the peripheral.</span></span><br><span class="line"><span class="comment">     An array of CBUUID objects that you are interested in. Here, each CBUUID object represents a UUID that identifies the type of service you want to discover.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#pragma mark - CBPeripheralDelegate</span></span><br><span class="line"><span class="comment">// 发现外设的service</span></span><br><span class="line">- (<span class="keyword">void</span>)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(<span class="built_in">NSError</span> *)error</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (error)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"&gt;&gt;&gt;Discovered services for %@ with error: %@"</span>, peripheral.name, [error localizedDescription]);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (CBService *service <span class="keyword">in</span> peripheral.services) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"service.UUID = %@"</span>, service.UUID);</span><br><span class="line">        <span class="comment">//扫描每个service的Characteristics，扫描到后会进入方法： -(void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error</span></span><br><span class="line">        [peripheral discoverCharacteristics:<span class="literal">nil</span> forService:service];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>4.2 获取外设的characteris,获取Characteristics的值,获取Characteristics的Descriptor以及Descriptor的值</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 外设发现service的特征</span></span><br><span class="line">- (<span class="keyword">void</span>)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(<span class="built_in">NSError</span> *)error</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (error)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"error Discovered characteristics for %@ with error: %@"</span>, service.UUID, [error localizedDescription]);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (CBCharacteristic *characteristic <span class="keyword">in</span> service.characteristics)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"service:%@ 的 Characteristic: %@"</span>,service.UUID,characteristic.UUID);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#warning noCodeFor 优化,分开写是为了让大家看注释清晰,并不符合编码规范</span></span><br><span class="line">    <span class="comment">//获取Characteristic的值，读到数据会进入方法：-(void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error</span></span><br><span class="line">    <span class="keyword">for</span> (CBCharacteristic *characteristic <span class="keyword">in</span> service.characteristics)&#123;</span><br><span class="line">        [peripheral readValueForCharacteristic:characteristic]; <span class="comment">// 外设读取特征的值</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//搜索Characteristic的Descriptors，读到数据会进入方法：-(void)peripheral:(CBPeripheral *)peripheral didDiscoverDescriptorsForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error</span></span><br><span class="line">    <span class="keyword">for</span> (CBCharacteristic *characteristic <span class="keyword">in</span> service.characteristics)&#123;</span><br><span class="line">        [peripheral discoverDescriptorsForCharacteristic:characteristic]; <span class="comment">// 外设发现特征的描述</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取characteristic的值</span></span><br><span class="line">- (<span class="keyword">void</span>)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(<span class="keyword">nonnull</span> CBCharacteristic *)characteristic error:(<span class="keyword">nullable</span> <span class="built_in">NSError</span> *)error</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//打印出characteristic的UUID和值</span></span><br><span class="line">    <span class="comment">//!注意，value的类型是NSData，具体开发时，会根据外设协议制定的方式去解析数据</span></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d, characteristic.UUID:%@  value:%@"</span>, __FUNCTION__, __LINE__, characteristic.UUID, characteristic.value);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 获取Characteristics的 descriptor的值</span></span><br><span class="line">- (<span class="keyword">void</span>)peripheral:(CBPeripheral *)peripheral didUpdateValueForDescriptor:(<span class="keyword">nonnull</span> CBDescriptor *)descriptor error:(<span class="keyword">nullable</span> <span class="built_in">NSError</span> *)error</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//打印出DescriptorsUUID 和value</span></span><br><span class="line">    <span class="comment">//这个descriptor都是对于characteristic的描述，一般都是字符串，所以这里我们转换成字符串去解析</span></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d, descriptor.UUID:%@ value:%@"</span>, __FUNCTION__, __LINE__, descriptor.UUID, descriptor.value);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 发现特征Characteristics的描述Descriptor</span></span><br><span class="line">- (<span class="keyword">void</span>)peripheral:(CBPeripheral *)peripheral didDiscoverDescriptorsForCharacteristic:(<span class="keyword">nonnull</span> CBCharacteristic *)characteristic error:(<span class="keyword">nullable</span> <span class="built_in">NSError</span> *)error</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">    <span class="keyword">for</span> (CBDescriptor *descriptor <span class="keyword">in</span> characteristic.descriptors) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"descriptor.UUID:%@"</span>,descriptor.UUID);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="5-写数据到特征中"><a href="#5-写数据到特征中" class="headerlink" title="5.写数据到特征中"></a>5.写数据到特征中</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 5.将数据写入特征(自定义方法,为了看的更清楚,没别的意思)</span></span><br><span class="line">- (<span class="keyword">void</span>)yf_peripheral:(CBPeripheral *)peripheral writeData:(<span class="built_in">NSData</span> *)data forCharacteristic:(CBCharacteristic *)characteristic</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    typedef NS_OPTIONS(NSUInteger, CBCharacteristicProperties) &#123;</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyBroadcast												= 0x01,</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyRead													= 0x02,</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyWriteWithoutResponse									= 0x04,</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyWrite													= 0x08,</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyNotify													= 0x10,</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyIndicate												= 0x20,</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyAuthenticatedSignedWrites								= 0x40,</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyExtendedProperties										= 0x80,</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyNotifyEncryptionRequired NS_ENUM_AVAILABLE(NA, 6_0)		= 0x100,</span></span><br><span class="line"><span class="comment">        CBCharacteristicPropertyIndicateEncryptionRequired NS_ENUM_AVAILABLE(NA, 6_0)	= 0x200</span></span><br><span class="line"><span class="comment">    &#125;;</span></span><br><span class="line"><span class="comment">     打印出特征的权限(characteristic.properties),可以看到有很多种,这是一个NS_OPTIONS的枚举,可以是多个值</span></span><br><span class="line"><span class="comment">     常见的又read,write,noitfy,indicate.知道这几个基本够用了,前俩是读写权限,后俩都是通知,俩不同的通知方式</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d, characteristic.properties:%d"</span>, __FUNCTION__, __LINE__, characteristic.properties);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只有特征的properties中有写的属性时候,才写</span></span><br><span class="line">    <span class="keyword">if</span> (characteristic.properties &amp; CBCharacteristicPropertyWrite) &#123;</span><br><span class="line">        <span class="comment">// 这句才是正宗的核心代码</span></span><br><span class="line">        [peripheral writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="6-订阅特征的通知"><a href="#6-订阅特征的通知" class="headerlink" title="6.订阅特征的通知"></a>6.订阅特征的通知</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置通知</span></span><br><span class="line">- (<span class="keyword">void</span>)yf_peripheral:(CBPeripheral *)peripheral setNotifyForCharacteristic:(CBCharacteristic *)characteristic</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 设置通知, 数据会进入 peripheral:didUpdateValueForCharacteristic:error:方法</span></span><br><span class="line">    [peripheral setNotifyValue:<span class="literal">YES</span> forCharacteristic:characteristic];</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 取消通知</span></span><br><span class="line">- (<span class="keyword">void</span>)yf_peripheral:(CBPeripheral *)peripheral cancelNotifyForCharacteristic:(CBCharacteristic *)characteristic</span><br><span class="line">&#123;</span><br><span class="line">    [peripheral setNotifyValue:<span class="literal">NO</span> forCharacteristic:characteristic];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="7-断开连接"><a href="#7-断开连接" class="headerlink" title="7.断开连接"></a>7.断开连接</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 7.断开连接</span></span><br><span class="line">- (<span class="keyword">void</span>)yf_cMgr:(CBCentralManager *)cMgr stopScanAndDisConnectWithPeripheral:(CBPeripheral *)peripheral</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 停止扫描</span></span><br><span class="line">    [cMgr stopScan];</span><br><span class="line">    <span class="comment">// 断开连接</span></span><br><span class="line">    [cMgr cancelPeripheralConnection:peripheral];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/蓝牙/" rel="tag"># 蓝牙</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/07/18/蓝牙系列四、蓝牙相关基础知识.html" rel="next" title="蓝牙系列四、蓝牙相关基础知识">
+                <i class="fa fa-chevron-left"></i> 蓝牙系列四、蓝牙相关基础知识
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/07/20/蓝牙系列六、BLE外设模式流程.html" rel="prev" title="蓝牙系列六、BLE外设模式流程">
+                蓝牙系列六、BLE外设模式流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BLE中心模式流程-coding"><span class="nav-number">1.</span> <span class="nav-text">BLE中心模式流程-coding</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE中心模式流程"><span class="nav-number">1.1.</span> <span class="nav-text">BLE中心模式流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#准备环境"><span class="nav-number">1.2.</span> <span class="nav-text">准备环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现步骤"><span class="nav-number">1.3.</span> <span class="nav-text">实现步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-导入CB头文件-建立主设备管理类-设置主设备代理"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">1.导入CB头文件,建立主设备管理类,设置主设备代理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-扫描外设"><span class="nav-number">1.3.0.2.</span> <span class="nav-text">2.扫描外设</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-连接外设"><span class="nav-number">1.3.0.3.</span> <span class="nav-text">3.连接外设</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-扫描外设中的服务和特征"><span class="nav-number">1.3.0.4.</span> <span class="nav-text">4.扫描外设中的服务和特征</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-写数据到特征中"><span class="nav-number">1.3.0.5.</span> <span class="nav-text">5.写数据到特征中</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-订阅特征的通知"><span class="nav-number">1.3.0.6.</span> <span class="nav-text">6.订阅特征的通知</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-断开连接"><span class="nav-number">1.3.0.7.</span> <span class="nav-text">7.断开连接</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2019/07/19/蓝牙系列五、BLE中心模式流程.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

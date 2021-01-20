@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="iBeacon简介 iBeacon起源:苹果在WWDC2013上正式推出了iBeacon,并且在iOS7设备商配置了该功能 iBeacon应用:苹果期望将其作为一种技术标准,这个标准允许移动App(包括iOS和Android设备)监听来自于iBeacon设备上的信号并作出响应. iBeacon设备:配备有BLE通信功能,并使用BLE向周围发送自己特有的ID,移动设备上的App在接收到该ID后可以作">
+<meta name="keywords" content="蓝牙">
+<meta property="og:type" content="article">
+<meta property="og:title" content="蓝牙系列七、iBeacon">
+<meta property="og:url" content="http://foerst.github.io/blog/2019/07/21/蓝牙系列七、iBeacon.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="iBeacon简介 iBeacon起源:苹果在WWDC2013上正式推出了iBeacon,并且在iOS7设备商配置了该功能 iBeacon应用:苹果期望将其作为一种技术标准,这个标准允许移动App(包括iOS和Android设备)监听来自于iBeacon设备上的信号并作出响应. iBeacon设备:配备有BLE通信功能,并使用BLE向周围发送自己特有的ID,移动设备上的App在接收到该ID后可以作">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.655Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="蓝牙系列七、iBeacon">
+<meta name="twitter:description" content="iBeacon简介 iBeacon起源:苹果在WWDC2013上正式推出了iBeacon,并且在iOS7设备商配置了该功能 iBeacon应用:苹果期望将其作为一种技术标准,这个标准允许移动App(包括iOS和Android设备)监听来自于iBeacon设备上的信号并作出响应. iBeacon设备:配备有BLE通信功能,并使用BLE向周围发送自己特有的ID,移动设备上的App在接收到该ID后可以作">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2019/07/21/蓝牙系列七、iBeacon.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>蓝牙系列七、iBeacon | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2019/07/21/蓝牙系列七、iBeacon.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">蓝牙系列七、iBeacon
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-07-21 00:00:00" itemprop="dateCreated datePublished" datetime="2019-07-21T00:00:00+08:00">2019-07-21</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/蓝牙/" itemprop="url" rel="index"><span itemprop="name">蓝牙</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="iBeacon简介"><a href="#iBeacon简介" class="headerlink" title="iBeacon简介"></a>iBeacon简介</h1><ul>
+<li>iBeacon起源:苹果在WWDC2013上正式推出了iBeacon,并且在iOS7设备商配置了该功能</li>
+<li>iBeacon应用:苹果期望将其作为一种技术标准,这个标准允许移动App(包括iOS和Android设备)监听来自于iBeacon设备上的信号并作出响应.</li>
+<li>iBeacon设备:配备有BLE通信功能,并使用BLE向周围发送自己特有的ID,移动设备上的App在接收到该ID后可以作出相应的反应.比如,我们在店铺里设置iBeacon发射器,便可以让应用接收到信息并将这一信息通知给服务器,服务器向我们的App返回与该店铺相关的产品或折扣信息.</li>
+<li>本质上讲,iBeacon技术允许App了解他们在某个局部范围内的位置,并向用户分发基于位置的超文本上下文内容.</li>
+</ul>
+<a id="more"></a>
+<h2 id="简单开发流程"><a href="#简单开发流程" class="headerlink" title="简单开发流程"></a>简单开发流程</h2><ul>
+<li>1.初始化iBeacon的区域,以及区域管理者</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">&lt;CoreLocation/CoreLocation.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">AppDelegate</span> () &lt;<span class="title">CLLocationManagerDelegate</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) <span class="built_in">CLBeaconRegion</span> *beaconRegion; <span class="comment">/**&lt; beacon区域 */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) <span class="built_in">CLLocationManager</span> *locMgr; <span class="comment">/**&lt; 位置管理者 */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">AppDelegate</span></span></span><br><span class="line"><span class="meta">#pragma mark - lazy</span></span><br><span class="line"><span class="comment">// 懒加载iBeacon区域</span></span><br><span class="line">- (<span class="built_in">CLBeaconRegion</span> *)beaconRegion</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!_beaconRegion) &#123;</span><br><span class="line">        <span class="built_in">NSUUID</span> *proximityUUID = [[<span class="built_in">NSUUID</span> alloc] initWithUUIDString:<span class="string">@"416C0120-5960-4280-A67C-A2A9BB166D0F"</span>];</span><br><span class="line">        _beaconRegion = [[<span class="built_in">CLBeaconRegion</span> alloc] initWithProximityUUID:proximityUUID</span><br><span class="line">                                                           identifier:<span class="string">@"brID"</span>];</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         *  一个App为了在特定商场提⾼高⽤用户体验,可⽤用使⽤用相同的proximity UUID来监听商场的所有商铺。当⽤用户进⼊入⼀一个商店时,App检测商铺的iBeacon设备并使⽤用major和 minor值来获取额外的信息,如⽤用户进⼊入哪家商店或⽤用户在商店的哪个区域(注意:虽然每个iBeacon都必须有⼀一个proximity UUID,但 major和minor的值是可选的)。</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> _beaconRegion;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 懒加载创建地域管理者</span></span><br><span class="line">- (<span class="built_in">CLLocationManager</span> *)locMgr</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!_locMgr) &#123;</span><br><span class="line">        _locMgr = [[<span class="built_in">CLLocationManager</span> alloc] init];</span><br><span class="line">        _locMgr.delegate = <span class="keyword">self</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> _locMgr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>2.进入退出时候的操作</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#pragma mark - CLLocationManagerDelegate</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 开始监听</span></span><br><span class="line">- (<span class="keyword">void</span>)locationManager:(<span class="built_in">CLLocationManager</span> *)manager didStartMonitoringForRegion:(<span class="built_in">CLRegion</span> *)region</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 进入监控的region区域</span></span><br><span class="line">- (<span class="keyword">void</span>)locationManager:(<span class="built_in">CLLocationManager</span> *)manager didEnterRegion:(<span class="built_in">CLRegion</span> *)region</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> ([region isEqual:<span class="keyword">self</span>.beaconRegion]) &#123;</span><br><span class="line">        <span class="comment">// Start calculating ranges for beacons in the specified region.</span></span><br><span class="line">        <span class="comment">// 开始计算beaconRegion区域内部的iBeacon设备数量,确定我们的设备与区域中的一个或多个iBeacon设备的相对距离,并在距离改变时被通知,触发代理 didRangeBeacons</span></span><br><span class="line">        [<span class="keyword">self</span>.locMgr startRangingBeaconsInRegion:<span class="keyword">self</span>.beaconRegion];</span><br><span class="line"></span><br><span class="line">        <span class="built_in">NSDictionary</span> *info = [<span class="keyword">self</span>.beaconRegion peripheralDataWithMeasuredPower:@<span class="number">0</span>];</span><br><span class="line">        <span class="comment">// 通知外设开启广播</span></span><br><span class="line">        [[<span class="built_in">NSNotificationCenter</span> defaultCenter] postNotificationName:<span class="string">@"didEnterRegionNotification"</span> object:<span class="literal">nil</span> userInfo:info];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 退出监控的region区域</span></span><br><span class="line">- (<span class="keyword">void</span>)locationManager:(<span class="built_in">CLLocationManager</span> *)manager didExitRegion:(<span class="built_in">CLRegion</span> *)region</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 外设关闭广播</span></span><br><span class="line">    <span class="comment">// 通知外设开启广播</span></span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] postNotificationName:<span class="string">@"didExitRegionNotification"</span> object:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当指定Beacon区域的iBeacon设备进⼊入范围、离开范围或相对距离改变时,CLLocationManager对象调⽤用代理对象的 locationManager:didRangeBeacons:inRegion:</span></span><br><span class="line">- (<span class="keyword">void</span>)locationManager:(<span class="built_in">CLLocationManager</span> *)manager didRangeBeacons:(<span class="built_in">NSArray</span>&lt;<span class="built_in">CLBeacon</span> *&gt; *)beacons inRegion:(<span class="built_in">CLBeaconRegion</span> *)region</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// beacons表⽰示当前设备范围内的iBeacon。</span></span><br><span class="line">    <span class="comment">// iBeacon的数组根据离设备的相对距离来排序,最近的在最前⾯面。</span></span><br><span class="line">    <span class="comment">// 我们可以使⽤用这些对象中的信息来确定⽤用户离每个iBeacon设备的距离。 CLBeacon对象(数组元素)的proximity属性给出了(手机)到⼀一个beacon的相对距离</span></span><br><span class="line">    <span class="comment">// 注意:iBeacon的排列依赖于检测到的BLE⽆无线信号的强度,以及这些信号受墙壁、门或其它物理实体的影响。当我们使⽤用iBeacon时需要考虑 这些影响因素。</span></span><br><span class="line">    <span class="keyword">if</span> (beacons.count) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">NSInteger</span> i = <span class="number">0</span>; i &lt; beacons.count; i++) &#123;</span><br><span class="line">            <span class="built_in">CLBeacon</span> *beacon = beacons[i];</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">             *  typedef NS_ENUM(NSInteger, CLProximity) &#123;</span></span><br><span class="line"><span class="comment">             CLProximityUnknown,</span></span><br><span class="line"><span class="comment">             CLProximityImmediate,</span></span><br><span class="line"><span class="comment">             CLProximityNear,</span></span><br><span class="line"><span class="comment">             CLProximityFar</span></span><br><span class="line"><span class="comment">             &#125; NS_ENUM_AVAILABLE_IOS(7_0) __WATCHOS_PROHIBITED;</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            <span class="keyword">if</span> (beacon.proximity == <span class="built_in">CLProximityNear</span>) &#123;</span><br><span class="line">                <span class="built_in">NSLog</span>(<span class="string">@"major = %@|| minor = %@"</span>, beacon.major, beacon.minor);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 注意:当多个iBeacon设备广告了相同的proximityUUID, major和minor属性组合时,在locationManager:didRangeBeacons:inRegion:方法 中它们可能会有不同的距离与精度。建议每⼀一个beacon设备都是唯⼀一标识的。</span></span><br><span class="line">            &#125;<span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 报错</span></span><br><span class="line">- (<span class="keyword">void</span>)locationManager:(<span class="built_in">CLLocationManager</span> *)manager rangingBeaconsDidFailForRegion:(<span class="built_in">CLBeaconRegion</span> *)region withError:(<span class="built_in">NSError</span> *)error</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%s, line = %d"</span>, __FUNCTION__, __LINE__);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>3.外设模式给它广播</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">&lt;CoreBluetooth/CoreBluetooth.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">ViewController</span> () &lt;<span class="title">CBPeripheralManagerDelegate</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) CBPeripheralManager *pMgr; <span class="comment">/**&lt; 外设管理模式 */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ViewController</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 懒加载创建</span></span><br><span class="line">- (CBPeripheralManager *)pMgr</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!_pMgr) &#123;</span><br><span class="line">        <span class="comment">//</span></span><br><span class="line">        _pMgr = [[CBPeripheralManager alloc] initWithDelegate:<span class="keyword">self</span> queue:dispatch_get_main_queue()];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> _pMgr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line">    <span class="comment">// Do any additional setup after loading the view, typically from a nib.</span></span><br><span class="line">    <span class="comment">// 先初始化外设管理者</span></span><br><span class="line">    [<span class="keyword">self</span> pMgr];</span><br><span class="line"></span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserverForName:<span class="string">@"didEnterRegionNotification"</span></span><br><span class="line">                                                      object:<span class="literal">nil</span></span><br><span class="line">                                                       queue:[<span class="built_in">NSOperationQueue</span> mainQueue]</span><br><span class="line">                                                  usingBlock:^(<span class="built_in">NSNotification</span> * _Nonnull note) &#123;</span><br><span class="line">                                                      <span class="comment">// 开始广播位置信息proximity UUID(及major或minor值)</span></span><br><span class="line">                                                      <span class="keyword">if</span> (<span class="keyword">self</span>.pMgr.state == CBPeripheralManagerStatePoweredOn) &#123;</span><br><span class="line">                                                          <span class="comment">//</span></span><br><span class="line">                                                          [<span class="keyword">self</span>.pMgr startAdvertising:note.userInfo];</span><br><span class="line">                                                      &#125;</span><br><span class="line">                                                  &#125;];</span><br><span class="line"></span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserverForName:<span class="string">@"didExitRegionNotification"</span></span><br><span class="line">                                                      object:<span class="literal">nil</span></span><br><span class="line">                                                       queue:[<span class="built_in">NSOperationQueue</span> mainQueue]</span><br><span class="line">                                                  usingBlock:^(<span class="built_in">NSNotification</span> * _Nonnull note) &#123;</span><br><span class="line">                                                      <span class="keyword">if</span> (<span class="keyword">self</span>.pMgr.isAdvertising) &#123;</span><br><span class="line">                                                          [<span class="keyword">self</span>.pMgr stopAdvertising];</span><br><span class="line">                                                      &#125;</span><br><span class="line">                                                  &#125;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)dealloc</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 实际上控制器中不写也不会出问题,此处只是为了 代码规范</span></span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#pragma mark - CBPeripheralManagerDelegate</span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheral</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (peripheral.state == CBPeripheralManagerStatePoweredOn) &#123;</span><br><span class="line">        <span class="comment">//</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/蓝牙/" rel="tag"># 蓝牙</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/07/20/蓝牙系列六、BLE外设模式流程.html" rel="next" title="蓝牙系列六、BLE外设模式流程">
+                <i class="fa fa-chevron-left"></i> 蓝牙系列六、BLE外设模式流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/07/22/蓝牙系列八、数据封装和分包.html" rel="prev" title="蓝牙系列八、数据封装和分包">
+                蓝牙系列八、数据封装和分包 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#iBeacon简介"><span class="nav-number">1.</span> <span class="nav-text">iBeacon简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简单开发流程"><span class="nav-number">1.1.</span> <span class="nav-text">简单开发流程</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2019/07/21/蓝牙系列七、iBeacon.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

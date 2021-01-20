@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言使用AVPlayer播放网络音视频时，系统虽然做了临时缓存处理，但是临时缓存不可访问，并且在AVPlayer会话结束的时候临时缓存会被清除（？），等下次再播又要重新联网下载，这比较影响用户体验，那么该如何实现离线缓存以及边缓存边播放的功能呢？">
+<meta name="keywords" content="音视频">
+<meta property="og:type" content="article">
+<meta property="og:title" content="音视频三、AVPlayer离线缓存实现">
+<meta property="og:url" content="http://foerst.github.io/blog/2019/01/16/音视频三、AVPlayer离线缓存实现.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="前言使用AVPlayer播放网络音视频时，系统虽然做了临时缓存处理，但是临时缓存不可访问，并且在AVPlayer会话结束的时候临时缓存会被清除（？），等下次再播又要重新联网下载，这比较影响用户体验，那么该如何实现离线缓存以及边缓存边播放的功能呢？">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/1644426-0bc9c532e86a476e.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/350">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.569Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="音视频三、AVPlayer离线缓存实现">
+<meta name="twitter:description" content="前言使用AVPlayer播放网络音视频时，系统虽然做了临时缓存处理，但是临时缓存不可访问，并且在AVPlayer会话结束的时候临时缓存会被清除（？），等下次再播又要重新联网下载，这比较影响用户体验，那么该如何实现离线缓存以及边缓存边播放的功能呢？">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/1644426-0bc9c532e86a476e.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/350">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2019/01/16/音视频三、AVPlayer离线缓存实现.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>音视频三、AVPlayer离线缓存实现 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2019/01/16/音视频三、AVPlayer离线缓存实现.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">音视频三、AVPlayer离线缓存实现
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-01-16 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-16T00:00:00+08:00">2019-01-16</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/音视频/" itemprop="url" rel="index"><span itemprop="name">音视频</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>使用AVPlayer播放网络音视频时，系统虽然做了临时缓存处理，但是临时缓存不可访问，并且在AVPlayer会话结束的时候临时缓存会被清除（？），等下次再播又要重新联网下载，这比较影响用户体验，那么该如何实现离线缓存以及边缓存边播放的功能呢？<br><a id="more"></a></p>
+<h2 id="猜想中的方案"><a href="#猜想中的方案" class="headerlink" title="猜想中的方案"></a>猜想中的方案</h2><ol>
+<li><p>在模型层存储已经加载好的AVAsset对象，这样在整个app会话中都可以工作（AVPlayer 不会加载同样的文件多次)）。显然重启之后失效，不可行。</p>
+</li>
+<li><p>使用AVAssetExportSession将AVAsset转换成NSData, 但AVAssetExportSession只支持本地文件，网络文件会报错。</p>
+</li>
+<li><p>使用AVAssetResourceLoader控制加载过程，该方法可行。下面着重介绍该方法。</p>
+</li>
+</ol>
+<h2 id="AVAssetResourceLoader"><a href="#AVAssetResourceLoader" class="headerlink" title="AVAssetResourceLoader"></a>AVAssetResourceLoader</h2><p><img src="https://upload-images.jianshu.io/upload_images/1644426-0bc9c532e86a476e.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/350" alt="img"></p>
+<p>顾名思义，AVAssetResourceLoader负责加载AVURLAsset指定的资源文件，并决定传递多少数据给AVPlayer。当指定的资源不能被加载时，AVAssetResourceLoader会向AVAssetResourceLoaderDelegate发送消息请求AVAssetResourceLoaderDelegate去加载数据，然后根据代理的处理结果进行下一步的处理。 所以为了让代理工作，通常要使用AVAssetResourceLoader无法加载的自定义协议。</p>
+<pre><code>NSURLComponents *components = [[NSURLComponents alloc] initWithURL:URL resolvingAgainstBaseURL:NO];
+components.scheme = @“customscheme”; 
+AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:[components URL] options:options];
+</code></pre><h2 id="AVAssetResourceLoaderDelegate"><a href="#AVAssetResourceLoaderDelegate" class="headerlink" title="AVAssetResourceLoaderDelegate"></a>AVAssetResourceLoaderDelegate</h2><p>AVAssetResourceLoaderDelegate可以帮助AVAssetResourceLoader加载AVAssetResourceLoader不能加载的指定资源。设置delegate的方法如下：</p>
+<pre><code>var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+components?.scheme = assetCustomScheme
+let asset = AVURLAsset(url: components?.url ?? url)
+let item = AVPlayerItem(asset: asset)
+if let loader = item.cacheLoader {
+    asset.resourceLoader.setDelegate(loader, queue: .main)
+} else {
+    let loader = XYAssetLoader()
+    objc_setAssociatedObject(item, AVPlayerItem.assetLoaderKey, loader, .OBJC_ASSOCIATION_RETAIN)
+    asset.resourceLoader.setDelegate(loader, queue: .main)
+}
+</code></pre><p>AVAssetResourceLoaderDelegate具体方法如下：</p>
+<h3 id="resourceLoader-shouldWaitForLoadingOfRequestedResource-方法"><a href="#resourceLoader-shouldWaitForLoadingOfRequestedResource-方法" class="headerlink" title="resourceLoader:shouldWaitForLoadingOfRequestedResource:方法"></a>resourceLoader:shouldWaitForLoadingOfRequestedResource:方法</h3><pre><code>- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader 
+shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest;
+</code></pre><p>AVAssetResourceLoader寻问代理是否它能加载请求的资源。返回 YES，表示代理可以加载loadingRequest的参数指定的资源；NO，表示不可以, 这时AVAssetResourceLoader会认为资源加载失败，因为自己和代理都无法处理。这个方法其实就是对AVAssetResourceLoader的请求过程进行拦截，可以自行下载数据，然后回填给AVPlayer。</p>
+<p><a href="https://developer.apple.com/documentation/avfoundation/avassetresourceloaderdelegate/1388121-resourceloader?language=objc" target="_blank" rel="noopener"><em>更多参考戳这里</em></a></p>
+<h4 id="数据回填"><a href="#数据回填" class="headerlink" title="数据回填"></a>数据回填</h4><pre><code>[aVAssetResourceLoadingDataRequest respondWithData: data]
+</code></pre><h4 id="完成加载"><a href="#完成加载" class="headerlink" title="完成加载"></a>完成加载</h4><pre><code>[aVAssetResourceLoadingRequest finishLoading]
+</code></pre><h4 id="加载失败"><a href="#加载失败" class="headerlink" title="加载失败"></a>加载失败</h4><pre><code>[aVAssetResourceLoadingRequest finishLoadingWithError: error]
+</code></pre><h3 id="resourceLoader-didCancelLoadingRequest-方法"><a href="#resourceLoader-didCancelLoadingRequest-方法" class="headerlink" title="resourceLoader:didCancelLoadingRequest:方法"></a>resourceLoader:didCancelLoadingRequest:方法</h3><pre><code>- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader 
+didCancelLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest; 
+</code></pre><p>通知代理：先前的加载请求/loadingRequest已经被取消了，这里我们需要取消loadingRequest所指定的数据的读取或下载操作。</p>
+<p><a href="https://developer.apple.com/documentation/avfoundation/avassetresourceloaderdelegate?language=objc" target="_blank" rel="noopener"><em>更多代理方法参考这里</em></a></p>
+<h2 id="AVAssetResourceLoadingRequest"><a href="#AVAssetResourceLoadingRequest" class="headerlink" title="AVAssetResourceLoadingRequest"></a>AVAssetResourceLoadingRequest</h2><p>AVAssetResourceLoadingRequest代表数据加载的请求，内部封装了实际的URLRequest、URLResponse等信息。查看AVAssetResourceLoadingRequest的头文件可知，有2种数据加载请求：AVAssetResourceLoadingContentInformationRequest 和 AVAssetResourceLoadingDataRequest。</p>
+<h3 id="AVAssetResourceLoadingContentInformationRequest"><a href="#AVAssetResourceLoadingContentInformationRequest" class="headerlink" title="AVAssetResourceLoadingContentInformationRequest"></a>AVAssetResourceLoadingContentInformationRequest</h3><p>当 AVPlayer 触发下载时，总是会先发起一个 Range 为 0-2 的数据请求，这个请求的作用其实是用来确认视频数据的信息的，如文件类型、文件数据长度。AVAssetResourceLoadingContentInformationRequest就是用来保存这些信息的。</p>
+<p>当下载器发起这个请求，收到服务端返回的 response 后，我们要把视频的信息填充到  AVAssetResourceLoadingRequest 的 contentInformationRequest 属性中，告知下载的视频格式以及视频长度。AVAssetResourceLoadingRequest 在 - (void)finishLoading 的时候，会根据 contentInformationRequest 中的信息，去判断接下去要怎么处理。例如：下载 AVURLAsset 中 URL 指向的文件，获取到的文件的 contentType 是系统不支持的类型，将无法正常播放。</p>
+<h3 id="AVAssetResourceLoadingDataRequest"><a href="#AVAssetResourceLoadingDataRequest" class="headerlink" title="AVAssetResourceLoadingDataRequest"></a>AVAssetResourceLoadingDataRequest</h3><p>当 AVPlayer 获取完视频信息后，就要进行视频文件的分片下载，AVAssetResourceLoadingDataRequest 就是用来指定分片的偏移、大小，以及接受分片数据的。</p>
+<pre><code>- (void)respondWithData:(NSData *)data;
+</code></pre><p>AVAssetResourceLoadingDataRequest 使用该方法来接收下载的数据，这个方法可以调用多次，接收增量连续的 data 数据。</p>
+<p>当 AVAssetResourceLoadingRequest 要求的所有数据都下载完毕，调用 - (void)finishLoading 完成下载，AVAssetResourceLoader 会继续发起之后的数据片段的请求。如果本次请求失败，可以直接调用 - (void)finishLoadingWithError: 结束下载。</p>
+<h2 id="离线缓存的具体实现"><a href="#离线缓存的具体实现" class="headerlink" title="离线缓存的具体实现"></a>离线缓存的具体实现</h2><p>上面已经知道了AVAssetResourceLoader的整个工作过程，因此，我们可以在代理方法中用URLSessionDataTask进行数据下载，然后回填给AVPlayer进行播放, 最后按请求范围保存到本地，下次播放时，在请求范围内的已下载的直接用本地缓存数据回填，范围内的未下载的开启下载，这样基本实现了离线缓存的功能。下面列一下实现要点：</p>
+<p>1.当监测到发送contentInformationRequest时只需要发送HEAD请求无需下载数据(类似于get请求，只不过返回的响应中没有具体的内容，用于获取HTTP响应头)。记得finishLoading()否则无法进行音视频文件的分片请求。</p>
+<pre><code>var urlComponents = URLComponents(string: (loadingRequest.request.url?.absoluteString)!)
+urlComponents?.scheme = &quot;http&quot;
+
+if let contentInfoRequest = loadingRequest.contentInformationRequest {
+    if contentInfoRequest.contentLength == 0 {
+        var headRequest = URLRequest(url: (urlComponents?.url****)!)
+        headRequest.httpMethod = &quot;HEAD&quot;
+        let dataTask = session.dataTask(with: headRequest) { (data, response, error) in
+            if let response = response {
+                self.fillContentInfoRequest(request: contentInfoRequest, withResponse: response)
+                loadingRequest.finishLoading()
+            }
+        }
+        dataTask.resume()
+    }
+}
+
+private func fillContentInfoRequest(request: AVAssetResourceLoadingContentInformationRequest, withResponse response: URLResponse) {
+    request.contentType = response.mimeType
+    if let httpResponse = response as? HTTPURLResponse {
+        if let acceptRanges = httpResponse.allHeaderFields[&quot;Accept-Ranges&quot;] as? String {
+            request.isByteRangeAccessSupported = acceptRanges.elementsEqual(&quot;bytes&quot;)
+        }
+        if let contentLength = httpResponse.allHeaderFields[&quot;Content-Length&quot;] as? String {
+            request.contentLength = Int64(contentLength)!
+        }
+    }
+}
+</code></pre><p>2.dataRequest需要设置请求头以支持分片请求。记得finishLoading()。</p>
+<pre><code>let requestedOffset = Int(dataRequest.requestedOffset)
+let requestedLength = dataRequest.requestedLength
+var allHTTPHeaderFields = [&quot;Range&quot; : &quot;bytes=\(requestedOffset)-\(requestedOffset + requestedLength - 1)&quot;]
+if dataRequest.requestsAllDataToEndOfResource {
+    allHTTPHeaderFields = [&quot;Range&quot; : &quot;bytes=\(requestedOffset)-&quot;]
+}
+
+var dataRequest = URLRequest(url: url)
+dataRequest.httpMethod = &quot;GET&quot;
+dataRequest.cachePolicy = .returnCacheDataElseLoad
+for (headerField, headerValue) in allHTTPHeaderFields {
+    dataRequest.setValue(headerValue, forHTTPHeaderField: headerField)
+}
+
+let dataTask = session.dataTask(with: dataRequest) { (data, response, error) in
+    guard error == nil else { return }
+    if let sliceData = data {
+        loadingRequest.dataRequest?.respond(with: sliceData)
+        loadingRequest.finishLoading()
+        // 保存数据
+        if sliceData.count &gt; 0 {
+            print(&quot;sliceData.count &gt; 0&quot;)
+            self.fileWriteHandle?.write(sliceData)
+            self.fileWriteHandle?.synchronizeFile()
+            self.fileWriteHandle?.seekToEndOfFile()
+        }
+    }
+}
+dataTask.resume()
+</code></pre><p>使用FileHandle进行读写文件操作十分方便。</p>
+<pre><code>let foldPath = NSTemporaryDirectory().appending(&quot;/XYCache&quot;)
+fileWriteHandle = FileHandle(forWritingAtPath: foldPath.appending(&quot;/tmp.mp4&quot;))
+</code></pre><p>3.数据缓存</p>
+<p>一种方法是使用NSURLCache。NSURLCache能够缓存视频文件，详见以前cache的文章，<a href="https://github.com/vdugnist/DVAssetLoaderDelegate" target="_blank" rel="noopener">DVAssetLoaderDelegate</a>就是用NSURLCache做离线缓存的，但貌似断网以后还要请求不能播放。</p>
+<p>另一种方案是使用配置文件记录哪些数据已经被缓存到本地了。AVPlayerCacheSupport就是用这用方式。<br><a href="https://github.com/msching/AVPlayerCacheSupport" target="_blank" rel="noopener">AVPlayerCacheSupport源码</a></p>
+<p>AVPlayerCacheSupport在请求到播放内容相关信息之后会会将响应头、文件字节长度、已缓存下载的ranges信息保存在本地的索引文件中，当进行文件分片下载时，会不断更新合并ranges数组。当拖动进度条时，会拿请求的range跟本地的ranges数组进行比较，决定开启本地(MCAVPlayerItemLocalCacheTask)或者网络(MCAVPlayerItemRemoteCacheTask)任务获取数据，然后回填数据。</p>
+<p>参考：</p>
+<p><a href="http://msching.github.io/blog/archives/" target="_blank" rel="noopener">iOS音频播放 (九)：边播边缓存 AVPlayerCacheSupport</a></p>
+<p><a href="https://mp.weixin.qq.com/s/v1sw_Sb8oKeZ8sWyjBUXGA?#%23" target="_blank" rel="noopener">Vito的猫屋</a></p>
+<p><a href="https://www.jianshu.com/p/93ce1748ea57" target="_blank" rel="noopener">iOS音频篇：AVPlayer的缓存实现</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/音视频/" rel="tag"># 音视频</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/01/15/音视频二、AVPlayer播放网络音视频.html" rel="next" title="音视频二、AVPlayer播放网络音视频">
+                <i class="fa fa-chevron-left"></i> 音视频二、AVPlayer播放网络音视频
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/02/15/音视频四、AVPlayer使用中的坑和一些优化点.html" rel="prev" title="音视频四、AVPlayer使用中的坑和一些优化点">
+                音视频四、AVPlayer使用中的坑和一些优化点 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#猜想中的方案"><span class="nav-number">2.</span> <span class="nav-text">猜想中的方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AVAssetResourceLoader"><span class="nav-number">3.</span> <span class="nav-text">AVAssetResourceLoader</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AVAssetResourceLoaderDelegate"><span class="nav-number">4.</span> <span class="nav-text">AVAssetResourceLoaderDelegate</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#resourceLoader-shouldWaitForLoadingOfRequestedResource-方法"><span class="nav-number">4.1.</span> <span class="nav-text">resourceLoader:shouldWaitForLoadingOfRequestedResource:方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#数据回填"><span class="nav-number">4.1.1.</span> <span class="nav-text">数据回填</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完成加载"><span class="nav-number">4.1.2.</span> <span class="nav-text">完成加载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#加载失败"><span class="nav-number">4.1.3.</span> <span class="nav-text">加载失败</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#resourceLoader-didCancelLoadingRequest-方法"><span class="nav-number">4.2.</span> <span class="nav-text">resourceLoader:didCancelLoadingRequest:方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AVAssetResourceLoadingRequest"><span class="nav-number">5.</span> <span class="nav-text">AVAssetResourceLoadingRequest</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AVAssetResourceLoadingContentInformationRequest"><span class="nav-number">5.1.</span> <span class="nav-text">AVAssetResourceLoadingContentInformationRequest</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AVAssetResourceLoadingDataRequest"><span class="nav-number">5.2.</span> <span class="nav-text">AVAssetResourceLoadingDataRequest</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#离线缓存的具体实现"><span class="nav-number">6.</span> <span class="nav-text">离线缓存的具体实现</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2019/01/16/音视频三、AVPlayer离线缓存实现.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

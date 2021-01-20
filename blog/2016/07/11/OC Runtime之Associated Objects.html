@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="什么是Associated Objects？有时，我们希望为某个对象关联一些信息。一般地，我们会子类化，但是“黑魔法”Associated Objects（关联对象）使用起来就更方便了。使用关联对象，我们可以不用修改类的定义而为其对象增加存储空间（在 Objective-C 中可以通过 Category 给一个现有的类添加属性，但是却不能添加实例变量，这似乎成为了 Objective-C 的一个明">
+<meta name="keywords" content="Associated Objects">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OC Runtime之Associated Objects">
+<meta property="og:url" content="http://foerst.github.io/blog/2016/07/11/OC Runtime之Associated Objects.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="什么是Associated Objects？有时，我们希望为某个对象关联一些信息。一般地，我们会子类化，但是“黑魔法”Associated Objects（关联对象）使用起来就更方便了。使用关联对象，我们可以不用修改类的定义而为其对象增加存储空间（在 Objective-C 中可以通过 Category 给一个现有的类添加属性，但是却不能添加实例变量，这似乎成为了 Objective-C 的一个明">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xql77.com1.z0.glb.clouddn.com/associated_obj_property.png">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.503Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OC Runtime之Associated Objects">
+<meta name="twitter:description" content="什么是Associated Objects？有时，我们希望为某个对象关联一些信息。一般地，我们会子类化，但是“黑魔法”Associated Objects（关联对象）使用起来就更方便了。使用关联对象，我们可以不用修改类的定义而为其对象增加存储空间（在 Objective-C 中可以通过 Category 给一个现有的类添加属性，但是却不能添加实例变量，这似乎成为了 Objective-C 的一个明">
+<meta name="twitter:image" content="http://7xql77.com1.z0.glb.clouddn.com/associated_obj_property.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2016/07/11/OC Runtime之Associated Objects.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>OC Runtime之Associated Objects | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2016/07/11/OC Runtime之Associated Objects.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">OC Runtime之Associated Objects
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-07-11 00:00:00" itemprop="dateCreated datePublished" datetime="2016-07-11T00:00:00+08:00">2016-07-11</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Runtime/" itemprop="url" rel="index"><span itemprop="name">Runtime</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="什么是Associated-Objects？"><a href="#什么是Associated-Objects？" class="headerlink" title="什么是Associated Objects？"></a>什么是Associated Objects？</h3><p>有时，我们希望为某个对象关联一些信息。一般地，我们会子类化，但是“黑魔法”Associated Objects（关联对象）使用起来就更方便了。使用关联对象，我们可以不用修改类的定义而为其对象增加存储空间（在 Objective-C 中可以通过 Category 给一个现有的类添加属性，但是却不能添加实例变量，这似乎成为了 Objective-C 的一个明显短板。然而值得庆幸的是，我们可以通过 Associated Objects 来弥补这一不足）。与它相关在<objc runtime.h="">中有3个C函数，它们可以让对象在运行时关联任何值：<br><a id="more"></a></objc></p>
+<ul>
+<li><p>void objc_setAssociatedObject(id object, void *key, id value, objc_AssociationPolicy policy)</p>
+<p>  根据给定的key和关联策略给对象设置关联值</p>
+</li>
+<li><p>id objc_getAssociatedObject(id object, void *key)</p>
+<p>  根据给定的key和关联策略获取对象关联值</p>
+</li>
+<li><p>void objc_removeAssociatedObjects(id object)</p>
+<p>  移除所有关联值</p>
+</li>
+</ul>
+<p>下面将展示如何用这些函数为UIAlertView添加点击回调：</p>
+<pre><code>//UIAlertView+AssociatedObjects.h
+#import &lt;UIKit/UIKit.h&gt;
+@interface UIAlertView (AssociatedObjects)
+@property (strong, nonatomic) id associatedObject;//添加的关联对象
+@end
+
+//UIAlertView+AssociatedObjects.m
+#import &quot;UIAlertView+AssociatedObjects.h&quot;
+#import &lt;objc/runtime.h&gt;
+
+@implementation UIAlertView (AssociatedObjects)
+
+- (void)setAssociatedObject:(id)associatedObject {
+    objc_setAssociatedObject(self, @selector(associatedObject), associatedObject, OBJC_ASSOCIATION_RETAIN);
+}
+
+- (id)associatedObject {
+    return objc_getAssociatedObject(self, _cmd);
+}
+@end
+
+
+//ViewController.h
+#import &quot;ViewController.h&quot;
+#import &quot;UIAlertView+AssociatedObjects.h&quot;
+typedef void (^AssociatedBock)(NSInteger);
+
+- (IBAction)showAlertView {
+    UIAlertView *alert = [[UIAlertView alloc]
+                          initWithTitle:@&quot;Question&quot;
+                          message:@&quot;What do you want to do?&quot;
+                          delegate:self
+                          cancelButtonTitle:@&quot;Cancel&quot;
+                          otherButtonTitles:@&quot;Continue&quot;, nil];
+    __weak typeof(self) weakSelf = self;
+    AssociatedBock block = ^(NSInteger buttonIndex){
+        if (0 == buttonIndex) {
+            [weakSelf doCancel];
+        } else {
+            [weakSelf doContinue];
+        }
+    };
+    alert.associatedObject = block;
+    [alert show];
+}
+- (void)doCancel {
+    NSLog(@&quot;cancel..............&quot;);
+}
+
+- (void)doContinue {
+    NSLog(@&quot;continue...............&quot;);
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    AssociatedBock block = (AssociatedBock)alertView.associatedObject;
+    block(buttonIndex);
+}
+</code></pre><h3 id="关联对象的特性"><a href="#关联对象的特性" class="headerlink" title="关联对象的特性"></a>关联对象的特性</h3><p>被关联到对象的值根据使用的objc_AssociationPolicy类型不同表现出不同的特性：</p>
+<p><img src="http://7xql77.com1.z0.glb.clouddn.com/associated_obj_property.png" alt="img"></p>
+<p>通过OBJC_ASSOCIATION_ASSIGN分配的弱关联对象并不是完全和weak修饰符引用一样（对象初始化与释放时被置空），反而更像是unsafe_unretained，所以你需要在访问弱关联对象时稍微注意一下。</p>
+<p>根据WWDC2011,Session322对对象释放时间的描述，associated objects清除在对象生命周期中很晚才执行，通过被NSObject -dealloc方法调用的object_dispose()函数完成。</p>
+<h3 id="移除关联对象"><a href="#移除关联对象" class="headerlink" title="移除关联对象"></a>移除关联对象</h3><p>一种方法是试图在某个时刻调用objc_removeAssociatedObjects()函数来移除关联对象，然而，根据苹果文档描述，你不大可能有需求要自己去调用：</p>
+<p><code>这个函数的主要目的是很容易的让对象恢复成它“原始状态”，你不应该使用它来移除关联的对象，因为它也会移除掉包括其他地方加入的全部的关联对象。所以一般你只需要通过调用objc_setAssociatedObject并传入nil值来清除关联值.</code></p>
+<h3 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h3><p>1.添加私有变量来帮助实现细节 。当拓展一个内置类时，可能有必要跟踪一些额外的状态，这是关联对象最普遍的应用场景。例如：AFNetworking中在UIImageView的分类中使用关联对象来存储一个请求操作对象（operation object），用于异步的从远程获取图片。</p>
+<p>2.添加公共属性来设置分类的特性 。有时候，通过添加一个属性让一个分类更加灵活，而不是作为函数参数。这种情况下，使用关联对象作为一个公开的属性是可接受的解决方案。还是拿前面AFNetworking的例子来说，UIImageView的分类中imageResponseSerializer属性允许图片视图随意的使用一个过滤器，或者在图片请求并缓存之前就可以修改它的渲染。</p>
+<p>3.为KVO创建一个关联的观察者（observer）。当在一个分类中使用KVO的时候，推荐使用一个自定义的关联对象作为观察者，而不是对象自己观察自己。</p>
+<p>ps:关联对象应该被当做最后的手段来使用,不要滥用。比如：在不必要的时候使用关联对象，使用关联对象来保存一个可以被推算出来的值等。</p>
+<p>参考：</p>
+<p>Effective Objective-C 2.0</p>
+<p>来自NSHipster的原文：<a href="http://nshipster.com/associated-objects/" target="_blank" rel="noopener">http://nshipster.com/associated-objects/</a></p>
+<p>中文翻译<a href="http://www.cocoachina.com/industry/20140219/7847.html" target="_blank" rel="noopener">http://www.cocoachina.com/industry/20140219/7847.html</a></p>
+<p>大神博客：<a href="http://blog.leichunfeng.com/blog/2015/06/26/objective-c-associated-objects-implementation-principle/#jtss-tsina" target="_blank" rel="noopener">http://blog.leichunfeng.com/blog/2015/06/26/objective-c-associated-objects-implementation-principle/#jtss-tsina</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Associated-Objects/" rel="tag"># Associated Objects</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/07/10/OC Runtime之动态方法解析和消息转发.html" rel="next" title="OC Runtime之动态方法解析和消息转发">
+                <i class="fa fa-chevron-left"></i> OC Runtime之动态方法解析和消息转发
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/07/15/OC Runtime之Method Swizzling.html" rel="prev" title="OC Runtime之Method Swizzling">
+                OC Runtime之Method Swizzling <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是Associated-Objects？"><span class="nav-number">1.</span> <span class="nav-text">什么是Associated Objects？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关联对象的特性"><span class="nav-number">2.</span> <span class="nav-text">关联对象的特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#移除关联对象"><span class="nav-number">3.</span> <span class="nav-text">移除关联对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#作用"><span class="nav-number">4.</span> <span class="nav-text">作用</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2016/07/11/OC Runtime之Associated Objects.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

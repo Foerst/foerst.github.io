@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="数据封装iOS 蓝牙框架默认会进行发送数据的分包，默认20字节一个包，但是传输大一点的数据还是会被截断。这种情况下，需要开发者自行控制分包。虽然接收端按序接收数据，但为了合并数据的方便，一般要将数据按照一定的格式进行封装，然后再分包发送。">
+<meta name="keywords" content="蓝牙">
+<meta property="og:type" content="article">
+<meta property="og:title" content="蓝牙系列八、数据封装和分包">
+<meta property="og:url" content="http://foerst.github.io/blog/2019/07/22/蓝牙系列八、数据封装和分包.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="数据封装iOS 蓝牙框架默认会进行发送数据的分包，默认20字节一个包，但是传输大一点的数据还是会被截断。这种情况下，需要开发者自行控制分包。虽然接收端按序接收数据，但为了合并数据的方便，一般要将数据按照一定的格式进行封装，然后再分包发送。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/07/22/EOM_ble.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/07/22/tlv.png">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.655Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="蓝牙系列八、数据封装和分包">
+<meta name="twitter:description" content="数据封装iOS 蓝牙框架默认会进行发送数据的分包，默认20字节一个包，但是传输大一点的数据还是会被截断。这种情况下，需要开发者自行控制分包。虽然接收端按序接收数据，但为了合并数据的方便，一般要将数据按照一定的格式进行封装，然后再分包发送。">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2019/07/22/EOM_ble.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2019/07/22/蓝牙系列八、数据封装和分包.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>蓝牙系列八、数据封装和分包 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2019/07/22/蓝牙系列八、数据封装和分包.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">蓝牙系列八、数据封装和分包
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-07-22 00:00:00" itemprop="dateCreated datePublished" datetime="2019-07-22T00:00:00+08:00">2019-07-22</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/蓝牙/" itemprop="url" rel="index"><span itemprop="name">蓝牙</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="数据封装"><a href="#数据封装" class="headerlink" title="数据封装"></a>数据封装</h1><p>iOS 蓝牙框架默认会进行发送数据的分包，默认20字节一个包，但是传输大一点的数据还是会被截断。这种情况下，需要开发者自行控制分包。虽然接收端按序接收数据，但为了合并数据的方便，一般要将数据按照一定的格式进行封装，然后再分包发送。<br><a id="more"></a></p>
+<h2 id="一种简单的封装格式"><a href="#一种简单的封装格式" class="headerlink" title="一种简单的封装格式"></a>一种简单的封装格式</h2><p>在Apple Documents里有一个叫BTLE的Demo。它通过数据末尾添加EOM标识符来表示一个包数据的结束。</p>
+<p><img src="/blog/2019/07/22/EOM_ble.png" alt="img"></p>
+<p>如上图所示,模拟命令分成15个包传输过来，每个包大小固定位最大20个字符，第1-14包为模拟命令数据，第十五个包只发送了一个EOM字符串，接收端每接收到一个包则把这个数据追加到上一个包数据上，直到收到EOM标识，则把当前收到的所有数据进行解析，解析完成就可以进行下一步业务处理了。</p>
+<h3 id="收包关键代码"><a href="#收包关键代码" class="headerlink" title="收包关键代码"></a>收包关键代码</h3><pre><code>//更新特征值后（调用readValueForCharacteristic:方法或者外围设备在订阅后更新特征值都会调用此代理方法）
+-(void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error{
+    if (error) {
+        NSLog(@&quot;更新特征值时发生错误，错误信息：%@&quot;,error.localizedDescription);
+        [self writeToLog:[NSString stringWithFormat:@&quot;更新特征值时发生错误，错误信息：%@&quot;,error.localizedDescription]];
+        return;
+    }
+    if (characteristic.value) {
+        NSString *value=[[NSString alloc]initWithData:characteristic.value encoding:NSUTF8StringEncoding];
+        NSLog(@&quot;读取到特征值：%@&quot;,value);
+        [self writeToLog:[NSString stringWithFormat:@&quot;读取到特征值：%@&quot;,value]];
+        if ([value isEqualToString:@&quot;EOM&quot;]) {
+            //处理数据
+            [self.delegate didReceiveData:self.data complate:YES];
+
+            //处理完毕,清空
+            [self.data setLength:0];
+        } else {
+            [self.data appendData:characteristic.value];
+            if(self.delegate) {
+                [self.delegate didReceiveData:self.data complate:NO];
+            }
+        }
+    } else {
+        [self writeToLog:@&quot;未发现特征值.&quot;];
+    }
+}
+</code></pre><h3 id="发包关键代码"><a href="#发包关键代码" class="headerlink" title="发包关键代码:"></a>发包关键代码:</h3><pre><code>/** Sends the next amount of data to the connected central
+ */
+- (void)_sendData
+{
+    // First up, check if we&apos;re meant to be sending an EOM
+    static BOOL sendingEOM = NO;
+
+    if (sendingEOM) {
+        // send it
+        BOOL didSend = [self.peripheralManager updateValue:[@&quot;EOM&quot; dataUsingEncoding:NSUTF8StringEncoding] forCharacteristic:self.characteristicM onSubscribedCentrals:nil];
+
+        // Did it send?
+        if (didSend) {
+            // It did, so mark it as sent
+            sendingEOM = NO;
+            NSLog(@&quot;Sent: EOM&quot;);
+        }
+
+        // It didn&apos;t send, so we&apos;ll exit and wait for peripheralManagerIsReadyToUpdateSubscribers to call sendData again
+        return;
+    }
+
+    // We&apos;re not sending an EOM, so we&apos;re sending data
+    // Is there any left to send?
+
+    if (self.sendDataIndex &gt;= self.dataToSend.length) {
+
+        // No data left.  Do nothing
+        return;
+    }
+
+    // There&apos;s data left, so send until the callback fails, or we&apos;re done.
+
+    BOOL didSend = YES;
+
+    while (didSend) {
+        // Make the next chunk
+        // Work out how big it should be
+        NSInteger amountToSend = self.dataToSend.length - self.sendDataIndex;
+
+        // Can&apos;t be longer than 20 bytes
+        if (amountToSend &gt; NOTIFY_MTU) amountToSend = NOTIFY_MTU;
+
+        // Copy out the data we want
+        NSData *chunk = [NSData dataWithBytes:self.dataToSend.bytes+self.sendDataIndex length:amountToSend];
+
+        // Send it
+        didSend = [self.peripheralManager updateValue:chunk forCharacteristic:self.characteristicM onSubscribedCentrals:nil];
+
+        // If it didn&apos;t work, drop out and wait for the callback
+        if (!didSend) {
+            return;
+        }
+
+        NSString *stringFromData = [[NSString alloc] initWithData:chunk encoding:NSUTF8StringEncoding];
+        NSLog(@&quot;Sent: %@&quot;, stringFromData);
+
+        // It did send, so update our index
+        self.sendDataIndex += amountToSend;
+
+        // Was it the last one?
+        if (self.sendDataIndex &gt;= self.dataToSend.length) {
+            // It was - send an EOM
+            // Set this so if the send fails, we&apos;ll send it next time
+            sendingEOM = YES;
+
+            // Send it
+            BOOL eomSent = [self.peripheralManager updateValue:[@&quot;EOM&quot; dataUsingEncoding:NSUTF8StringEncoding] forCharacteristic:self.characteristicM onSubscribedCentrals:nil];
+
+            if (eomSent) {
+                // It sent, we&apos;re all done
+                sendingEOM = NO;
+                NSLog(@&quot;Sent: EOM&quot;);
+            }
+            return;
+        }
+    }
+}
+</code></pre><h2 id="TLV"><a href="#TLV" class="headerlink" title="TLV"></a>TLV</h2><p>EOM方式封装数据量较大（比如发送数字1,也要单独占一个序号，即20字节）。在我们的App中蓝牙通信控制协议基于 TLV 格式和大端网络字节序。</p>
+<h3 id="TLV定义-Type-Length-Value"><a href="#TLV定义-Type-Length-Value" class="headerlink" title="TLV定义: Type Length Value"></a>TLV定义: Type Length Value</h3><ul>
+<li><p>Type:类型</p>
+</li>
+<li><p>Length: 长度(Value 的长度，不包含 Type 和 Length，如 Value 为空，Length 为 0) </p>
+</li>
+<li><p>Value: 内容</p>
+</li>
+</ul>
+<h3 id="大端网络字节序-Big-Endian-Order"><a href="#大端网络字节序-Big-Endian-Order" class="headerlink" title="大端网络字节序(Big Endian Order)"></a>大端网络字节序(Big Endian Order)</h3><ul>
+<li><p>首先大小端是面向多字节类型定义的，比如2字节、4字节、8字节整型、长整型、浮点型等，单字节的字符串一般不用考虑。</p>
+</li>
+<li><p>大端小端存储、传输、以及接收处理需要对应。</p>
+</li>
+<li><p>大端（Big-Endian）就是高字节（MSB）在前，内存存储体现上，数据的高位更加靠近低地址。</p>
+</li>
+<li><p>小端(Little-Endian)就是低字节（LSB）在前，内存存储体现上，数据的低位更加靠近低地址。</p>
+</li>
+<li><p>网络字节序一般是指大端。主机字节序大端、小端都有。发送数据的时候一般都要从 主机字节序 转换为 网络字节序（htons方法）。接收数据的时候一般都要从 网络字节序 转换为 主机字节序（ntohs方法）.</p>
+</li>
+</ul>
+<h5 id="举个例子：-假设一个32位-unsigned-int型数据0x12-34-56-78，大小端8位存储方式如下："><a href="#举个例子：-假设一个32位-unsigned-int型数据0x12-34-56-78，大小端8位存储方式如下：" class="headerlink" title="举个例子： 假设一个32位 unsigned int型数据0x12 34 56 78，大小端8位存储方式如下："></a>举个例子： 假设一个32位 unsigned int型数据0x12 34 56 78，大小端8位存储方式如下：</h5><pre><code>大端存储方式为0x12 34 56 78
+
+小端存储方式为0x78 56 34 12。
+</code></pre><h5 id="大小端的判断"><a href="#大小端的判断" class="headerlink" title="大小端的判断"></a>大小端的判断</h5><p>C语言中的union联合体，这个变量在内存中占用4个字节的空间而不是8个(<strong>联合体所占内存空间与成员所占最大内存空间为准，多个变量公用一块内存</strong>)；<br>有两个数据成员：int类型变量的i和char类型的数组data；<br>虽然有两个数据成员，但是这两个成员的存储空间是一样的。</p>
+<pre><code>union Data {
+    char data[4];
+    int i;
+} u;
+
+//数组中下标低的，地址也低，按地址从低到高，内存内容依次为：04,03,02,01。总共四字节！
+//而把四个字节作为一个整体（不分类型，直接打印十六进制），应该从内存高地址到低地址看，0x01020304，低位04放在低地址上。证明我的32位linux是小端（little-endian）
+u.data[0] = 0x04;
+u.data[1] = 0x03;
+u.data[2] = 0x02;
+u.data[3] = 0x01;
+printf(&quot;i = 0x%x \n&quot;, u.i);
+</code></pre><h5 id="短整型大小端互换算法："><a href="#短整型大小端互换算法：" class="headerlink" title="短整型大小端互换算法："></a>短整型大小端互换算法：</h5><pre><code>#define BigLittleSwap16(A)  ((((uint16)(A) &amp; 0xff00) &gt;&gt; 8) | (((uint16)(A) &amp; 0x00ff) &lt;&lt; 8))
+</code></pre><h3 id="蓝牙TLV数据报格式："><a href="#蓝牙TLV数据报格式：" class="headerlink" title="蓝牙TLV数据报格式："></a>蓝牙TLV数据报格式：</h3><p><img src="/blog/2019/07/22/tlv.png" alt="img"></p>
+<p>一个完整的数据报包含Header、 Extent、Message、Checkout字段，每个字段都是TLV格式，并且支持TLV嵌套。</p>
+<h1 id="数据分包"><a href="#数据分包" class="headerlink" title="数据分包"></a>数据分包</h1><p>一个完整的TLV数据报很大可能超过20个字节，这里MTU = 20字节，发送数据时按20字节发送，并根据接收模块的处理能力做相应延时发送。</p>
+<pre><code># define MTU = 20 是蓝牙单次可处理最大字节长度
+
+//分包发送蓝牙数据
+-(void)sendMsgWithSubPackage:(NSData*)msgData 
+                  Peripheral:(CBPeripheral*)peripheral
+              Characteristic:(CBCharacteristic*)character
+{
+    for (int i = 0; i &lt; [msgData length]; i += MTU) {
+        // 预加 最大包长度，如果依然小于总数据长度，可以取最大包数据大小
+        if ((i + MTU) &lt; [msgData length]) {
+            NSString *rangeStr = [NSString stringWithFormat:@&quot;%i,%i&quot;, i, MTU];
+            NSData *subData = [msgData subdataWithRange:NSRangeFromString(rangeStr)];
+            [self writePeripheral:peripheral
+                       characteristic:character
+                                value:subData];
+            //根据接收模块的处理能力做相应延时
+            usleep(20 * 1000);
+        } else {
+            NSString *rangeStr = [NSString stringWithFormat:@&quot;%i,%i&quot;, i, (int)([msgData length] - i)];
+            NSData *subData = [msgData subdataWithRange:NSRangeFromString(rangeStr)];
+            [self writePeripheral:peripheral
+                       characteristic:character
+                                value:subData];
+            usleep(20 * 1000);
+        }
+    }
+}
+</code></pre><h1 id="数据合并-解析"><a href="#数据合并-解析" class="headerlink" title="数据合并+解析"></a>数据合并+解析</h1><p>接收方维持一个接收缓存，当收到第一个数据片段时，根据 Extent 的 length字段，计算出接收数据的长度 并将数据放入到接收缓存中，继续接收数据片段，直到长度满足要求。长度满足要求后开始数据解析，获取Message字段并抛到上层，最后清空接收缓存。</p>
+<pre><code>// 一旦接收到数据，调用saveData写入缓存，parseData会验证数据有效长度并解析tlv数据
+BLEInterface.shared.saveData(data)
+let package = BLEInterface.shared.parseData()
+</code></pre><h1 id="优化项"><a href="#优化项" class="headerlink" title="优化项"></a>优化项</h1><ul>
+<li>创建CBCentralManager时指定一个串行队列，使相关代理方法在子线程同步执行</li>
+</ul>
+<pre><code>private let queue = DispatchQueue(label: &quot;BLESendQueue&quot;)
+let  centralManager = CBCentralManager.init(delegate: self, queue: self.queue)
+</code></pre><ul>
+<li><p>发送数据操作派发到串行队列中, 为了不阻塞当前线程使用异步方式</p>
+<pre><code>queue.async {
+    let index = self.sendIndex
+    if let data = BLEInterface.shared.queryWifiConnectStatePackage(index) {
+        self.currentBlepl!.writeData(data)
+        callback(index)
+    }
+}
+</code></pre></li>
+<li><p>接收和解析数据操作在串行队列中同步执行</p>
+</li>
+</ul>
+<pre><code>private let parserQueue = DispatchQueue(label: &quot;BLEParserQueue&quot;)
+
+///接收数据
+private func receiveData(_ data: Data) {
+    parserQueue.async {
+        BLEInterface.shared.saveData(data)
+        let package = BLEInterface.shared.parseData()
+        if package.result {
+            self.queue.async {
+                for (_, callback) in self.receiveDataCallbacks {
+                    callback(package)
+                }
+            }
+        }
+    }
+}
+</code></pre>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/蓝牙/" rel="tag"># 蓝牙</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/07/21/蓝牙系列七、iBeacon.html" rel="next" title="蓝牙系列七、iBeacon">
+                <i class="fa fa-chevron-left"></i> 蓝牙系列七、iBeacon
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/07/23/UITableView性能优化.html" rel="prev" title="UITableView性能优化">
+                UITableView性能优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据封装"><span class="nav-number">1.</span> <span class="nav-text">数据封装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一种简单的封装格式"><span class="nav-number">1.1.</span> <span class="nav-text">一种简单的封装格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#收包关键代码"><span class="nav-number">1.1.1.</span> <span class="nav-text">收包关键代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发包关键代码"><span class="nav-number">1.1.2.</span> <span class="nav-text">发包关键代码:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TLV"><span class="nav-number">1.2.</span> <span class="nav-text">TLV</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TLV定义-Type-Length-Value"><span class="nav-number">1.2.1.</span> <span class="nav-text">TLV定义: Type Length Value</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#大端网络字节序-Big-Endian-Order"><span class="nav-number">1.2.2.</span> <span class="nav-text">大端网络字节序(Big Endian Order)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#举个例子：-假设一个32位-unsigned-int型数据0x12-34-56-78，大小端8位存储方式如下："><span class="nav-number">1.2.2.0.1.</span> <span class="nav-text">举个例子： 假设一个32位 unsigned int型数据0x12 34 56 78，大小端8位存储方式如下：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#大小端的判断"><span class="nav-number">1.2.2.0.2.</span> <span class="nav-text">大小端的判断</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#短整型大小端互换算法："><span class="nav-number">1.2.2.0.3.</span> <span class="nav-text">短整型大小端互换算法：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#蓝牙TLV数据报格式："><span class="nav-number">1.2.3.</span> <span class="nav-text">蓝牙TLV数据报格式：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据分包"><span class="nav-number">2.</span> <span class="nav-text">数据分包</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据合并-解析"><span class="nav-number">3.</span> <span class="nav-text">数据合并+解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#优化项"><span class="nav-number">4.</span> <span class="nav-text">优化项</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2019/07/22/蓝牙系列八、数据封装和分包.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

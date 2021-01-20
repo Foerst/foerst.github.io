@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="CoreText简介CoreText是基于IOS3.2及OSX10.5的用于文字精细排版的文本框架。它直接与Core Graphics（又称：Quartz）交互，将需要显示的文本内容，位置，字体，字形直接传递给Quartz，与其他UI组件相比，能更高效的进行渲染。Core Text框架跟其他框架的关系图如下：">
+<meta name="keywords" content="CoreText,图文混排">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用CoreText图文混排">
+<meta property="og:url" content="http://foerst.github.io/blog/2017/02/24/利用CoreText图文混排.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="CoreText简介CoreText是基于IOS3.2及OSX10.5的用于文字精细排版的文本框架。它直接与Core Graphics（又称：Quartz）交互，将需要显示的文本内容，位置，字体，字形直接传递给Quartz，与其他UI组件相比，能更高效的进行渲染。Core Text框架跟其他框架的关系图如下：">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/954071-8753ee27902ae7b3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/954071-c267eaa81fb1b5b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://xiangwangfeng.com/images/ct1.jpg">
+<meta property="og:image" content="http://xiangwangfeng.com/images/ct2.jpg">
+<meta property="og:image" content="http://xiangwangfeng.com/images/ct3.jpg">
+<meta property="og:image" content="http://xiangwangfeng.com/images/ct4.jpg">
+<meta property="og:image" content="http://7xql77.com1.z0.glb.clouddn.com/core_text_draw_text_swift.png">
+<meta property="og:image" content="http://7xql77.com1.z0.glb.clouddn.com/core_text_text_pic.png">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.507Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="利用CoreText图文混排">
+<meta name="twitter:description" content="CoreText简介CoreText是基于IOS3.2及OSX10.5的用于文字精细排版的文本框架。它直接与Core Graphics（又称：Quartz）交互，将需要显示的文本内容，位置，字体，字形直接传递给Quartz，与其他UI组件相比，能更高效的进行渲染。Core Text框架跟其他框架的关系图如下：">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/954071-8753ee27902ae7b3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2017/02/24/利用CoreText图文混排.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>利用CoreText图文混排 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2017/02/24/利用CoreText图文混排.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">利用CoreText图文混排
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-02-24 00:00:00" itemprop="dateCreated datePublished" datetime="2017-02-24T00:00:00+08:00">2017-02-24</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CoreText/" itemprop="url" rel="index"><span itemprop="name">CoreText</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="CoreText简介"><a href="#CoreText简介" class="headerlink" title="CoreText简介"></a>CoreText简介</h3><p>CoreText是基于IOS3.2及OSX10.5的用于文字精细排版的文本框架。它直接与Core Graphics（又称：Quartz）交互，将需要显示的文本内容，位置，字体，字形直接传递给Quartz，与其他UI组件相比，能更高效的进行渲染。Core Text框架跟其他框架的关系图如下：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/954071-8753ee27902ae7b3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="img"></p>
+<a id="more"></a>
+<h3 id="CoreText与UIWebView在排版方面的优劣比较"><a href="#CoreText与UIWebView在排版方面的优劣比较" class="headerlink" title="CoreText与UIWebView在排版方面的优劣比较"></a>CoreText与UIWebView在排版方面的优劣比较</h3><h4 id="UIWebView也常用于处理复杂的排版，对应排版他们之间的优劣如下"><a href="#UIWebView也常用于处理复杂的排版，对应排版他们之间的优劣如下" class="headerlink" title="UIWebView也常用于处理复杂的排版，对应排版他们之间的优劣如下"></a>UIWebView也常用于处理复杂的排版，对应排版他们之间的优劣如下</h4><ul>
+<li>CoreText占用的内容更少，渲染速度更快。UIWebView占用的内存多，渲染速度慢。</li>
+<li>CoreText在渲染界面前就可以精确地获得显示内容的高度（只要有了CTFrame即可），而WebView只有渲染出内容后，才能获得内容的高度（而且还需要用JavaScript代码来获取）。<br>CoreText的CTFrame可以在后台线程渲染，UIWebView的内容只能在主线程（UI线程）渲染。</li>
+<li>基于CoreText可以做更好的原生交互效果，交互效果可以更加细腻。而UIWebView的交互效果都是用JavaScript来实现的，在交互效果上会有一些卡顿的情况存在。例如，在UIWebView下，一个简单的按钮按下的操作，都无法做出原生按钮的即时和细腻的按下效果。</li>
+</ul>
+<h4 id="CoreText排版的劣势："><a href="#CoreText排版的劣势：" class="headerlink" title="CoreText排版的劣势："></a>CoreText排版的劣势：</h4><ul>
+<li>CoreText渲染出来的内容不能像UIWebView那样方便地支持内容的复制。</li>
+<li>基于CoreText来排版需要自己处理很多复制的逻辑，例如需要自己处理图片与文字混排相关的逻辑，也需要自己实现连接点击操作的支持。</li>
+</ul>
+<p>在业界有很多应用都采用CoreText技术进行排版，例如新浪微博客户端，多看阅读客户端等等。</p>
+<h3 id="CoreText对象模型图"><a href="#CoreText对象模型图" class="headerlink" title="CoreText对象模型图"></a>CoreText对象模型图</h3><p>CoreText绘制的流程图，CTFrame和CTLine CTRun对象之间的关系如下图所示：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/954071-c267eaa81fb1b5b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="img"></p>
+<p>我们来解释一下这些类：</p>
+<p>CFAttributedString ：属性字符串，用于存储需要绘制的文字字符和字符属性</p>
+<p>CTFramesetter：通过CFAttributedStringRef进行初始化，作为CTFrame对象的生产工厂，负责根据path创建对应的CTFrame</p>
+<p>CTFrame：用于绘制文字的类，可以通过CTFrameDraw函数，直接将文字绘制到context上</p>
+<p>CTLine：在CTFrame内部是由多个CTLine来组成的，每个CTLine代表一行</p>
+<p>CTRun：每个CTLine又是由多个CTRun组成的，每个CTRun代表一组显示风格一致的文本</p>
+<h3 id="文字排版的基础概念"><a href="#文字排版的基础概念" class="headerlink" title="文字排版的基础概念"></a>文字排版的基础概念</h3><ul>
+<li><p>字体(Font)：和我们平时说的字体不同，计算机意义上的字体表示的是同一大小，同一样式(Style)字形的集合。从这个意义上来说，当我们为文字设置粗体，斜体时其实是使用了另外一种字体(下划线不算)。而平时我们所说的字体只是具有相同设计属性的字体集合，即Font Family或typeface。</p>
+</li>
+<li><p>字符(Character)和字形(Glyphs)：排版过程中一个重要的步骤就是从字符到字形的转换，字符表示信息本身，而字形是它的图形表现形式。字符一般指某种编码，如Unicode编码，而字形则是这些编码对应的图片。但是他们之间不是一一对应关系，同个字符的不同字体族，不同字体大小，不同字体样式都对应了不同的字形。而由于连写(Ligatures)的存在，也会出现多个字符对应一个字形的情况。 此处输入图片的描述<br><img src="http://xiangwangfeng.com/images/ct1.jpg" alt="img"></p>
+</li>
+<li><p>字形描述集(Glyphs Metris)：即字形的各个参数。如下面的两张图:<br><img src="http://xiangwangfeng.com/images/ct2.jpg" alt="img"><br><img src="http://xiangwangfeng.com/images/ct3.jpg" alt="img"></p>
+<p>  此处输入图片的描述此处输入图片的描述</p>
+<p>  边框(Bounding Box)：一个假想的边框，尽可能地容纳整个字形。</p>
+<p>  基线(Baseline)：一条假想的参照线，以此为基础进行字形的渲染。一般来说是一条横线。</p>
+<p>  基础原点(Origin)：基线上最左侧的点。</p>
+<p>  行间距(Leading)：行与行之间的间距。</p>
+<p>  字间距(Kerning)：字与字之间的距离，为了排版的美观，并不是所有的字形之间的距离都是一致的，但是这个基本步影响到我们的文字排版。</p>
+<p>  上行高度(Ascent)和下行高度(Decent)：一个字形最高点和最低点到基线的距离，前者为正数，而后者为负数。当同一行内有不同字体的文字时，就取最大值作为相应的值。</p>
+<p>  如下图，<br>  <img src="http://xiangwangfeng.com/images/ct4.jpg" alt="img"><br>  此处输入图片的描述 红框高度既为当前行的行高，绿线为baseline，绿色到红框上部分为当前行的最大Ascent，绿线到黄线为当前行的最大Desent，而黄框的高即为行间距。由此可以得出：lineHeight = Ascent + |Decent| + Leading。</p>
+</li>
+</ul>
+<h3 id="CoreText绘制纯文本"><a href="#CoreText绘制纯文本" class="headerlink" title="CoreText绘制纯文本"></a>CoreText绘制纯文本</h3><p>自定义JCTextView继承自UIView, 重写draw(_:)方法，在其中绘制纯文本。代码如下：</p>
+<pre><code>class JCTextView: UIView {
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+
+        // 1 获取上下文
+        guard let context = UIGraphicsGetCurrentContext()  else {
+            return
+        }
+        // 2 转换坐标：uikit坐上原点，CoreText&amp;CoreGrapic以左下为原点
+        context.textMatrix = CGAffineTransform.identity
+        context.translateBy(x: 0, y: self.bounds.size.height)
+        context.scaleBy(x: 1.0, y: -1.0)
+        // 3 绘制区域
+        let path = CGMutablePath()
+        path.addEllipse(in: self.bounds)
+        // 4 创建需要绘制的文字
+        let attrString = &quot;Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!///end&quot;
+        let mutableAttrStr = NSMutableAttributedString(string: attrString)
+        mutableAttrStr.addAttributes([NSFontAttributeName: UIFont.systemFont(ofSize: 20),                       NSForegroundColorAttributeName: UIColor.red], range: NSMakeRange(0, 5))  mutableAttrStr.addAttributes([NSFontAttributeName:UIFont.systemFont(ofSize: 13),NSUnderlineStyleAttributeName: 1], range: NSMakeRange(3,10))
+        // 5 生成framesetter
+        let framesetter = CTFramesetterCreateWithAttributedString(mutableAttrStr)
+        let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, mutableAttrStr.length), path, nil)
+        // 6 绘制文本
+        CTFrameDraw(frame,context)
+    }
+}
+</code></pre><p>调用：</p>
+<pre><code>let view = JCTextView(frame: CGRect(x: 0, y: 100, width: 300, height: 300))
+view.backgroundColor = UIColor.white
+self.view.addSubview(view)
+</code></pre><p>效果图：</p>
+<p><img src="http://7xql77.com1.z0.glb.clouddn.com/core_text_draw_text_swift.png" alt="img"></p>
+<h3 id="CoreText实现图文混排的原理"><a href="#CoreText实现图文混排的原理" class="headerlink" title="CoreText实现图文混排的原理"></a>CoreText实现图文混排的原理</h3><p>使用CoreText进行图文混排的核心思想是把需要摆放图片的位置用空字符替换原来的字符，并且实现CTRunDelegate，用于动态设置空字符的高度和宽度（代表图片的大小），并且对这些空字符设置一个属性名来区别于其他CTRun，之后进行图片渲染的时候就能通过该属性来区分哪些空字符是代表图片的占位符，哪些是普通的空字符。使用CoreText处理点击事件的关键是判断点击的位置是本文内容中的第几个字符，然后通过判断该字符是否在需要处理点击事件的字符串范围内。</p>
+<pre><code>import UIKit
+import Foundation
+
+class JCView: UIView {
+    var image: UIImage?
+
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+
+        // 1 获取上下文
+        guard let context = UIGraphicsGetCurrentContext()  else {
+            return
+        }
+
+        // 2 转换坐标：uikit坐上原点，CoreText&amp;CoreGrapic已左下为原点
+        context.textMatrix = CGAffineTransform.identity
+        context.translateBy(x: 0, y: self.bounds.size.height)
+        context.scaleBy(x: 1.0, y: -1.0)
+        // 3 绘制区域
+        let path = UIBezierPath(rect: rect)
+        // 4 创建需要绘制的文字
+        let attrString = &quot;Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!Hello CoreText!&quot;
+
+        let mutableAttrStr = NSMutableAttributedString(string: attrString)
+        mutableAttrStr.addAttributes([NSFontAttributeName: UIFont.systemFont(ofSize: 20),
+                                      NSForegroundColorAttributeName: UIColor.red], range: NSMakeRange(0, 5))
+        mutableAttrStr.addAttributes([NSFontAttributeName:UIFont.systemFont(ofSize: 13),NSUnderlineStyleAttributeName: 1], range: NSMakeRange(3,10))
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 6 //行间距
+        mutableAttrStr.addAttributes([NSParagraphStyleAttributeName: style], range: NSMakeRange(0, mutableAttrStr.length))
+        // 5 为图片设置CTRunDelegate,delegate决定留给图片的空间大小
+        var imageName = &quot;xiaoyang.jpg&quot;
+        var imageCallback =  CTRunDelegateCallbacks(version: kCTRunDelegateVersion1, dealloc: { (refCon) -&gt; Void in
+
+        }, getAscent: { ( refCon) -&gt; CGFloat in
+
+            //                let imageName = &quot;mc&quot;
+            //                refCon.initialize()
+            //                let image = UIImage(named: imageName)
+            return 100  //返回高度
+
+        }, getDescent: { (refCon) -&gt; CGFloat in
+
+            return 50  //返回底部距离
+
+        }, getWidth: { (refCon) -&gt; CGFloat in
+
+            //                let imageName = String(&quot;mc&quot;)
+            //                let image = UIImage(named: imageName)
+            return 100  //返回宽度
+
+        })
+
+        let runDelegate = CTRunDelegateCreate(&amp;imageCallback, &amp;imageName)
+        let imgString = NSMutableAttributedString(string: &quot; &quot;) // 空格用于给图片留位置
+        imgString.addAttributes([kCTRunDelegateAttributeName as String: runDelegate!], range: NSMakeRange(0, 1))
+        imgString.addAttribute(&quot;imageName&quot;, value: imageName, range: NSMakeRange(0, 1))//添加属性，在CTRun中可以识别出这个字符是图片
+        mutableAttrStr.insert(imgString, at: 15)
+
+        //网络图片相关
+        var  imageCallback1 =  CTRunDelegateCallbacks(version: kCTRunDelegateVersion1, dealloc: { (refCon) -&gt; Void in
+
+        }, getAscent: { ( refCon) -&gt; CGFloat in
+            return 70  //返回高度
+
+        }, getDescent: { (refCon) -&gt; CGFloat in
+
+            return 50  //返回底部距离
+
+        }, getWidth: { (refCon) -&gt; CGFloat in
+            return 100  //返回宽度
+        })
+        var imageUrl = &quot;https://www.baidu.com/img/bd_logo1.png&quot; //网络图片链接
+        let urlRunDelegate  = CTRunDelegateCreate(&amp;imageCallback1, &amp;imageUrl)
+        let imgUrlString = NSMutableAttributedString(string: &quot; &quot;)  // 空格用于给图片留位置
+        imgUrlString.addAttribute(kCTRunDelegateAttributeName as String, value: urlRunDelegate!, range: NSMakeRange(0, 1))  //rundelegate  占一个位置
+        imgUrlString.addAttribute(&quot;urlImageName&quot;, value: imageUrl, range: NSMakeRange(0, 1))//添加属性，在CTRun中可以识别出这个字符是图片
+        mutableAttrStr.insert(imgUrlString, at: 150)
+
+
+        // 6 生成framesetter
+        let framesetter = CTFramesetterCreateWithAttributedString(mutableAttrStr)
+        let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, mutableAttrStr.length), path.cgPath, nil)
+
+        // 7 绘制除图片以外的部分
+        CTFrameDraw(frame,context)
+
+        // 8 处理绘制图片逻辑
+        let lines = CTFrameGetLines(frame) as NSArray //存取frame中的ctlines
+
+        let ctLinesArray = lines as Array
+        var originsArray = [CGPoint](repeating: CGPoint.zero, count:ctLinesArray.count)
+        let range: CFRange = CFRangeMake(0, 0)
+        CTFrameGetLineOrigins(frame, range, &amp;originsArray)
+
+        //遍历CTRun找出图片所在的CTRun并进行绘制,每一行可能有多个
+        for i in 0..&lt;lines.count {
+            //遍历每一行CTLine
+            let line = lines[i]
+            var lineAscent = CGFloat()
+            var lineDescent = CGFloat()
+            var lineLeading = CGFloat()
+            //该函数除了会设置好ascent,descent,leading之外，还会返回这行的宽度
+            CTLineGetTypographicBounds(line as! CTLine, &amp;lineAscent, &amp;lineDescent, &amp;lineLeading)
+
+            let runs = CTLineGetGlyphRuns(line as! CTLine) as NSArray
+            for j in 0..&lt;runs.count {
+                // 遍历每一个CTRun
+                var runAscent = CGFloat()
+                var runDescent = CGFloat()
+                let lineOrigin = originsArray[i]// 获取该行的初始坐标
+                let run = runs[j] // 获取当前的CTRun
+                let attributes = CTRunGetAttributes(run as! CTRun) as NSDictionary
+
+                let width =  CGFloat(CTRunGetTypographicBounds(run as! CTRun, CFRangeMake(0,0), &amp;runAscent, &amp;runDescent, nil))
+                let runRect = CGRect(x: lineOrigin.x + CTLineGetOffsetForStringIndex(line as! CTLine, CTRunGetStringRange(run as! CTRun).location, nil), y: lineOrigin.y - runDescent, width: width, height: runAscent + runDescent)
+                let imageNames = attributes[&quot;imageName&quot;]
+                let urlImageName = attributes[&quot;urlImageName&quot;]
+
+                if let imageName = imageNames as? String {
+                //本地图片
+                let image = UIImage(named: imageName)
+                let imageDrawRect = CGRect(x: runRect.origin.x, y: lineOrigin.y-runDescent, width: 100, height: 100)
+                if let cgimage = image?.cgImage {
+                    context.draw(cgimage, in: imageDrawRect)
+                }
+            }
+
+                if let urlImageName = urlImageName as? String{
+                    var image: UIImage?
+                    let imageDrawRect = CGRect(x: runRect.origin.x, y: lineOrigin.y-runDescent, width: 100, height: 100)
+                    if self.image == nil {
+                        image = UIImage(named:&quot;hs&quot;) //灰色图片占位
+                        //去下载
+                        if let url = NSURL(string: urlImageName){
+                            let request = NSURLRequest(url: url as URL)
+                            URLSession.shared.dataTask(with: request as URLRequest, completionHandler: { (data, resp, err) -&gt; Void in
+                                if let data = data{
+                                    DispatchQueue.main.sync(execute: { () -&gt; Void in
+                                        self.image = UIImage(data: data)
+                                        self.setNeedsDisplay()  //下载完成会重绘
+                                    })
+                                }
+                            }).resume()
+                        }
+                    } else {
+                        image = self.image
+                    }
+                    if let CGImage = image?.cgImage {
+                        context.draw(CGImage, in: imageDrawRect)
+                    }
+                }
+            }
+        }
+    }
+}
+</code></pre><p>截图：</p>
+<p><img src="http://7xql77.com1.z0.glb.clouddn.com/core_text_text_pic.png" alt="img"></p>
+<p>参考:</p>
+<p><a href="https://developer.apple.com/library/content/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html" target="_blank" rel="noopener">CoreText_Programming_Guide</a></p>
+<p><a href="http://blog.devtang.com/2015/06/27/using-coretext-1/" target="_blank" rel="noopener">http://blog.devtang.com/2015/06/27/using-coretext-1/</a></p>
+<p><a href="http://xiangwangfeng.com/2014/03/06/iOS%E6%96%87%E5%AD%97%E6%8E%92%E7%89%88(CoreText" target="_blank" rel="noopener">http://xiangwangfeng.com/2014/03/06/iOS%E6%96%87%E5%AD%97%E6%8E%92%E7%89%88(CoreText)%E9%82%A3%E4%BA%9B%E4%BA%8B/</a>%E9%82%A3%E4%BA%9B%E4%BA%8B/)</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CoreText/" rel="tag"># CoreText</a>
+          
+            <a href="/tags/图文混排/" rel="tag"># 图文混排</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/02/04/利用CoreImage生成二维码.html" rel="next" title="利用CoreImage生成二维码">
+                <i class="fa fa-chevron-left"></i> 利用CoreImage生成二维码
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/02/27/CoreAnimation.html" rel="prev" title="CoreAnimation">
+                CoreAnimation <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#CoreText简介"><span class="nav-number">1.</span> <span class="nav-text">CoreText简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CoreText与UIWebView在排版方面的优劣比较"><span class="nav-number">2.</span> <span class="nav-text">CoreText与UIWebView在排版方面的优劣比较</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#UIWebView也常用于处理复杂的排版，对应排版他们之间的优劣如下"><span class="nav-number">2.1.</span> <span class="nav-text">UIWebView也常用于处理复杂的排版，对应排版他们之间的优劣如下</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CoreText排版的劣势："><span class="nav-number">2.2.</span> <span class="nav-text">CoreText排版的劣势：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CoreText对象模型图"><span class="nav-number">3.</span> <span class="nav-text">CoreText对象模型图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文字排版的基础概念"><span class="nav-number">4.</span> <span class="nav-text">文字排版的基础概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CoreText绘制纯文本"><span class="nav-number">5.</span> <span class="nav-text">CoreText绘制纯文本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CoreText实现图文混排的原理"><span class="nav-number">6.</span> <span class="nav-text">CoreText实现图文混排的原理</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2017/02/24/利用CoreText图文混排.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

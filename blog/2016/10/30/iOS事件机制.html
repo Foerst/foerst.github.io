@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="事件分类 Touch events(触摸事件,经常用) motion events(运动事件，比如重力感应和摇一摇等) remote control event(远程控制事件，比如用耳机上得按键来控制手机) press event(按压事件)">
+<meta name="keywords" content="Event">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS事件机制">
+<meta property="og:url" content="http://foerst.github.io/blog/2016/10/30/iOS事件机制.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="事件分类 Touch events(触摸事件,经常用) motion events(运动事件，比如重力感应和摇一摇等) remote control event(远程控制事件，比如用耳机上得按键来控制手机) press event(按压事件)">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://foerst.github.io/blog/2016/10/30/runloop_hit_testing_pic.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2016/10/30/hit_test_process_step.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2016/10/30/runloop_responder_chain.png">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.504Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS事件机制">
+<meta name="twitter:description" content="事件分类 Touch events(触摸事件,经常用) motion events(运动事件，比如重力感应和摇一摇等) remote control event(远程控制事件，比如用耳机上得按键来控制手机) press event(按压事件)">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2016/10/30/runloop_hit_testing_pic.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2016/10/30/iOS事件机制.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>iOS事件机制 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2016/10/30/iOS事件机制.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS事件机制
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-10-30 00:00:00" itemprop="dateCreated datePublished" datetime="2016-10-30T00:00:00+08:00">2016-10-30</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Event/" itemprop="url" rel="index"><span itemprop="name">Event</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="事件分类"><a href="#事件分类" class="headerlink" title="事件分类"></a>事件分类</h3><ul>
+<li>Touch events(触摸事件,经常用)</li>
+<li>motion events(运动事件，比如重力感应和摇一摇等)</li>
+<li>remote control event(远程控制事件，比如用耳机上得按键来控制手机)</li>
+<li>press event(按压事件)</li>
+</ul>
+<a id="more"></a>
+<h3 id="事件的产生"><a href="#事件的产生" class="headerlink" title="事件的产生"></a>事件的产生</h3><p>当我们用手指点击iOS设备屏幕时,屏幕中的硬件侦测到触摸的位置等信息。这些信息被用来创建一个touch event对象，这个对象记录了触摸的位置信息、触摸发生的时间、触摸持续时间等信息。iOS将touch event对象放入到app中的事件队列中。</p>
+<h3 id="事件传递（Event-Delivery）"><a href="#事件传递（Event-Delivery）" class="headerlink" title="事件传递（Event Delivery）"></a>事件传递（Event Delivery）</h3><p>事件传递是指一个事件从事件队列中取出并传递到应用程序中相应对象的过程。</p>
+<p>事件传递有三种方式：</p>
+<ul>
+<li>Direct delivery</li>
+<li>Hit-Test</li>
+<li>First responder</li>
+</ul>
+<h4 id="Direct-delivery（直接传递）"><a href="#Direct-delivery（直接传递）" class="headerlink" title="Direct delivery（直接传递）"></a>Direct delivery（直接传递）</h4><p>直接传递是最简单的传递方式。某些事件会触发特定的对象。这些事件知道谁能够处理自己，并且它们是被runloop直接分派处理的，比如Swift函数调用。其他能触发特定对象(或一组对象)事件是：通知(notifications)、定时器(timer events)、用户界面更新。</p>
+<h4 id="Hit-Test"><a href="#Hit-Test" class="headerlink" title="Hit-Test"></a>Hit-Test</h4><p>Hit-Test传递事件基于用户界面视图的层次关系，并且它<code>仅用于触摸事件</code>。Hit-Test的目的是找到触摸事件发生的且位于最上层的视图，该视图被称为<code>Hit-Test View</code>.<br>以下图为例：<br><img src="/blog/2016/10/30/runloop_hit_testing_pic.png" alt="img"></p>
+<ul>
+<li>UIApplication对象给KeyWindow发送sendEvent(_:)消息，参数是event对象</li>
+<li>UIWindow对象执行Hit-Test. 从视图层次的最上层开始，对子视图发送hitTest(_:,withEvent:)消息，如上图第二个图所示，即控制器的view.</li>
+<li>上层的子视图判断触摸点是否在自己的bounds中，如果在，则它会继续执行Hit-Test，这是一个递归的过程.图中view包含三个部分：顶部的导航条，中间的webview,底部的工具条。触摸点在工具条的范围内，所以会向工具条发送hitTest(_:,withEvent:)消息。工具条继续重复这个过程，寻找包含触摸点的子视图，最后发现左侧的button包含这个事件的触摸点并且button没有子视图，于是，这个button就被返回作为<code>Hit-Test View</code></li>
+<li>最后，这个button处理该事件，判断是否点击该按钮，然后给target发送action消息。</li>
+</ul>
+<p>Hit-Test整个过程的示意图：<br><img src="/blog/2016/10/30/hit_test_process_step.png" alt="img"></p>
+<p>Hit-Test过程中用到的是UIView的方法：</p>
+<pre><code>- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event; 
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event;
+</code></pre><p>Hit-Test过程伪代码：</p>
+<pre><code>//override
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    if (!self.isUserInteractionEnabled || self.isHidden || self.alpha &lt;= 0.01) {
+        return nil;
+    }
+    if ([self pointInside:point withEvent:event]) {
+        for (UIView *subView in [[self subviews] reverseObjectEnumerator]) {
+            CGPoint convertedPoint = [subView convertPoint:point fromView:self];
+            UIView *hitTestView = [subView hitTest:convertedPoint withEvent:event];
+            if (hitTestView) {
+                return hitTestView;
+            }
+        }
+        return self;
+    }
+    return nil;
+}
+</code></pre><h4 id="First-responder（第一响应者）"><a href="#First-responder（第一响应者）" class="headerlink" title="First responder（第一响应者）"></a>First responder（第一响应者）</h4><p>第一响应者是在激活的用户界面中的视图(UITextView, UITextField等)、控制器或UIWindow对象。可以把它作为不能通过hit-Test决定的指定事件的接收者。每一个激活的用户界面都有一个第一响应者。</p>
+<p>下面的事件会被传递到第一响应者：</p>
+<ul>
+<li>Shake motion events(通过硬件加速器产生)</li>
+<li>Remote control events(通过外部附件产生，如耳机)</li>
+<li>Key events(通过点击虚拟键盘或者蓝牙连接的键盘产生)</li>
+</ul>
+<p>UITextField和UITextView被设计为第一响应者，canBecomeFirstResponder()被重写返回YES.在控制器的viewDidAppear()方法中显示调用becomeFirstResponder()方法，可使UITextField或UITextView对象成为第一响应者。</p>
+<h3 id="响应者链-The-Responder-Chain"><a href="#响应者链-The-Responder-Chain" class="headerlink" title="响应者链(The Responder Chain)"></a>响应者链(The Responder Chain)</h3><p>响应者链由一系列UIResponder子类对象构成。</p>
+<p>如下图所示：响应者链始于<code>initial responder</code>(初始化响应者)。当传递motion, key, 和remote events时, 第一响应者是initial responder;传递触摸事件时, Hit-Test View是initial responder.<br><img src="/blog/2016/10/30/runloop_responder_chain.png" alt="img"></p>
+<h4 id="响应者链的构建"><a href="#响应者链的构建" class="headerlink" title="响应者链的构建"></a>响应者链的构建</h4><p>响应者链的构建是自动完成的。</p>
+<p>在UIKit中有一个类：UIResponder，我们可以看看头文件的几个属性和方法：</p>
+<pre><code>NS_CLASS_AVAILABLE_IOS(2_0) @interface UIResponder : NSObject &lt;UIResponderStandardEditActions&gt;
+
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) UIResponder *nextResponder;
+#else
+- (nullable UIResponder*)nextResponder;
+#endif
+
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL canBecomeFirstResponder;    // default is NO
+#else
+- (BOOL)canBecomeFirstResponder;    // default is NO
+#endif
+- (BOOL)becomeFirstResponder;
+
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL canResignFirstResponder;    // default is YES
+#else
+- (BOOL)canResignFirstResponder;    // default is YES
+#endif
+- (BOOL)resignFirstResponder;
+
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL isFirstResponder;
+#else
+- (BOOL)isFirstResponder;
+#endif
+
+// Generally, all responders which do custom touch handling should override all four of these methods.
+// Your responder will receive either touchesEnded:withEvent: or touchesCancelled:withEvent: for each
+// touch it is handling (those touches it received in touchesBegan:withEvent:).
+// *** You must handle cancelled touches to ensure correct behavior in your application.  Failure to
+// do so is very likely to lead to incorrect behavior or crashes.
+- (void)touchesBegan:(NSSet&lt;UITouch *&gt; *)touches withEvent:(nullable UIEvent *)event;
+- (void)touchesMoved:(NSSet&lt;UITouch *&gt; *)touches withEvent:(nullable UIEvent *)event;
+- (void)touchesEnded:(NSSet&lt;UITouch *&gt; *)touches withEvent:(nullable UIEvent *)event;
+- (void)touchesCancelled:(NSSet&lt;UITouch *&gt; *)touches withEvent:(nullable UIEvent *)event;
+- (void)touchesEstimatedPropertiesUpdated:(NSSet&lt;UITouch *&gt; *)touches NS_AVAILABLE_IOS(9_1);
+</code></pre><p>UIResponder是所有可以响应事件的类的基类，其中包括最常见的UIView和UIViewController甚至是UIApplication。</p>
+<p>我们的app中，所有的视图都是按照一定的结构组织起来的，即树状层次结构，每个view都有自己的superView，包括controller的topmost view(controller的self.view)。当一个view被add到superView上的时候，它的nextResponder属性就会被指向它的superView，当controller被初始化的时候，self.view(topmost view)的nextResponder会被指向所在的controller，而controller的nextResponder会被指向self.view的superView，这样，整个app就通过nextResponder串成了一条链，也就是我们所说的响应链。所以响应链就是一条虚拟的链，并没有一个对象来专门存储这样的一条链，而是通过UIResponder的属性串连起来的。</p>
+<h3 id="事件处理-Event-Handling"><a href="#事件处理-Event-Handling" class="headerlink" title="事件处理(Event Handling)"></a>事件处理(Event Handling)</h3><p>有了响应链，并且找到了第一个响应事件的对象，接下来就是把事件发送个这个响应者了。 UIApplication中有个sendEvent:的方法，在UIWindow中同样也可以发现一个同样的方法。UIApplication是通过这个方法把事件发送给UIWindow，然后UIWindow通过同样的接口，把事件发送给<code>initial responder</code>。而事件的响应，也就是按钮上绑定的action，是在touchEnded里面通过调用UIApplication的sendAction:to:from:forEvent:方法来实现的。如果<code>initial responder</code>没有响应这个事件，那么就会根据响应链，把事件冒泡传递给nextResponder来响应。</p>
+<p>目标对象怎样才能处理事件呢？答案就是<code>实现处理事件的方法</code>，处理事件时给出处理方法，不处理时调用super方法，事件会沿着响应者链向上传递。</p>
+<pre><code>override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+    if iWantToHandleTheseTouches(touches) {
+        // handle event
+        doSomethingWithTheseTouches(touches)
+    } else {
+        // ignore event and pass it up the responder chain
+        super.touchesBegan(touches, withEvent: event)
+    }
+}
+</code></pre><p><a href="http://zhoon.github.io/ios/2015/04/12/ios-event.html" target="_blank" rel="noopener"><em>http://zhoon.github.io/ios/2015/04/12/ios-event.html</em></a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Event/" rel="tag"># Event</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/08/30/iOS 3D Touch使用简介.html" rel="next" title="iOS 3D Touch使用简介">
+                <i class="fa fa-chevron-left"></i> iOS 3D Touch使用简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/12/15/OC链式编程.html" rel="prev" title="OC链式编程">
+                OC链式编程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#事件分类"><span class="nav-number">1.</span> <span class="nav-text">事件分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事件的产生"><span class="nav-number">2.</span> <span class="nav-text">事件的产生</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事件传递（Event-Delivery）"><span class="nav-number">3.</span> <span class="nav-text">事件传递（Event Delivery）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Direct-delivery（直接传递）"><span class="nav-number">3.1.</span> <span class="nav-text">Direct delivery（直接传递）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Hit-Test"><span class="nav-number">3.2.</span> <span class="nav-text">Hit-Test</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#First-responder（第一响应者）"><span class="nav-number">3.3.</span> <span class="nav-text">First responder（第一响应者）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#响应者链-The-Responder-Chain"><span class="nav-number">4.</span> <span class="nav-text">响应者链(The Responder Chain)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#响应者链的构建"><span class="nav-number">4.1.</span> <span class="nav-text">响应者链的构建</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事件处理-Event-Handling"><span class="nav-number">5.</span> <span class="nav-text">事件处理(Event Handling)</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2016/10/30/iOS事件机制.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

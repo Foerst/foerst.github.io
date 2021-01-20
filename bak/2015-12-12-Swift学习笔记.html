@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="第一章1.输出print()函数print(“xxxx(变量)”) 2.常量let 变量var 3.type annotation 类型注解 （var index: Int= 12） 4.comment:注释  cmd+/ 或  /………/ 5.可以不写分号；">
+<meta name="keywords" content="Swift">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Swift学习笔记">
+<meta property="og:url" content="http://foerst.github.io/bak/2015-12-12-Swift学习笔记.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="第一章1.输出print()函数print(“xxxx(变量)”) 2.常量let 变量var 3.type annotation 类型注解 （var index: Int= 12） 4.comment:注释  cmd+/ 或  /………/ 5.可以不写分号；">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.657Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Swift学习笔记">
+<meta name="twitter:description" content="第一章1.输出print()函数print(“xxxx(变量)”) 2.常量let 变量var 3.type annotation 类型注解 （var index: Int= 12） 4.comment:注释  cmd+/ 或  /………/ 5.可以不写分号；">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/bak/2015-12-12-Swift学习笔记.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Swift学习笔记 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+
+  
+
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/bak/2015-12-12-Swift学习笔记.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Swift学习笔记
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2015-12-12 00:00:00" itemprop="dateCreated datePublished" datetime="2015-12-12T00:00:00+08:00">2015-12-12</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="第一章"><a href="#第一章" class="headerlink" title="第一章"></a>第一章</h3><p>1.输出print()函数print(“xxxx(变量)”)</p>
+<p>2.常量let 变量var</p>
+<p>3.type annotation 类型注解 （var index: Int= 12）</p>
+<p>4.comment:注释  cmd+/ 或  /<em>………</em>/</p>
+<p>5.可以不写分号；<br><a id="more"></a><br>6.整形 Int, UInt, Int8, UInt8, Int16, UInt16,</p>
+<p>var minInt = Int.min<br>var maxInt = Int.max</p>
+<p>7.浮点型Float 精确度小数点后6位，Double 15位，申明浮点数时默认是double类型</p>
+<p>8.类型安全和类型推断 type safe &amp; type inference  根据 赋值的literal value(字面量)进行类型推断</p>
+<p>9.数值型字面量（Numeric Literals）</p>
+<p>let 十进制的10 = 10 （无前缀，直接写）<br>let 八进制的8 = 0o10(前缀0o)<br>let 二进制的2 = 0b10(前缀0b)<br>let 十六进制的16 = 0x10(前缀0x)<br>科学计数法：<br>let 一百万 = 1e6<br>let 一百万分之一 = 1e-6<br>let 10亿 = 1_000_000_000</p>
+<p>10.数值型转换（numeric convertion）变量或常量做加减运算时要先进行类型转换（注意：转换的是是相对于变量或常量，不是字面量，字面量可直接运算）</p>
+<p>￼let a : Int16 = 100<br>let b : Int8 = 10<br>let c = a + Int16(b)<br>let san = 3;<br>let ratio = 0.14159<br>let circleRaion = Double(san) + ratio<br>let x = 3 +0.14159 (字面量自己计算)</p>
+<p>11：类型别名   </p>
+<p>（type Aliases）关键字：typealias AudioSample = UInt16</p>
+<p>12.Bool类型  </p>
+<p>let orangeAreOrange: Bool = true(false) if判断中条件只能是Bool 类型的（跟c不同）</p>
+<p>13.元组（tuple）类型：各种类型的组合值</p>
+<p>let tupleHi = (70, “衬衣”, true)  可添加前缀 let tupleHi = (价格：70, 名称：”衬衣”, 合身：true) 访问时：tupleHi.0 或者 tupleHi.价格</p>
+<p>14.optional (可选值)</p>
+<p>forced unwrapping:强制拆包/解析 可选值后添加！可以访问包装的存在值（若不存在回报运行时错误）</p>
+<p>optional binding可选绑定 可以判断可选类型是否包含值，如果包含就把值赋给一个临时常量或者变量。可选绑定可以用在if和while语句中来对可选类型的值进行判断并把值赋给一个常量或者变量。可选绑定的模式为：</p>
+<pre><code>if let actualNumber = Int(possibleNumber) {
+    //do something here
+}
+</code></pre><p>可以翻译为：“If the optional Int returned by Int(possibleNumber) contains a value, set a new constant called actualNumber to the value contained in the optional。If the conversion is successful, the actualNumber constant becomes available for use within the first branch of the if statement. It has already been initialized with the value contained within the optional, and so there is no need to use the ! suffix to access its value.”</p>
+<p>隐式解析可选类型(implicitly unwrapped optionals)。把想要用作可选的类型的后面的问号(String?)改成感叹号(String!)来声明一个隐式解析可选类型。这是语法糖，避免在已确定可选值包含值的情况下不必要的可选绑定。（IB中控件就是这样，连线之后确定一定有值）</p>
+<p>15.nil </p>
+<p>即无值状态 通过对可选类型变量赋值使其成为无值状态。“nil cannot be used with nonoptional constants and variables. ” 定义无初始值的可选类型变量时默认为nil.</p>
+<p>16.异常处理（error handling）</p>
+<p>形式如下:</p>
+<p>函数声明时添加throws关键字<br>func canThrowAnError() throws {<br>    // this function may or may not throw an error<br>}<br>调用时 do包裹，catch处理<br>do {<br>    try canThrowAnError()<br>    // no error was thrown<br>} catch Error.NotFoundFile {<br>    // an error was thrown<br>}catch Error.Unknown {<br>    //deal matched error<br>}</p>
+<p>17.Assertions(断言)</p>
+<p>原理：条件成立继续运行，不成立，代码结束运行，app终止。assert(condition, msg) condition == false时，输出msg.msg可以省略。<br>作用：调试输出（注意：release模式下不可用，debug下可以调试输出）</p>
+<h3 id="第二章-基本操作符"><a href="#第二章-基本操作符" class="headerlink" title="第二章 基本操作符"></a>第二章 基本操作符</h3><p>基本操作符分为一元（unary）、二元(binary)和三元(ternary)运算符。</p>
+<p>1.Assignment Operator(赋值运算符)</p>
+<p>let b = 10 //b赋值为10</p>
+<p>2.Arithmetic Operators（算术运算符）</p>
+<p>+，-，*，/ ，注意的是+可操作字符串，值相加默认不允许值溢出（overflow）</p>
+<p>3.取余（Remainder Operator）</p>
+<p>注意，取余的2个操作数均可为浮点数。计算公式为：</p>
+<pre><code>a = (b x some multiplier) + remainder
+========&gt; a%b = remainder
+</code></pre><p>比如 -9 % 4 = -1， 因为“-9 = (4 x -2) + -1”</p>
+<p>8 % 2.5 = 0.5，因为 “8 = (2.5 x 3) + 0.5”</p>
+<p>4.Increment and Decrement Operators(自增 自减 运算符)</p>
+<p>++、 – 返回值跟c一样,比如: var a = 10 var b = ++a(++a有返回值，即加1之后的a)</p>
+<p>5.Unary Minus Operator&amp;Unary Plus Operator（取负&amp;取正）</p>
+<p>-a +b…</p>
+<p>6.Compound Assignment Operators(组合赋值)</p>
+<p>比如： a += 2 即时：a = a + 2</p>
+<p>注意：这样写“let b = a += 2”是错误的，因为组合赋值没有返回值，这跟自增或自减是不一样的。</p>
+<p>7.Comparison Operators（比较操作符）</p>
+<p>== 、 ！= 、 &gt; 、&lt; 、&lt;=、 &gt;= 返回Bool类型</p>
+<p>8.Ternary Conditional Operator（三目条件操作符）</p>
+<p>syntax: question ? answer1 : answer2</p>
+<p>If question is true, it evaluates answer1 and returns its value; otherwise, it evaluates answer2 and returns its value.</p>
+<p>9.Nil Coalescing Operator(a ?? b) 空合并操作符</p>
+<p>“The nil coalescing operator (a ?? b) unwraps an optional a if it contains a value, or returns a default value b if a is nil. The expression a is always of an optional type. The expression b must match the type that is stored inside a.</p>
+<p>The nil coalescing operator is shorthand for the code below:</p>
+<pre><code>a != nil ? a! : b
+</code></pre><p>例子：</p>
+<pre><code>let defaultColorName = &quot;red&quot;
+var userDefinedColorName: String?   // defaults to nil
+var colorNameToUse = userDefinedColorName ?? defaultColorName
+// userDefinedColorName is nil, so colorNameToUse is set to the default of &quot;red”
+</code></pre><p>10.Range Operators（范围操作符）</p>
+<ul>
+<li>Closed Range Operator（闭区间）<br>  a…b 即[a,b]</li>
+<li>Half-Open Range Operator（半开区间）<br>  a..&lt;b 即[a,b)</li>
+</ul>
+<p>11.Logical Operators（逻辑操作符）</p>
+<p>用来操作或组合bool值或表达式。</p>
+<p>Logical NOT (!a)</p>
+<p>Logical AND (a &amp;&amp; b)：a和b同时为true时返回true,有短路原则</p>
+<p>Logical OR (a || b)：有任意一个是true即返回true</p>
+<p>注意：表达式可任意组合，添加“（）”可增强阅读性。</p>
+<h3 id="第三章-字符和字符串"><a href="#第三章-字符和字符串" class="headerlink" title="第三章 字符和字符串"></a>第三章 字符和字符串</h3><h3 id="第四章-集合类型（Collection-Types）"><a href="#第四章-集合类型（Collection-Types）" class="headerlink" title="第四章 集合类型（Collection Types）"></a>第四章 集合类型（Collection Types）</h3><p>1.Arrays（数组）</p>
+<p>2.Sets（集合） </p>
+<p>3.Dictionaries（字典）</p>
+<h3 id="第五章-控制流（Control-Flow）"><a href="#第五章-控制流（Control-Flow）" class="headerlink" title="第五章 控制流（Control Flow）"></a>第五章 控制流（Control Flow）</h3><p>1.for循环</p>
+<ul>
+<li><p>For-In</p>
+<pre><code>for _ in 1...power {
+   answer *= base
+}
+</code></pre></li>
+<li><p>for</p>
+<pre><code>for initialization; condition; increment {
+    statements
+}
+</code></pre></li>
+</ul>
+<p>2.while循环</p>
+<ul>
+<li><p>while</p>
+<pre><code>while condition {
+    statements
+}
+</code></pre></li>
+<li><p>repeat-while</p>
+<pre><code>repeat {
+    statements
+} 
+</code></pre></li>
+</ul>
+<p>3.Conditional Statements(条件语句)</p>
+<ul>
+<li><p>if </p>
+<p>  条件不需要括号括起来,条件必须能够返回Bool值。</p>
+</li>
+<li><p>switch</p>
+<pre><code>switch some value to consider {
+case value 1:
+    respond to value 1
+case value 2,
+value 3:
+    respond to value 2 or 3
+default:
+    otherwise, do something else
+}
+</code></pre><p>  注意：</p>
+<p>  case和default必须包含所有需要考虑的值，如果case已经包含了所有可能的值，default分支可以省略。</p>
+<p>  特点：</p>
+<p>  a.没有隐含的贯穿（No Implicit Fallthrough）:执行的case语句后没有break,case分支执行完后整个switch语句就执行完毕。</p>
+<p>  b.case分支必须包含可执行的语句，否则报错。</p>
+<p>  c.多个case值可用“，”分开。</p>
+<p>  d.可以间隔匹配（Interval Matching）</p>
+<pre><code>case 1..&lt;5:
+    naturalCount = &quot;a few”
+</code></pre><p>  f.case值可用元组</p>
+<pre><code>let somePoint = (1, 1)
+switch somePoint {
+case (0, 0):
+    print(&quot;(0, 0) is at the origin&quot;)
+case (_, 0):
+    print(&quot;(\(somePoint.0), 0) is on the x-axis&quot;)
+default:
+    print(&quot;(\(somePoint.0), \(somePoint.1)) is outside of the box&quot;)
+}
+</code></pre><p>  g.可用值绑定（Value Bindings）（A switch case can bind the value or values it matches to temporary constants or variables, for use in the body of the case. This is known as value binding, because the values are “bound” to temporary constants or variables within the case’s body.）</p>
+<pre><code>let anotherPoint = (2, 0)
+switch anotherPoint {
+case (let x, 0):
+    print(&quot;on the x-axis with an x value of \(x)&quot;)
+</code></pre><p>  h.case分支可以使用where分句匹配额外的条件（dynamic filter）</p>
+<pre><code>let yetAnotherPoint = (1, -1)
+switch yetAnotherPoint {
+case let (x, y) where x == y:
+    print(&quot;(\(x), \(y)) is on the line x == y&quot;)
+</code></pre></li>
+</ul>
+<p>4.Control Transfer Statements（控制转移语句）</p>
+<p>Swift有5种控制转移语句:</p>
+<ul>
+<li>continue：结束当前循环，进入下一次循环</li>
+<li>break：跳出整个循环</li>
+<li><p>fallthrough：case分支后添加fallthrough关键字（c中break的位置）,可以使之后的语句继续执行，而不退出switch语句。</p>
+<pre><code>“let integerToDescribe = 5
+var description = &quot;The number \(integerToDescribe) is&quot;
+switch integerToDescribe {
+case 2, 3, 5, 7, 11, 13, 17, 19:
+    description += &quot; a prime number, and also&quot;
+    fallthrough
+default:
+    description += &quot; an integer.&quot;
+}
+print(description)
+// prints &quot;The number 5 is a prime number, and also an integer.”
+注意：The fallthrough keyword does not check the case conditions for the switch case that it causes execution to fall into. The fallthrough keyword simply causes code execution to move directly to the statements inside the next case (or default case) block, as in C’s standard switch statement behavior.
+翻译：fallthrough关键字总是跳到下一个case（或default）语句执行，从不检查跳入的case语句的条件。（？？）
+</code></pre></li>
+<li><p>return:函数返回</p>
+</li>
+<li>throw：抛出异常</li>
+</ul>
+<p>5.Labeled Statements（标签语句）</p>
+<p>给循环或条件语句起个状态标签，然后用break/continue进行跳转执行（类似c中goto），break跳出，continue结束当前循环，进入下一次循环。<br>语法：</p>
+<pre><code>label name: while condition {
+statements
+}
+</code></pre><p>6.Early Exit</p>
+<p>guard关键字：跟if语句类似，但目的是增强代码可读性，并且可选绑定的变量或常量作用域跟if语句不同。<br>例子：</p>
+<pre><code>func greet(person: [String: String]) {
+    guard let name = person[&quot;name&quot;] else {
+        return
+    }
+    print(&quot;Hello \(name)!&quot;)
+    guard let location = person[&quot;location&quot;] else {
+        print(&quot;I hope the weather is nice near you.&quot;)
+        return
+    }
+
+    print(&quot;I hope the weather is nice in \(location).&quot;)
+}
+greet([&quot;name&quot;: &quot;John&quot;])
+// prints &quot;Hello John!
+</code></pre><p>7.Checking API Availability</p>
+<pre><code>if #available(iOS 9, OSX 10.10, *) {
+    // Use iOS 9 APIs on iOS, and use OS X v10.10 APIs on OS X
+} else {
+    // Fall back to earlier iOS and OS X APIs
+}
+The last argument, *, is required and specifies that on any other platform
+</code></pre><h3 id="第六章-函数（Function）"><a href="#第六章-函数（Function）" class="headerlink" title="第六章 函数（Function）"></a>第六章 函数（Function）</h3><p>即：执行特定任务的代码块。</p>
+<p>1.Defining and Calling Functions</p>
+<p>func关键字开头 函数名，参数名（后跟类型），–&gt; 后跟返回值。调用 函数名（参数）</p>
+<p>2.Function Parameter Names:</p>
+<ul>
+<li><p>external parameter name:主要是函数调用时参数含义辅助功能。默认情况下，第一个参数的外部参数名省略，其余的使用local parameter name作为外部参数名。当然，你也可以在函数实现时指定外部参数名，格式如下：</p>
+<pre><code>func someFunction(externalParameterName localParameterName: Int){
+    // function body goes here, and can use localParameterName
+    // to refer to the argument value for that parameter
+}
+//在本地参数名前写外部参数名，之间有空格
+</code></pre></li>
+<li><p>local parameter name:函数实现时用到的局部参数名。</p>
+</li>
+</ul>
+<p>3.Omitting External Parameter Names—忽略外部参数名</p>
+<p>write an underscore (<em>) instead of an explicit external name for that parameter——用下划线“</em>”替代外部参数名，这样调用的时候就可以不写外部参数名了。</p>
+<p>4.Default Parameter Values—-默认参数值</p>
+<p>参数类型后加默认值即可</p>
+<pre><code>func someFunction(parameterWithDefault: Int = 12) {
+    // function body goes here
+    // if no arguments are passed to the function call,
+    // value of parameterWithDefault is 12
+}
+</code></pre><p>5.可变参数（Variadic Parameters）</p>
+<p>变参可接受0或多个特定类型的值。在参数类型后面插入(…)表示可变参数。可变参数的参数名是特定类型的数组类型，在函数体中作为数组使用。A function may have at most one variadic parameter.</p>
+<pre><code>func arithmeticMean(numbers: Double...) -&gt; Double {
+    var total: Double = 0
+    for number in numbers {
+        total += number
+    }
+    return total / Double(numbers.count)
+}
+arithmeticMean(1, 2, 3, 4, 5)”
+// returns 3.0
+</code></pre><p>6.Constant and Variable Parameters—-常量参数和变量参数</p>
+<h3 id="第七章-闭包（closure）"><a href="#第七章-闭包（closure）" class="headerlink" title="第七章 闭包（closure）"></a>第七章 闭包（closure）</h3><h3 id="第八章-枚举（Enumerations）"><a href="#第八章-枚举（Enumerations）" class="headerlink" title="第八章 枚举（Enumerations）"></a>第八章 枚举（Enumerations）</h3><h3 id="第九章-类和结构体（Classes-amp-Structures）"><a href="#第九章-类和结构体（Classes-amp-Structures）" class="headerlink" title="第九章 类和结构体（Classes&amp;Structures）"></a>第九章 类和结构体（Classes&amp;Structures）</h3><h3 id="第十章-属性（Properties）"><a href="#第十章-属性（Properties）" class="headerlink" title="第十章 属性（Properties）"></a>第十章 属性（Properties）</h3><p>1.分类：Stored properties，computed properties，type properties</p>
+<p>2.Stored Properties:a stored property is a constant or variable that is stored as part of an instance of a particular class or structure</p>
+<h3 id="第十一章-方法（Methods）"><a href="#第十一章-方法（Methods）" class="headerlink" title="第十一章 方法（Methods）"></a>第十一章 方法（Methods）</h3><h3 id="第十一章-下标（Subscripts）"><a href="#第十一章-下标（Subscripts）" class="headerlink" title="第十一章 下标（Subscripts）"></a>第十一章 下标（Subscripts）</h3><h3 id="第十一章-继承（Her）"><a href="#第十一章-继承（Her）" class="headerlink" title="第十一章 继承（Her）"></a>第十一章 继承（Her）</h3><h3 id="第十一章-初始化（Initialzation）"><a href="#第十一章-初始化（Initialzation）" class="headerlink" title="第十一章 初始化（Initialzation）"></a>第十一章 初始化（Initialzation）</h3><h3 id="第十一章-反初始化（Methods）"><a href="#第十一章-反初始化（Methods）" class="headerlink" title="第十一章 反初始化（Methods）"></a>第十一章 反初始化（Methods）</h3>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/" rel="tag"># </a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一章"><span class="nav-number">1.</span> <span class="nav-text">第一章</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二章-基本操作符"><span class="nav-number">2.</span> <span class="nav-text">第二章 基本操作符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第三章-字符和字符串"><span class="nav-number">3.</span> <span class="nav-text">第三章 字符和字符串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第四章-集合类型（Collection-Types）"><span class="nav-number">4.</span> <span class="nav-text">第四章 集合类型（Collection Types）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第五章-控制流（Control-Flow）"><span class="nav-number">5.</span> <span class="nav-text">第五章 控制流（Control Flow）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第六章-函数（Function）"><span class="nav-number">6.</span> <span class="nav-text">第六章 函数（Function）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第七章-闭包（closure）"><span class="nav-number">7.</span> <span class="nav-text">第七章 闭包（closure）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第八章-枚举（Enumerations）"><span class="nav-number">8.</span> <span class="nav-text">第八章 枚举（Enumerations）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第九章-类和结构体（Classes-amp-Structures）"><span class="nav-number">9.</span> <span class="nav-text">第九章 类和结构体（Classes&amp;Structures）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第十章-属性（Properties）"><span class="nav-number">10.</span> <span class="nav-text">第十章 属性（Properties）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第十一章-方法（Methods）"><span class="nav-number">11.</span> <span class="nav-text">第十一章 方法（Methods）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第十一章-下标（Subscripts）"><span class="nav-number">12.</span> <span class="nav-text">第十一章 下标（Subscripts）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第十一章-继承（Her）"><span class="nav-number">13.</span> <span class="nav-text">第十一章 继承（Her）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第十一章-初始化（Initialzation）"><span class="nav-number">14.</span> <span class="nav-text">第十一章 初始化（Initialzation）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第十一章-反初始化（Methods）"><span class="nav-number">15.</span> <span class="nav-text">第十一章 反初始化（Methods）</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: 'bak/2015-12-12-Swift学习笔记.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

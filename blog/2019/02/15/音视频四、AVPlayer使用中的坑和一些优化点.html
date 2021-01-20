@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="总结一下音视频开发中遇到过的坑和一些优化点。">
+<meta name="keywords" content="音视频">
+<meta property="og:type" content="article">
+<meta property="og:title" content="音视频四、AVPlayer使用中的坑和一些优化点">
+<meta property="og:url" content="http://foerst.github.io/blog/2019/02/15/音视频四、AVPlayer使用中的坑和一些优化点.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="总结一下音视频开发中遇到过的坑和一些优化点。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.569Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="音视频四、AVPlayer使用中的坑和一些优化点">
+<meta name="twitter:description" content="总结一下音视频开发中遇到过的坑和一些优化点。">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2019/02/15/音视频四、AVPlayer使用中的坑和一些优化点.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>音视频四、AVPlayer使用中的坑和一些优化点 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2019/02/15/音视频四、AVPlayer使用中的坑和一些优化点.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">音视频四、AVPlayer使用中的坑和一些优化点
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-02-15 00:00:00" itemprop="dateCreated datePublished" datetime="2019-02-15T00:00:00+08:00">2019-02-15</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/音视频/" itemprop="url" rel="index"><span itemprop="name">音视频</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>总结一下音视频开发中遇到过的坑和一些优化点。</p>
+<a id="more"></a>
+<h4 id="1-开始播放时黑屏一下。"><a href="#1-开始播放时黑屏一下。" class="headerlink" title="1. 开始播放时黑屏一下。"></a>1. 开始播放时黑屏一下。</h4><p> 原因：下载数据不够就开始播放，导致卡顿和解码异常，影响播放体验</p>
+<p> 通常调用AVPlayer的play方法，不会立即播放，因为AVPlayer需要加载资源（解封装、解码等）。可以监听player的状态，当状态变为readyToPlay时进行播放，最好多缓存1到2秒的数据后再播放。</p>
+<h4 id="2-部分老设备-第一二代iPad-无法播放视频，播放时白屏（原因未知）。"><a href="#2-部分老设备-第一二代iPad-无法播放视频，播放时白屏（原因未知）。" class="headerlink" title="2. 部分老设备(第一二代iPad)无法播放视频，播放时白屏（原因未知）。"></a>2. 部分老设备(第一二代iPad)无法播放视频，播放时白屏（原因未知）。</h4><h4 id="3-AVAssetResourceLoaderDelegate协议方法不调用。"><a href="#3-AVAssetResourceLoaderDelegate协议方法不调用。" class="headerlink" title="3. AVAssetResourceLoaderDelegate协议方法不调用。"></a>3. AVAssetResourceLoaderDelegate协议方法不调用。</h4><p>只有url的协议头为自定义协议头时，才会调用AVAssetResourceLoaderDelegate协议方法。因此做离线缓存时，都需要修改原来的协议，代理方法拦截时在用原有协议请求数据。</p>
+<h4 id="4-dataRequest记得finishLoading-不然极有可能没有继续的请求了。重复请求的时候也要取消掉上一次请求。"><a href="#4-dataRequest记得finishLoading-不然极有可能没有继续的请求了。重复请求的时候也要取消掉上一次请求。" class="headerlink" title="4. dataRequest记得finishLoading()不然极有可能没有继续的请求了。重复请求的时候也要取消掉上一次请求。"></a>4. dataRequest记得finishLoading()不然极有可能没有继续的请求了。重复请求的时候也要取消掉上一次请求。</h4><h4 id="5-使用URLSession的dataTask-with-request-方法创建URLSessionDataTask时，URLSessionDelegate方法不调用"><a href="#5-使用URLSession的dataTask-with-request-方法创建URLSessionDataTask时，URLSessionDelegate方法不调用" class="headerlink" title="5. 使用URLSession的dataTask(with: request)方法创建URLSessionDataTask时，URLSessionDelegate方法不调用."></a>5. 使用URLSession的dataTask(with: request)方法创建URLSessionDataTask时，URLSessionDelegate方法不调用.</h4><p>原因是遵守了URLSessionDelegate协议而不是URLSessionDataTaskDelegate。推荐使用dataTask(with:,  completionHandler:)方法创建URLSessionDataTask，简单直接。</p>
+<h4 id="6-如果网络不好，首帧出图之后，如何优化使后续播放不卡顿？"><a href="#6-如果网络不好，首帧出图之后，如何优化使后续播放不卡顿？" class="headerlink" title="6. 如果网络不好，首帧出图之后，如何优化使后续播放不卡顿？"></a>6. 如果网络不好，首帧出图之后，如何优化使后续播放不卡顿？</h4><p> a.采用硬件解码</p>
+<p> 对于清晰度较高的视频，对于解码的性能消耗也会较大，如果设备的性能不足，则可能会造成解码速度赶不上播放速度，从而造成卡顿。在实际情况中，可以尽量选择使用硬解，通过 GPU 来进行解码。常用的FFMpeg是软件解码、iOS AudioToolBox/VideoToolBox是硬件解码。</p>
+<p> b.码率或者说是码流切换</p>
+<p> 720P、1080P 等清晰度较高的码流，对于网速的要求以及设备性能的要求都会相对较高，在发生卡顿的情况下，可以考虑将播放的视频切换到较低清晰度的码流，从而优化网络加载速度，降低对设备性能的消耗，优化视频播放的卡顿。</p>
+<p> c.优化缓冲策略</p>
+<p> 在点播场景下，为了减少播放过程中的卡顿，可以在缓冲一定的数据后再解码播放。但是这样，就会影响视频的首屏播放速度。</p>
+<p> 增大播放器的缓冲区，使得每次下载时能够加载足够的数据再进行播放，能够降低播放过程中卡顿的频次，但是这样也会延长首屏播放速度以及每次卡顿后恢复播放的速度。所以对于缓冲区的大小的设置，需要考虑卡顿和快速开播两个因素，尽量取得平衡。</p>
+<p> 在iOS平台上，使用系统的 AVPlayer 时，属性automaticallyWaitsToMinimizeStalling 就是控制播放器缓冲策略的。当该值为 YES 时，AVPlayer 会努力尝试延迟开始播放，加载足够的数据来保证整个播放过程中尽量卡顿最少。这个接口在 iOS 10 及以上版本才开放，在 iOS 10 之前的版本，在播放 HLS 这种流媒体视频时，效果如同 automaticallyWaitsToMinimizeStalling 为 YES，播放基于文件的视频资源，包括通过网络传输的网络视频文件，则效果如同 automaticallyWaitsToMinimizeStalling 为 NO。</p>
+<p> 实际使用中，automaticallyWaitsToMinimizeStalling = false好像没啥用！！！</p>
+<h4 id="7-AVPlayer播放单个视频并没有太大的性能问题，但在tableView中滚动时，自动切换和播放视频会造成滑动卡顿，该如何优化？"><a href="#7-AVPlayer播放单个视频并没有太大的性能问题，但在tableView中滚动时，自动切换和播放视频会造成滑动卡顿，该如何优化？" class="headerlink" title="7. AVPlayer播放单个视频并没有太大的性能问题，但在tableView中滚动时，自动切换和播放视频会造成滑动卡顿，该如何优化？"></a>7. AVPlayer播放单个视频并没有太大的性能问题，但在tableView中滚动时，自动切换和播放视频会造成滑动卡顿，该如何优化？</h4><p> AVPlayer的replaceCurrentItemWithPlayerItem（用来切换视频的）方法在切换视频时底层会调用信号量等待，然后导致当前线程卡顿，如果在UI线程调用，会导致UI线程卡顿。但放在子线程又会导致播放无法及时响应。下面是可行的方案。</p>
+<p> a. 使用AVQueuePlayer的advanceToNextItem方法进行item的切换，这个类还是很好使的，可以在不卡顿主线程的情况下流畅切换视频。</p>
+<p> b. 使用 AVAssetReader+AVAssetReaderTrackOutput 获取视频每一帧，然后转换成CGImage给Layer显示。这种方法可以顺滑地同时静音播放多个视频并且视频要是本地视频，因为AVAssetReader初始化的时候必须是本地url.</p>
+<p> 核心代码：</p>
+<pre><code>private func readData(path: String, displayView: UIView) {
+    // AVAssetReader必须本地资源
+    // Error Domain=AVFoundationErrorDomain Code=-11838 &quot;Cannot initialize an instance of AVAssetReader with an asset at non-local URL &apos;http://localhost:3000/video?name=123&apos;&quot; UserInfo={NSDebugDescription=Cannot initialize an instance of AVAssetReader with an asset at non-local URL &apos;http://localhost:3000/video?name=123&apos;, NSLocalizedDescription=Operation Stopped, NSLocalizedFailureReason=The operation is not supported for this media.}
+//        let url = URL(string: &quot;http://localhost:3000/video?name=123&quot;)!
+        guard let url = Bundle.main.url(forResource: path, withExtension: nil) else {
+            return
+    }
+        let asset = AVURLAsset(url: url)
+
+    do {
+        let assetReader = try AVAssetReader(asset: asset)
+        let videoTracks = asset.tracks(withMediaType: .video)
+        if videoTracks.count &lt;= 0 {
+            return
+        }
+        let videoTrack = videoTracks.first!
+        let videoReaderTrackOutput = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA])
+        assetReader.add(videoReaderTrackOutput)
+        assetReader.startReading()
+        while assetReader.status == .reading &amp;&amp; videoTrack.nominalFrameRate &gt; 0 {
+            if let sampleBuffer = videoReaderTrackOutput.copyNextSampleBuffer() {
+                if let cgImage = imageFromSampleBuffer(sampleBuffer, rotation: orientationFromAVAssetTrack(videoTrack)) {
+                    DispatchQueue.main.async {
+                        displayView.layer.contents = cgImage
+                    }
+                }
+                //根据需要休眠一段时间, 视频播放的时候每一帧都是有间隔的
+                Thread.sleep(forTimeInterval: 0.035)
+            }
+        }
+        assetReader.cancelReading()
+    } catch  {
+        print(error)
+    }
+}
+
+//MARK: 捕捉视频帧，转换成CGImage
+private func orientationFromAVAssetTrack(_ videoTrack: AVAssetTrack) -&gt; UIImage.Orientation {
+    var orientation = UIImage.Orientation.up
+    let t = videoTrack.preferredTransform
+    if (t.a == 0 &amp;&amp; t.b == 1.0 &amp;&amp; t.c == -1.0 &amp;&amp; t.d == 0) {
+        orientation = .right
+    }
+    else if (t.a == 0 &amp;&amp; t.b == -1.0 &amp;&amp; t.c == 1.0 &amp;&amp; t.d == 0) {
+        orientation = .left
+    }
+    else if (t.a == 1.0 &amp;&amp; t.b == 0 &amp;&amp; t.c == 0 &amp;&amp; t.d == 1.0) {
+        orientation = .up
+    }
+    else if (t.a == -1.0 &amp;&amp; t.b == 0 &amp;&amp; t.c == 0 &amp;&amp; t.d == -1.0) {
+        orientation = .down
+    }
+    return orientation
+}
+
+private func imageFromSampleBuffer(_ sampleBuffer: CMSampleBuffer, rotation: UIImage.Orientation) -&gt; CGImage?
+{
+    guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+        return nil
+    }
+    // Lock the base address of the pixel buffer
+    CVPixelBufferLockBaseAddress(imageBuffer, [])
+    // Get the number of bytes per row for the pixel buffer
+    let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer)
+    // Get the pixel buffer width and height
+    let width = CVPixelBufferGetWidth(imageBuffer)
+    let height = CVPixelBufferGetHeight(imageBuffer)
+    //Generate image to edit
+    let pixel = CVPixelBufferGetBaseAddress(imageBuffer)
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
+
+    if let context = CGContext(data: pixel, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) {
+        let image = context.makeImage()
+        CVPixelBufferUnlockBaseAddress(imageBuffer, [])
+        UIGraphicsEndImageContext()
+        return image
+    }
+    return nil
+}
+</code></pre><p>AVAssetReader也可以读取音频数据，但怎么播放目前还不知道！！！</p>
+<p>参考：</p>
+<p><a href="https://blog.csdn.net/u011270282/article/details/70314607" target="_blank" rel="noopener">细数AVPlayer的那些坑</a></p>
+<p><a href="http://liunan.me/2017/01/30/avplayer" target="_blank" rel="noopener">Qzone– AVPlayer那些坑</a></p>
+<p><a href="http://www.cnblogs.com/itlover2013/p/5469588.html" target="_blank" rel="noopener">iOS微信小视频优化心得</a></p>
+<p><a href="https://www.jianshu.com/p/10206ed63e0d" target="_blank" rel="noopener">AVAssetReader+AVAssetReaderTrackOutput</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/音视频/" rel="tag"># 音视频</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/01/16/音视频三、AVPlayer离线缓存实现.html" rel="next" title="音视频三、AVPlayer离线缓存实现">
+                <i class="fa fa-chevron-left"></i> 音视频三、AVPlayer离线缓存实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/02/18/音视频五、音视频服务器node脚本.html" rel="prev" title="音视频五、音视频服务器node脚本">
+                音视频五、音视频服务器node脚本 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-开始播放时黑屏一下。"><span class="nav-number">1.</span> <span class="nav-text">1. 开始播放时黑屏一下。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-部分老设备-第一二代iPad-无法播放视频，播放时白屏（原因未知）。"><span class="nav-number">2.</span> <span class="nav-text">2. 部分老设备(第一二代iPad)无法播放视频，播放时白屏（原因未知）。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-AVAssetResourceLoaderDelegate协议方法不调用。"><span class="nav-number">3.</span> <span class="nav-text">3. AVAssetResourceLoaderDelegate协议方法不调用。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-dataRequest记得finishLoading-不然极有可能没有继续的请求了。重复请求的时候也要取消掉上一次请求。"><span class="nav-number">4.</span> <span class="nav-text">4. dataRequest记得finishLoading()不然极有可能没有继续的请求了。重复请求的时候也要取消掉上一次请求。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-使用URLSession的dataTask-with-request-方法创建URLSessionDataTask时，URLSessionDelegate方法不调用"><span class="nav-number">5.</span> <span class="nav-text">5. 使用URLSession的dataTask(with: request)方法创建URLSessionDataTask时，URLSessionDelegate方法不调用.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-如果网络不好，首帧出图之后，如何优化使后续播放不卡顿？"><span class="nav-number">6.</span> <span class="nav-text">6. 如果网络不好，首帧出图之后，如何优化使后续播放不卡顿？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-AVPlayer播放单个视频并没有太大的性能问题，但在tableView中滚动时，自动切换和播放视频会造成滑动卡顿，该如何优化？"><span class="nav-number">7.</span> <span class="nav-text">7. AVPlayer播放单个视频并没有太大的性能问题，但在tableView中滚动时，自动切换和播放视频会造成滑动卡顿，该如何优化？</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2019/02/15/音视频四、AVPlayer使用中的坑和一些优化点.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

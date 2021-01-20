@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="什么是3D Touch3D Touch是iOS9中引入的新的人机交互方式，它允许用户按压屏幕预览内容或者打开快捷键。">
+<meta name="keywords" content="3D Touch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 3D Touch使用简介">
+<meta property="og:url" content="http://foerst.github.io/blog/2016/08/30/iOS 3D Touch使用简介.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="什么是3D Touch3D Touch是iOS9中引入的新的人机交互方式，它允许用户按压屏幕预览内容或者打开快捷键。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xql77.com1.z0.glb.clouddn.com/main_screen_short_cuts.png?attname=">
+<meta property="og:image" content="http://7xql77.com1.z0.glb.clouddn.com/static_shortcuts_info_plist.png?attname=">
+<meta property="og:image" content="http://7xql77.com1.z0.glb.clouddn.com/peek&swip_up.png?attname=">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.503Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS 3D Touch使用简介">
+<meta name="twitter:description" content="什么是3D Touch3D Touch是iOS9中引入的新的人机交互方式，它允许用户按压屏幕预览内容或者打开快捷键。">
+<meta name="twitter:image" content="http://7xql77.com1.z0.glb.clouddn.com/main_screen_short_cuts.png?attname=">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2016/08/30/iOS 3D Touch使用简介.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>iOS 3D Touch使用简介 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2016/08/30/iOS 3D Touch使用简介.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS 3D Touch使用简介
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-08-30 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-30T00:00:00+08:00">2016-08-30</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/3D-Touch/" itemprop="url" rel="index"><span itemprop="name">3D Touch</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="什么是3D-Touch"><a href="#什么是3D-Touch" class="headerlink" title="什么是3D Touch"></a>什么是3D Touch</h3><p>3D Touch是iOS9中引入的新的人机交互方式，它允许用户按压屏幕预览内容或者打开快捷键。<br><a id="more"></a></p>
+<h3 id="Home-Screen-Quick-Actions（主页快捷键）"><a href="#Home-Screen-Quick-Actions（主页快捷键）" class="headerlink" title="Home Screen Quick Actions（主页快捷键）"></a>Home Screen Quick Actions（主页快捷键）</h3><p>用力按压主页的应用图标，会显示主页快捷键。如图：<br><img src="http://7xql77.com1.z0.glb.clouddn.com/main_screen_short_cuts.png?attname=" alt="img"></p>
+<h4 id="静态配置快捷键"><a href="#静态配置快捷键" class="headerlink" title="静态配置快捷键"></a>静态配置快捷键</h4><p>需要在info.plist文件中手动配置，如下图：</p>
+<p><img src="http://7xql77.com1.z0.glb.clouddn.com/static_shortcuts_info_plist.png?attname=" alt="img"></p>
+<p>一些主要的key:</p>
+<p>UIApplicationShortcutItems：数组中的元素就是我们的那些快捷选项标签。</p>
+<p>UIApplicationShortcutItemTitle：标签标题（必填）</p>
+<p>UIApplicationShortcutItemType：标签的唯一标识（必填）</p>
+<p>UIApplicationShortcutItemIconType：使用系统图标的类型，如搜索、定位、home等（可选）</p>
+<p>UIApplicationShortcutItemIconFile：使用项目中的图片作为标签图标（可选）</p>
+<p>UIApplicationShortcutItemSubtitle：标签副标题（可选）</p>
+<p>UIApplicationShortcutItemUserInfo：字典信息，如传值使用（可选）</p>
+<h4 id="动态配置快捷键-代码添加"><a href="#动态配置快捷键-代码添加" class="headerlink" title="动态配置快捷键(代码添加)"></a>动态配置快捷键(代码添加)</h4><pre><code>/**
+ 创建应用图标上的3D touch快捷选项
+ */
+- (void)creatShortcutItem {
+    //创建系统风格的icon
+//    UIApplicationShortcutIcon *icon = [UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeAdd];
+
+    //创建自定义图标的icon
+//    UIApplicationShortcutIcon *icon2 = [UIApplicationShortcutIcon iconWithTemplateImageName:@&quot;分享.png&quot;];
+
+    //创建快捷选项
+    UIApplicationShortcutItem *shareItem = [[UIApplicationShortcutItem alloc] initWithType:@&quot;com.cxy.-DTouch.share&quot; localizedTitle:@&quot;分享&quot; localizedSubtitle:@&quot;分享联系人信息&quot; icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeShare] userInfo:nil];
+    UIApplicationShortcutItem *searchItem = [[UIApplicationShortcutItem alloc] initWithType:@&quot;com.cxy.-DTouch.search&quot; localizedTitle:@&quot;搜索&quot; localizedSubtitle:@&quot;搜索联系人&quot; icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeSearch] userInfo:nil];
+    UIApplicationShortcutItem * addItem = [[UIApplicationShortcutItem alloc] initWithType:@&quot;com.cxy.-DTouch.add&quot; localizedTitle:@&quot;添加&quot; localizedSubtitle:@&quot;添加联系人到通讯录&quot; icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeAdd] userInfo:nil];
+
+    //添加到快捷选项数组
+    [UIApplication sharedApplication].shortcutItems = @[shareItem, searchItem, addItem];
+//    UIApplicationShortcutItem *shortcutItem = [launchOptions valueForKey:UIApplicationLaunchOptionsShortcutItemKey];
+}
+</code></pre><p>然后在application:didFinishLaunchingWithOptions:方法中调用即可</p>
+<pre><code>- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    //创建应用图标上的3D touch快捷选项
+    [self creatShortcutItem];
+    return YES;
+}
+</code></pre><h4 id="动态修改shortcutItem"><a href="#动态修改shortcutItem" class="headerlink" title="动态修改shortcutItem:"></a>动态修改shortcutItem:</h4><pre><code>/**
+ 改变快捷按钮显示文字
+ */
+- (void)changeShortcutItem {
+    //将shortcutItem0的类型由UIApplicationShortcutItem改为可修改类型UIMutableApplicationShortcutItem
+    UIApplicationShortcutItem *shortcutItem0 = [[UIApplication sharedApplication].shortcutItems objectAtIndex:0];
+    UIMutableApplicationShortcutItem * newShortcutItem0 = [shortcutItem0 mutableCopy];
+    //修改shortcutItem的标题
+    [newShortcutItem0 setLocalizedTitle:@&quot;按钮1&quot;];
+    //将shortcutItems数组改为可变数组
+    NSMutableArray *newShortcutItems = [[UIApplication sharedApplication].shortcutItems mutableCopy];
+    //替换原ShortcutItem
+    [newShortcutItems replaceObjectAtIndex:0 withObject:newShortcutItem0];
+    [UIApplication sharedApplication].shortcutItems = newShortcutItems;
+}
+</code></pre><h4 id="响应相应快捷键操作"><a href="#响应相应快捷键操作" class="headerlink" title="响应相应快捷键操作"></a>响应相应快捷键操作</h4><pre><code>/**
+ 如果是从快捷选项标签启动app，则根据不同标识执行不同操作，然后返回NO，防止调用
+
+ @param application       &lt;#application description#&gt;
+ @param shortcutItem      &lt;#shortcutItem description#&gt;
+ @param completionHandler &lt;#completionHandler description#&gt;
+ */
+- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler {
+    if (shortcutItem) {
+        //判断先前我们设置的快捷选项标签唯一标识，根据不同标识执行不同操作
+        if([shortcutItem.type isEqualToString:@&quot;com.cxy.-DTouch.share&quot;]) {//进入分享界面
+            NSArray *arr = @[@&quot;3D Touch 分享&quot;];
+            UIActivityViewController *vc = [[UIActivityViewController alloc] initWithActivityItems:arr applicationActivities:nil];
+            [self.window.rootViewController presentViewController:vc animated:YES completion:^{
+
+            }];
+        } else if ([shortcutItem.type isEqualToString:@&quot;com.cxy.-DTouch.search&quot;]) {//进入搜索界面
+//            NSArray *arr = @[@&quot;3D Touch 搜索&quot;];
+//            UISearchController *searchVC = [[UISearchController alloc] init];
+//            searchVC.title = @&quot;搜索&quot;;
+//            [(UINavigationController *)self.window.rootViewController pushViewController:searchVC animated:YES];
+            UIViewController *vc = [UIViewController new];
+//            [vc.view addSubview:searchVC.searchBar];
+            [self.window.rootViewController presentViewController:vc animated:YES completion:^{
+
+            }];
+        } else if ([shortcutItem.type isEqualToString:@&quot;com.cxy.-DTouch.add&quot;]) {//进入分享界面
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@&quot;Main&quot; bundle:nil];
+            UIViewController *addContactsVC = [storyboard instantiateViewControllerWithIdentifier:@&quot;AddContactsViewController&quot;];
+            [(UINavigationController *)self.window.rootViewController pushViewController:addContactsVC animated:YES];
+        }
+        completionHandler(YES);
+    }
+    return completionHandler(NO);
+}
+</code></pre><h3 id="peek（轻压展示预览）和pop（用力按压直接跳页至预览的界面）"><a href="#peek（轻压展示预览）和pop（用力按压直接跳页至预览的界面）" class="headerlink" title="peek（轻压展示预览）和pop（用力按压直接跳页至预览的界面）"></a>peek（轻压展示预览）和pop（用力按压直接跳页至预览的界面）</h3><h4 id="首先给view注册3DTouch的peek（预览）和pop功能，我这里给cell注册3DTouch的peek（预览）和pop功能"><a href="#首先给view注册3DTouch的peek（预览）和pop功能，我这里给cell注册3DTouch的peek（预览）和pop功能" class="headerlink" title="首先给view注册3DTouch的peek（预览）和pop功能，我这里给cell注册3DTouch的peek（预览）和pop功能"></a>首先给view注册3DTouch的peek（预览）和pop功能，我这里给cell注册3DTouch的peek（预览）和pop功能</h4><pre><code>- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *ReuseID = @&quot;Cell&quot;;
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ReuseID];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ReuseID];
+    }
+    cell.textLabel.text = self.dataArray[indexPath.row];
+    if (self.traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable) {
+        NSLog(@&quot;3D Touch  可用!&quot;);
+        //给cell注册3DTouch的peek（预览）和pop功能
+        [self registerForPreviewingWithDelegate:self sourceView:cell];
+    } else {
+        NSLog(@&quot;3D Touch 无效&quot;);
+    }
+    return cell;
+}
+</code></pre><h4 id="需要继承协议UIViewControllerPreviewingDelegate"><a href="#需要继承协议UIViewControllerPreviewingDelegate" class="headerlink" title="需要继承协议UIViewControllerPreviewingDelegate"></a>需要继承协议UIViewControllerPreviewingDelegate</h4><h4 id="实现UIViewControllerPreviewingDelegate方法"><a href="#实现UIViewControllerPreviewingDelegate方法" class="headerlink" title="实现UIViewControllerPreviewingDelegate方法"></a>实现UIViewControllerPreviewingDelegate方法</h4><pre><code>//peek(轻按预览)
+- (nullable UIViewController *)previewingContext:(id &lt;UIViewControllerPreviewing&gt;)previewingContext viewControllerForLocation:(CGPoint)location {
+    //获取按压的cell所在行，[previewingContext sourceView]就是按压的那个视图
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:(UITableViewCell* )[previewingContext sourceView]];
+
+    //设定预览的界面
+    PreviewViewController *childVC = [PreviewViewController new];
+    childVC.preferredContentSize = CGSizeMake(0.0f,500.0f);
+    NSString *str = [NSString stringWithFormat:@&quot;我是%@,用力按一下进来&quot;, self.dataArray[indexPath.row]];
+    childVC.str = str;
+    //调整不被虚化的范围，按压的那个cell不被虚化（轻轻按压时周边会被虚化，再少用力展示预览，再加力跳页至设定界面）
+    CGRect rect = CGRectMake(0, 0, self.view.frame.size.width,40);
+    previewingContext.sourceRect = rect;
+
+    //返回预览界面
+    return childVC;
+}
+
+//pop（按用点力进入）
+- (void)previewingContext:(id &lt;UIViewControllerPreviewing&gt;)previewingContext commitViewController:(UIViewController *)viewControllerToCommit {
+    [self showViewController:viewControllerToCommit sender:self];
+}
+</code></pre><h4 id="增加预览操作"><a href="#增加预览操作" class="headerlink" title="增加预览操作"></a>增加预览操作</h4><pre><code>在预览界面控制器中重写previewActionItems方法，在其中自定义预览操作和事件回调。
+
+- (NSArray&lt;id&lt;UIPreviewActionItem&gt;&gt; *)previewActionItems {
+    // setup a list of preview actions
+    UIPreviewAction *action1 = [UIPreviewAction actionWithTitle:@&quot;Aciton1&quot; style:UIPreviewActionStyleDefault handler:^(UIPreviewAction * _Nonnull action, UIViewController * _Nonnull previewViewController) {
+        NSLog(@&quot;Aciton1&quot;);
+        ActionViewController *actionVC = [ActionViewController new];
+        [(UINavigationController *)[UIApplication sharedApplication].keyWindow.rootViewController pushViewController:actionVC animated:YES];
+    }];
+    UIPreviewAction *action2 = [UIPreviewAction actionWithTitle:@&quot;Aciton2&quot; style:UIPreviewActionStyleDefault handler:^(UIPreviewAction * _Nonnull action, UIViewController * _Nonnull previewViewController) {
+        NSLog(@&quot;Aciton2&quot;);
+    }];
+    UIPreviewAction *action3 = [UIPreviewAction actionWithTitle:@&quot;Aciton3&quot; style:UIPreviewActionStyleDefault handler:^(UIPreviewAction * _Nonnull action, UIViewController * _Nonnull previewViewController) {
+        NSLog(@&quot;Aciton3&quot;);
+    }];
+    NSArray *actions = @[action1,action2,action3];
+    return actions;
+}
+
+
+效果图：（当用户按下时cell周边会虚化，增加压力达到一定值会弹出设定的预览界面，继续增加力按压会跳页至预览界面）
+</code></pre><p><img src="http://7xql77.com1.z0.glb.clouddn.com/peek&amp;swip_up.png?attname=" alt="img"></p>
+<h3 id="force属性"><a href="#force属性" class="headerlink" title="force属性"></a>force属性</h3><p>iOS9以后, UITouch类增加了2个新属性force和maximumPossible以支持自定义3D Touch. force属性是CGFloat类型，表示压力大小，在一个范围类动态变化。用例：</p>
+<pre><code>//按住移动or压力值改变时的回调
+-(void)touchesMoved:(NSSet&lt;UITouch *&gt; *)touches withEvent:(UIEvent *)event {
+    NSArray *arrayTouch = [touches allObjects];
+    UITouch *touch = (UITouch *)[arrayTouch lastObject];
+    //红色背景的label显示压力值
+    _forceLabel.text = [NSString stringWithFormat:@&quot;压力%f&quot;,touch.force];
+}
+</code></pre><p>参考：</p>
+<p>Getting Started with 3D Touch</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/3D-Touch/" rel="tag"># 3D Touch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/07/19/OC Runtime实践.html" rel="next" title="OC Runtime实践">
+                <i class="fa fa-chevron-left"></i> OC Runtime实践
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/10/30/iOS事件机制.html" rel="prev" title="iOS事件机制">
+                iOS事件机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是3D-Touch"><span class="nav-number">1.</span> <span class="nav-text">什么是3D Touch</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Home-Screen-Quick-Actions（主页快捷键）"><span class="nav-number">2.</span> <span class="nav-text">Home Screen Quick Actions（主页快捷键）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#静态配置快捷键"><span class="nav-number">2.1.</span> <span class="nav-text">静态配置快捷键</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#动态配置快捷键-代码添加"><span class="nav-number">2.2.</span> <span class="nav-text">动态配置快捷键(代码添加)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#动态修改shortcutItem"><span class="nav-number">2.3.</span> <span class="nav-text">动态修改shortcutItem:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#响应相应快捷键操作"><span class="nav-number">2.4.</span> <span class="nav-text">响应相应快捷键操作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#peek（轻压展示预览）和pop（用力按压直接跳页至预览的界面）"><span class="nav-number">3.</span> <span class="nav-text">peek（轻压展示预览）和pop（用力按压直接跳页至预览的界面）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#首先给view注册3DTouch的peek（预览）和pop功能，我这里给cell注册3DTouch的peek（预览）和pop功能"><span class="nav-number">3.1.</span> <span class="nav-text">首先给view注册3DTouch的peek（预览）和pop功能，我这里给cell注册3DTouch的peek（预览）和pop功能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#需要继承协议UIViewControllerPreviewingDelegate"><span class="nav-number">3.2.</span> <span class="nav-text">需要继承协议UIViewControllerPreviewingDelegate</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现UIViewControllerPreviewingDelegate方法"><span class="nav-number">3.3.</span> <span class="nav-text">实现UIViewControllerPreviewingDelegate方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#增加预览操作"><span class="nav-number">3.4.</span> <span class="nav-text">增加预览操作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#force属性"><span class="nav-number">4.</span> <span class="nav-text">force属性</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2016/08/30/iOS 3D Touch使用简介.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

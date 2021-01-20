@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="iOS项目中必用到数据持久化技术，基本原理大致一样，但各自的设计可能不同。这里记录一下我项目中用到的一种实现方式：定义一个全局的单例GlobalData对象，负责根据key-value的形式存取值，对象内部私有化一个字典对象，负责实际的存储工作，最终以NSKeyedArchiver归档的形式持久化该字典。为了能够存储自定义对象，会利用runtime对自定义对象进行自动归解档。">
+<meta name="keywords" content="数据持久化方式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="项目中用到的一种数据持久化方式">
+<meta property="og:url" content="http://foerst.github.io/blog/2017/02/04/项目中用到的一种数据持久化方式.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="iOS项目中必用到数据持久化技术，基本原理大致一样，但各自的设计可能不同。这里记录一下我项目中用到的一种实现方式：定义一个全局的单例GlobalData对象，负责根据key-value的形式存取值，对象内部私有化一个字典对象，负责实际的存储工作，最终以NSKeyedArchiver归档的形式持久化该字典。为了能够存储自定义对象，会利用runtime对自定义对象进行自动归解档。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.506Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="项目中用到的一种数据持久化方式">
+<meta name="twitter:description" content="iOS项目中必用到数据持久化技术，基本原理大致一样，但各自的设计可能不同。这里记录一下我项目中用到的一种实现方式：定义一个全局的单例GlobalData对象，负责根据key-value的形式存取值，对象内部私有化一个字典对象，负责实际的存储工作，最终以NSKeyedArchiver归档的形式持久化该字典。为了能够存储自定义对象，会利用runtime对自定义对象进行自动归解档。">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2017/02/04/项目中用到的一种数据持久化方式.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>项目中用到的一种数据持久化方式 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2017/02/04/项目中用到的一种数据持久化方式.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">项目中用到的一种数据持久化方式
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-02-04 00:00:00" itemprop="dateCreated datePublished" datetime="2017-02-04T00:00:00+08:00">2017-02-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据持久化方式/" itemprop="url" rel="index"><span itemprop="name">数据持久化方式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>iOS项目中必用到数据持久化技术，基本原理大致一样，但各自的设计可能不同。这里记录一下我项目中用到的一种实现方式：定义一个全局的单例GlobalData对象，负责根据key-value的形式存取值，对象内部私有化一个字典对象，负责实际的存储工作，最终以NSKeyedArchiver归档的形式持久化该字典。为了能够存储自定义对象，会利用runtime对自定义对象进行自动归解档。</p>
+<a id="more"></a>
+<p>代码参考：</p>
+<p>GlobalData.h</p>
+<pre><code>#import &lt;Foundation/Foundation.h&gt;
+
+extern NSString *const kUploadLocationSwithKey;//位置上报key
+
+@interface GlobalData : NSObject
+
+/**
+ 保存
+
+ @param obj &lt;#obj description#&gt;
+ @param key &lt;#key description#&gt;
+ @return &lt;#return value description#&gt;
+ */
++ (BOOL)setObject:(id)obj forKey:(NSString *)key;
+
+/**
+ 读取
+
+ @param key &lt;#key description#&gt;
+ @return &lt;#return value description#&gt;
+ */
++ (id)objectForKey:(NSString *)key;
+
+/**
+ 清空
+
+ @return &lt;#return value description#&gt;
+ */
++ (BOOL)clearData;
+
+@end
+</code></pre><p>GlobalData.m</p>
+<pre><code>#import &quot;GlobalData.h&quot;
+
+NSString *const kUploadLocationSwithKey = @&quot;kUploadLocationSwithKey&quot;;
+
+#define LOCAL_CACHE_PATH  [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@&quot;GlobalData.archiver&quot;]//添加储存的文件名
+
+@interface GlobalData ()
+
+@property (nonatomic, strong) NSMutableDictionary *dict;
+
+@end
+
+@implementation GlobalData
+
++ (instancetype)sharedData {
+    static GlobalData *sharedData = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&amp;onceToken, ^{
+        sharedData = [[self alloc] init];
+    });
+    return sharedData;
+}
+
+- (NSDictionary *)dict {
+    if (!_dict) {
+        _dict = [NSKeyedUnarchiver unarchiveObjectWithFile:LOCAL_CACHE_PATH];
+        if (!_dict) {
+            _dict = [NSMutableDictionary dictionary];
+        }
+    }
+    return _dict;
+}
+
++ (BOOL)setObject:(id)obj forKey:(NSString *)key {
+//    dispatch_barrier_async(disp, &lt;#^(void)block#&gt;)//同步点
+    [[GlobalData sharedData].dict setObject:obj forKey:key];
+    BOOL flag = [NSKeyedArchiver archiveRootObject:[GlobalData sharedData].dict toFile:LOCAL_CACHE_PATH];
+    return flag;
+}
+
++(id)objectForKey:(NSString *)key {
+    return [[GlobalData sharedData].dict objectForKey:key];
+}
+
++ (BOOL)clearData {
+    [[GlobalData sharedData].dict removeAllObjects];
+    [GlobalData sharedData].dict = nil;
+    return [[NSFileManager defaultManager] removeItemAtPath:LOCAL_CACHE_PATH error:nil];
+}
+
+@end
+</code></pre><p>NSObject+AutoArchive.h</p>
+<pre><code>#import &lt;Foundation/Foundation.h&gt;
+
+// 在需要自动归档和解档的模型内内来调用我们的方法，将归解档两个方法封装为宏
+#define  NSOBJECT_AUTOARCHIVE_METHOD(cls)\
+@interface cls ()&lt;NSCoding&gt;\
+@end\
+@implementation cls\
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {\
+    if (self = [super init]) {\
+        [self decode:aDecoder];\
+    }\
+    return self;\
+}\
+- (void)encodeWithCoder:(NSCoder *)aCoder {\
+    [self encode:aCoder];\
+}\
+@end\
+
+@interface NSObject (AutoArchive)
+//不需要归解档的属性数组
+- (NSArray *)ignoredPropertyNames;
+//Archiver
+- (void)encode:(NSCoder *)aCoder;
+//Unarchiver
+- (void)decode:(NSCoder *)aDecoder;
+
+
+@end
+</code></pre><p>NSObject+AutoArchive.m</p>
+<pre><code>#import &quot;NSObject+AutoArchive.h&quot;
+#import &lt;objc/runtime.h&gt;
+
+@implementation NSObject (AutoArchive)
+
+- (NSArray *)ignoredPropertyNames {
+    return nil;
+}
+
+- (void)encode:(NSCoder *)aCoder {
+    // 一层层父类往上查找，对父类的属性执行归解档方法
+    Class c = self.class;
+    while (c &amp;&amp;c != [NSObject class]) {
+        unsigned int count = 0;
+        Ivar *ivars = class_copyIvarList([self class], &amp;count);
+        for (int i = 0; i &lt; count; ++i) {
+            Ivar ivar = ivars[i];
+            NSString *ivarName = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+            if ([self respondsToSelector:@selector(ignoredPropertyNames)]) {
+                if ([[self ignoredPropertyNames] containsObject:ivarName]) {
+                    continue;
+                }
+            }
+            //        ivarName = [ivarName substringFromIndex:1];
+            id value = [self valueForKey:ivarName];
+            [aCoder encodeObject:value forKey:ivarName];
+        }
+        free(ivars);
+        c = [c superclass];
+    }
+}
+
+- (void)decode:(NSCoder *)aDecoder {
+    // 一层层父类往上查找，对父类的属性执行归解档方法
+    Class c = self.class;
+    while (c &amp;&amp;c != [NSObject class]) {
+        unsigned int count = 0;
+        Ivar *ivars = class_copyIvarList([self class], &amp;count);
+        for (int i = 0; i &lt; count; ++i) {
+            Ivar ivar = ivars[i];
+            NSString *ivarName = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+            if ([self respondsToSelector:@selector(ignoredPropertyNames)]) {
+                if ([[self ignoredPropertyNames] containsObject:ivarName]) {
+                    continue;
+                }
+            }
+            //        ivarName = [ivarName substringFromIndex:1];
+            id value = [aDecoder decodeObjectForKey:ivarName];
+            [self setValue:value forKey:ivarName];
+        }
+
+        free(ivars);
+        c = [c superclass];
+    }
+}
+@end
+</code></pre><p>NSObject+JCExtension.h</p>
+<pre><code>#import &lt;Foundation/Foundation.h&gt;
+
+@interface NSObject (JCExtension)
+
+- (void)setDict:(NSDictionary *)dict;
+
++ (instancetype)objectWithDict:(NSDictionary *)dict;
++ (NSArray *)objectsWithArray:(NSArray *)arr;
+
+// 返回数组中都是什么类型的模型对象
+- (NSString *)objectClassName;
+
+/**
+ 例如接口返回属性是id,oc如果属性名是id会报错，要替换为‘其他的属性名’，这时替换字典就是:@{@&quot;其他的属性名&quot;: @&quot;id&quot;}
+
+ @return 替换字典
+ */
+- (NSDictionary *)replacedPropertyName;
+@end
+</code></pre><p>NSObject+JCExtension.m</p>
+<pre><code>#import &quot;NSObject+JCExtension.h&quot;
+#import &lt;objc/runtime.h&gt;
+
+@implementation NSObject (JCExtension)
+
+- (NSString *)objectClassName {
+    return nil;
+}
+
+- (NSDictionary *)replacedPropertyName {
+    return nil;
+}
+
+//第三种情况是模型的属性是一个数组，数组中是一个个模型对象,对象类型未知，调用objectClassName方法获取对象类型，然后递归创建对象类型，加入数组中，最后赋值给外层模型的数组属性
+- (void)setDict:(NSDictionary *)dict {
+    if (!dict || ![dict isKindOfClass:[NSDictionary class]]) return;
+    Class c = self.class;
+    while (c &amp;&amp;c != [NSObject class]) {
+        unsigned int count = 0;
+        Ivar *ivars = class_copyIvarList(c, &amp;count);
+        for (int i = 0; i &lt; count; ++i) {
+            Ivar ivar = ivars[i];
+            NSString *ivarName = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+            // 成员变量名转为属性名（去掉下划线 _ ）
+            ivarName = [ivarName substringFromIndex:1];
+            //要替换的属性：避免有的接口返回id属性
+            NSDictionary *replace = [self replacedPropertyName];
+            NSString *replacedName = ivarName;
+            if (replace) {
+                if ([replace objectForKey:ivarName]) {
+                    replacedName = [replace objectForKey:ivarName];
+                }
+            }
+            // 取出字典的值
+            id value = [dict objectForKey:replacedName];
+            if (!value) {//取值为nil时，直接跳过
+                continue;
+            }
+            // 获得成员变量的类型
+            NSString *ivarType = [NSString stringWithCString:ivar_getTypeEncoding(ivar) encoding:NSUTF8StringEncoding];
+            if ([ivarType hasPrefix:@&quot;@&quot;]) { //是对象
+                ivarType = [ivarType substringWithRange:NSMakeRange(2, ivarType.length-3)]; //@&quot;Person&quot;-----&gt;Person
+                if (![ivarType hasPrefix:@&quot;NS&quot;]) {//去除NS类
+                    Class class = NSClassFromString(ivarType);
+                    value =  [class objectWithDict:value];
+                } else if ([ivarType isEqualToString:@&quot;NSArray&quot;] || [ivarType isEqualToString:@&quot;NSMutableArray&quot;]) {//数组
+                    if ([self respondsToSelector:@selector(objectClassName)]) {
+                        NSString *objectClassName = [self objectClassName];
+                        if (objectClassName) {
+                            Class class = NSClassFromString(objectClassName);
+                            NSMutableArray *arr = [NSMutableArray array];
+                            for (id item in value) {
+                                [arr addObject:[class objectWithDict:item]];
+                            }
+                            value = [arr copy];
+                        }
+                    }
+                } else if ([ivarType isEqualToString:@&quot;NSString&quot;]) {
+                    if ([value isKindOfClass:[NSNumber class]]) {
+                        value = [NSString stringWithFormat:@&quot;%@&quot;, value];
+                    } else if ([value isKindOfClass:[NSNull class]]) {
+                        value = @&quot;&quot;;
+                    }
+                }
+            }
+            //kvc赋值
+            [self setValue:value forKey:ivarName];
+        }
+        free(ivars);
+
+        c = [c superclass];
+    }
+}
+
+
++ (instancetype)objectWithDict:(NSDictionary *)dict {
+    NSObject *obj = [[self alloc] init];
+    [obj setDict:dict];
+    return obj;
+}
+
++ (NSArray *)objectsWithArray:(NSArray *)arr {
+    if (!arr) {
+        return nil;
+    }
+    NSMutableArray *tmp = [NSMutableArray array];
+    for (NSDictionary *dict in arr) {
+        [tmp addObject:[self objectWithDict:dict]];
+    }
+    return [tmp copy];
+}
+@end
+</code></pre><p>CarInfo.h</p>
+<pre><code>#import &lt;Foundation/Foundation.h&gt;
+#import &quot;NSObject+JCExtension.h&quot;
+
+
+//字段说明：Id:设备ID号，gpsname：设备别名，islac:定位模式(1基站，2GPS),sta:设备状态，stateFlag:启用状态,gpstime:定位时间,imei:设备唯一编号，lat：矫正后纬度,lon:矫正后经度,Spe:速度，dir:速度，weidu:原始纬度，jindu:原始经度
+
+@interface CarInfo : NSObject
+
+@property (nonatomic, copy) NSString *addre;
+
+/**
+ &lt;#Description#&gt;
+ */
+@property (nonatomic, copy) NSString *dir;
+@property (nonatomic, copy) NSString *driveID;
+@property (nonatomic, copy) NSString *gpsname;
+
+/**
+ 定位时间
+ */
+@property (nonatomic, copy) NSString *gpstime;
+@property (nonatomic, copy) NSString *iconType;
+@property (nonatomic, copy) NSString *carId;
+@property (nonatomic, copy) NSString *imei;
+
+/**
+ 是否在线
+ */
+@property (nonatomic, assign) BOOL isOnline;
+
+/**
+ 定位模式(1基站，2GPS)
+ */
+@property (nonatomic, copy) NSString *islac;
+@property (nonatomic, copy) NSString *jindu;
+
+/**
+ 上次定位时间
+ */
+@property (nonatomic, copy) NSString *lasttime;
+@property (nonatomic, copy) NSString *lat;
+@property (nonatomic, copy) NSString *lon;
+@property (nonatomic, copy) NSString *pic;
+@property (nonatomic, copy) NSString *sign;
+@property (nonatomic, copy) NSString *sortID;
+
+/**
+ 速度
+ */
+@property (nonatomic, copy) NSString *spe;
+
+/**
+ 设备状态
+ */
+@property (nonatomic, copy) NSString *sta;
+
+/**
+ 启用状态
+ */
+@property (nonatomic, assign) BOOL stateFlag;
+@property (nonatomic, copy) NSString *strUid;
+@property (nonatomic, copy) NSString *tel;
+@property (nonatomic, copy) NSString *vol;
+@property (nonatomic, copy) NSString *weidu;
+@property (nonatomic, copy) NSString *wlID;
+
+@end
+</code></pre><p>CarInfo.m</p>
+<pre><code>#import &quot;CarInfo.h&quot;
+#import &quot;NSObject+AutoArchive.h&quot;
+
+@implementation CarInfo
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super init]) {
+        [self decode:aDecoder];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    [self encode:aCoder];
+}
+
+- (NSDictionary *)replacedPropertyName {
+    return @{@&quot;carId&quot;: @&quot;id&quot;};
+}
+@end
+</code></pre>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据持久化方式/" rel="tag"># 数据持久化方式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/12/15/OC链式编程.html" rel="next" title="OC链式编程">
+                <i class="fa fa-chevron-left"></i> OC链式编程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/02/04/利用AVFoundation扫描二维码、条形码.html" rel="prev" title="利用AVFoundation扫描二维码、条形码">
+                利用AVFoundation扫描二维码、条形码 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2017/02/04/项目中用到的一种数据持久化方式.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

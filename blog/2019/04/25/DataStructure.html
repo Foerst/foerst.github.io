@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="一、算法时间复杂度1.大O表示法 二、线性表1.定义 零个或多个数据元素组成的有限序列 注意点： a. 一个序列，有先来后到关系。">
+<meta name="keywords" content="DataStructure">
+<meta property="og:type" content="article">
+<meta property="og:title" content="复习一下数据结构">
+<meta property="og:url" content="http://foerst.github.io/blog/2019/04/25/DataStructure.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="一、算法时间复杂度1.大O表示法 二、线性表1.定义 零个或多个数据元素组成的有限序列 注意点： a. 一个序列，有先来后到关系。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/linear_list.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/linked_list.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/thread_tree.jpg">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/graph_adjlist.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/graph_rev_adjlist.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/Orthogonal_list.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/mult_adjlist.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/graph_edges_array.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/search_half.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/search_insert.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/sort_hill.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/sort_heap.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/sort_summary.png">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.582Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="复习一下数据结构">
+<meta name="twitter:description" content="一、算法时间复杂度1.大O表示法 二、线性表1.定义 零个或多个数据元素组成的有限序列 注意点： a. 一个序列，有先来后到关系。">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2019/04/25/linear_list.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2019/04/25/DataStructure.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>复习一下数据结构 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2019/04/25/DataStructure.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">复习一下数据结构
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-04-25 00:00:00" itemprop="dateCreated datePublished" datetime="2019-04-25T00:00:00+08:00">2019-04-25</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/DataStructure/" itemprop="url" rel="index"><span itemprop="name">DataStructure</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、算法时间复杂度"><a href="#一、算法时间复杂度" class="headerlink" title="一、算法时间复杂度"></a>一、算法时间复杂度</h2><p>1.大O表示法</p>
+<h2 id="二、线性表"><a href="#二、线性表" class="headerlink" title="二、线性表"></a>二、线性表</h2><p>1.定义</p>
+<p>零个或多个数据元素组成的有限序列</p>
+<p>注意点：</p>
+<p>a. 一个序列，有先来后到关系。</p>
+<a id="more"></a>
+<p>b. 若有多个元素，第一个元素无前驱，最后一个元素无后继，其他元素都有且仅有一个前驱一个后继。</p>
+<p>c. 元素个数是有限的。</p>
+<p>2.线性表顺序存储</p>
+<p>线性表的顺序存储结构，指的是用一段地址连续的存储单元依次存储线性表的数据元素</p>
+<p>通过地址计算公式，可以随时算出线性表中任意位置的地址，对每个线性表位置的存入或者取出数据，它的时间复杂度都是O(1)。通常把具有这一特点的存储结构称为随机存取结构。</p>
+<p><img src="/blog/2019/04/25/linear_list.png" alt="img"></p>
+<p>3.线性表链式存储</p>
+<p>线性表的链式存储结构的特点是用一组任意的存储单元存储线性表的数据元素，这组存储单元可以是连续的，也可以是不连续的。</p>
+<p>在链式结构中，除了要存数据元素信息外，还要存储它的后继元素的存储地址。</p>
+<p><img src="/blog/2019/04/25/linked_list.png" alt="img"></p>
+<p>4.常见线性结构</p>
+<p>a.单链表: 链表的每个结点中只包含一个指针域</p>
+<p>有时，我们为了更加方便地对链表进行操作，会在单链表的第一个结点前附设一个结点，称为头结点。头结点的数据域可以不存储任何信息</p>
+<p>单链表相关问题:</p>
+<pre><code>1. 单链表的插入、删除，尾插法和头插法创建链表
+
+2. 找到单链表的中间结点？
+
+    快慢指针，快指针是慢指针的2倍
+</code></pre><p>b.静态链表: 用数组模拟描述单链表</p>
+<p>备用链表：通常把未被使用的数组元素称为备用链表</p>
+<p>备用链表增删改查 难度高</p>
+<p>c.循环链表</p>
+<p>将单链表中终端结点的指针端由空指针改为指向头结点，就使整个单链表形成一个环，这种头尾相接的单链表称为单循环链表，简称循环链表（circular linked list）</p>
+<p>Questions:</p>
+<pre><code>1.证明单链表有环
+
+    方法一.快慢指针, 快指针速度是慢指针的2倍，若有环必定相遇
+
+    方法二.p指针从头开始走，q一步一步走, 若p和q走的步数不相同必定有环
+
+2.判断两个单链表是否相交
+
+    a.一个有环、另一个无环，必定不相交
+
+    b.
+
+3.约瑟夫环问题？
+
+数到3自杀
+
+4.魔术师发牌问题
+
+5.拉丁方阵问题
+</code></pre><p>d.双向链表</p>
+<pre><code>双向链表（double linkedlist）是在单链表的每个结点中，再设置一个指向其前驱结点的指针域。所以在双向链表中的结点都有两个指针域，一个指向直接后继，另一个指向直接前驱。
+
+增加Tail指针，使访问头尾结点的时间复杂度都为 O(n)
+</code></pre><h2 id="三、栈"><a href="#三、栈" class="headerlink" title="三、栈"></a>三、栈</h2><p>1.栈的定义：后进先出的线性表</p>
+<p>2.栈的顺序存储以及链式存储的实现</p>
+<p>3.栈的应用举例</p>
+<p>a.就近匹配</p>
+<p>Q: 检测括号是否匹配？比如一段代码</p>
+<pre><code>#include &lt;stdio.h&gt; int main() { int a[4][4]; int (*p)[4]; p = a[0]; return 0; 
+
+从第一个字符开始扫描，当遇见普通字符时忽略，
+当遇见左符号时压入栈中，当遇见右符号时从栈中弹出栈顶符号，并进行匹配，如果匹配成功：继续读入下一个字符；如匹配失败：立即停止，并报错
+
+结束：
+
+成功: 所有字符扫描完毕，且栈为空
+
+失败：匹配失败或所有字符扫描完毕但栈非空
+</code></pre><p>b.中缀表达式（人类方便阅读的计算表达式）转 后缀表达式（计算机方便计算的表达式）</p>
+<pre><code>遍历中缀表达式中的数字和符号
+
+对于数字：直接输出
+
+对于符号：
+
+左括号：进栈  
+
+运算符号：与栈顶符号进行优先级比较
+
+若栈顶符号优先级低：此符号进栈  （默认栈顶若是左括号，左括号优先级最低）
+
+若栈顶符号优先级不低：将栈顶符号弹出并输出，之后进栈
+
+右括号：将栈顶符号弹出并输出，直到匹配左括号
+
+遍历结束：将栈中的所有符号弹出并输出
+</code></pre><p>c.后缀表达式计算</p>
+<pre><code>遍历后缀表达式中的数字和符号
+
+对于数字：进栈
+
+对于符号：
+
+从栈中弹出右操作数
+
+从栈中弹出左操作数
+
+根据符号进行运算
+
+将运算结果压入栈中
+
+遍历结束：栈中的唯一数字为计算结果
+</code></pre><p>d.二进制转10进制</p>
+<p>二进制转8进制</p>
+<p>二进制转16进制</p>
+<pre><code>每3位二进制对应一个8进制位，双栈：一个栈输入2进制，一个栈转换对应的位，第二个栈pop时从高位到低位
+</code></pre><p>e.二叉树的非递归中序遍历</p>
+<h2 id="四、队列"><a href="#四、队列" class="headerlink" title="四、队列"></a>四、队列</h2><p>1.队列的定义：FIFO的线性表</p>
+<p>2.队列顺序存储以及链式存储的实现</p>
+<p>3.循环队列</p>
+<p>循环队列它的容量是固定的，并且它的队头和队尾指针都可以随着元素入出队列而发生改变，这样循环队列逻辑上就好像是一个环形存储空间</p>
+<p>4.队列的应用举例</p>
+<p>树的按照深度遍历，图的广度遍历等，见下文</p>
+<h2 id="五、树"><a href="#五、树" class="headerlink" title="五、树"></a>五、树</h2><p>1.概念</p>
+<p>非线性结构，一个直接前驱，但可能有多个直接后继（1:n）</p>
+<p>根  叶子  森林</p>
+<p>有序树 无序树</p>
+<p>双亲 孩子 兄弟 堂兄弟 祖先 子孙</p>
+<p>结点 结点的度 结点的层次 终端结点 分支结点</p>
+<p>树的度  所有结点度中的最大值（Max{各结点的度}</p>
+<p>树的深度指所有结点中最大的层数（Max{各结点的层次}<br>(或高度)</p>
+<p>2.树的表示法</p>
+<p>图形表示法</p>
+<p>广义表表示法</p>
+<p>左孩子－右兄弟表示法</p>
+<p>双亲孩子表示法</p>
+<p>3.树的逻辑结构</p>
+<p>一对多（1:n），有多个直接后继（如家谱树、目录树等等），但只有一个根结点，且子树之间互不相交。</p>
+<p>广义表表示法</p>
+<p>左孩子－右兄弟表示法</p>
+<p>4.二叉树</p>
+<p>二叉树定义：是n（n≥0）个结点的有限集合，由一个根结点以及两棵互不相交的、分别称为左子树和右子树的二叉树组成</p>
+<p>满二叉树定义：一棵深度为k 且有2k -1个结点的二叉树。</p>
+<p>完全二叉树定义：深度为k 的，有n个结点的二叉树，当且仅当其每一个结点都与深度为k 的满二叉树中编号从1至n的结点一一对应。</p>
+<p>5.二叉树性质</p>
+<p>性质1: 在二叉树的第i层上至多有2i-1个结点（i&gt;0）</p>
+<p>性质2: 深度为k的二叉树至多有2k-1个结点（k&gt;0）</p>
+<p>性质3: 对于任何一棵二叉树，若2度的结点数有n2个，则叶子数（n0）必定为n2＋1 （即n0=n2+1）</p>
+<p>性质4: 具有n个结点的完全二叉树的深度必为log2n＋1</p>
+<p>性质5: 对完全二叉树，若从上至下、从左至右编号，则编号为i 的结点，其左孩子编号必为2i，其右孩子编号必为2i＋1；其双亲的编号必为i/2（i＝1 时为根,除外）</p>
+<p>6.二叉树的存储结构</p>
+<p>1）二叉树顺序存储结构</p>
+<p>只能用来存储完全二叉树，对于一般二叉树，可以用空节点来表示，但是太浪费空间了，不可取</p>
+<p>2）二叉树链式存储结构之二叉链表</p>
+<p>二叉树每个结点最多有两个孩子，所以为它设计一个数据域和两个指针域是比较自然的想法，我们称这样的链表叫做二叉链表</p>
+<p>如果有需要，还可以再增加一个指向其双亲的指针域，那样就称之为三叉链表</p>
+<p>7.二叉树遍历： 前序、中序、后序遍历递归 、非递归（迭代）方法</p>
+<p><a href="https://www.cnblogs.com/developerY/p/binary_tree_traversal_iteratively.html" target="_blank" rel="noopener">非递归遍历参考</a></p>
+<p>层序遍历：</p>
+<p>规则是若树为空，则空操作返回，否则从树的第一层，也就是根结点开始访问，从上而下逐层遍历，在同一层中，按从左到右的顺序对结点逐个访问</p>
+<p>“已知前序遍历序列和中序遍历序列，可以唯一确定一棵二叉树。<br>已知后序遍历序列和中序遍历序列，可以唯一确定一棵二叉树。”</p>
+<p>“已知前序和后序遍历，是不能确定一棵二叉树的”</p>
+<p>####二叉树的相关问题：</p>
+<p>1)计算二叉树中叶子结点的数目</p>
+<pre><code>int sum = 0; //全局变量
+DLR_CountLeafNum(NODE *root)//采用中序遍历的递归算法
+{ 
+   if ( root)  //非空二叉树条件，还可写成if(root !=NULL )
+  {   if(!root-&gt;lchild&amp;&amp;!root-&gt;rchild)  //是叶子结点则统计并打印
+      {   sum++;     printf(&quot;%d\n&quot;,root-&gt;data);  }
+      DLR_CountLeafNum(root-&gt;lchild); //递归遍历左子树，直到叶子处；
+      DLR_CountLeafNum(root-&gt;rchild);}//递归遍历右子树，直到叶子处；
+  } return(0);  
+} 
+</code></pre><p>2).求二叉树的深度</p>
+<p>3).完全copy二叉树</p>
+<p>4)中序遍历非递归算法</p>
+<pre><code>分析1：什么时候访问根、什么时候访问左子树、什么访问右子树
+
+  当左子树为空或者左子树已经访问完毕以后，再访问根，
+
+  访问完毕根以后，再访问右子树。
+
+分析2：非递归遍历树，访问结点时，为什么是栈，而不是其他模型（比如说是队列）。
+
+先走到的后访问、后走到的先访问，显然是栈结构
+
+分析3：结点所有路径情况
+
+步骤1：
+
+如果结点有左子树，该结点入栈；
+
+如果结点没有左子树，访问该结点；
+
+步骤2：
+
+如果结点有右子树，重复步骤1；
+
+如果结点没有右子树（结点访问完毕），根据栈顶指示回退，访问栈顶元素，并访问右子树，重复步骤1
+
+如果栈为空，表示遍历结束。 
+
+注意：入栈的结点表示本身没有被访问过，同时右子树也没有被访问过。
+
+分析4：有一个一直往左走入栈的操作，中序遍历的起点
+</code></pre><p>8.二叉树的建立（#号法创建树）</p>
+<pre><code>Bintree createBTpre() {      
+    Bintree T; 
+    char ch;
+    scanf(“%c”,&amp;ch);
+    if(ch==’#’) {
+        T=NULL; 
+    } else{   
+        T=( Bintree )malloc(sizeof(BinTNode));
+        T-&gt;data=ch;
+        T-&gt;lchild=createBTpre(); 
+        T-&gt;rchild=createBTpre();
+    }        
+    return T;
+}
+
+//后序遍历销毁一个树
+void  BiTree_Free(BiTNode* T) {
+    BiTNode *tmp = NULL;
+    if (T!= NULL)
+    {
+        if (T-&gt;rchild != NULL) BiTree_Free(T-&gt;rchild);
+        if (T-&gt;lchild != NULL) BiTree_Free(T-&gt;lchild);
+        if (T != NULL) {
+            free(T); 
+            T = NULL;
+        }
+    }
+}
+</code></pre><p>9.二叉线索树</p>
+<p>1）线索化概念</p>
+<p>“这种指向前驱和后继的指针称为线索，加上线索的二叉链表称为线索链表，相应的二叉树就称为线索二叉树（Threaded Binary Tree）”</p>
+<p>“对二叉树以某种次序遍历使其变为线索二叉树的过程称做是线索化。”</p>
+<p>普通二叉树只能找到结点的左右孩子信息，而该结点的直接前驱和直接后继只能在遍历过程中获得。<br>若可将遍历后对应的有关前驱和后继预存起来，则从第一个结点开始就能很快“顺藤摸瓜”而遍历整个树了。</p>
+<p>线索化的目标： 中序遍历这棵树===》转换成链表访问</p>
+<p>“有了线索二叉树后，我们对它进行遍历时发现，其实就等于是操作一个双向链表结构。</p>
+<p>和双向链表结构一样，在二叉树线索链表上添加一个头结点，并令其lchild域的指针指向二叉树的根结点，其rchild域的指针指向中序遍历时访问的最后一个结点。反之，令二叉树的中序序列中的第一个结点中，lchild域指针和最后一个结点的rchild域指针均指向头结点。这样定义的好处就是我们既可以从第一个结点起顺后继进行遍历，也可以从最后一个结点起顺前驱进行遍历。”</p>
+<p><img src="/blog/2019/04/25/thread_tree.jpg" alt="img"></p>
+<p>2）线索化树结点定义：</p>
+<pre><code>typedef  struct BiThrNode    /* 二叉线索存储结点结构 */
+{
+    char        data;    /* 结点数据 */
+    struct BiThrNode *lchild, *rchild;    /* 左右孩子指针 */
+    int            LTag;
+    int            RTag;        /* 左右标志 */
+} BiThrNode, *BiThrTree;
+</code></pre><p>线索化规定：</p>
+<p>ltag为0时指向该结点的左孩子，为1时指向该结点的前驱。<br>rtag为0时指向该结点的右孩子，为1时指向该结点的后继。</p>
+<p>3）线索化树代码实现</p>
+<pre><code>BiThrTree pre;                     /* 全局变量，始终指向刚刚访问过的结点 */
+/* 中序遍历进行中序线索化 */
+void InThreading(BiThrTree p)
+{
+    if (p)
+    {
+        /* 递归左子树线索化 */
+        InThreading(p-&gt;lchild);    
+        /* 没有左孩子”
+        /* 递归左子树线索化 */
+        InThreading(p-&gt;lchild);    
+        /* 没有左孩子 */
+        if (!p-&gt;lchild)            
+        {
+            /* 前驱线索 */
+            p-&gt;LTag = Thread;      
+            /* 左孩子指针指向前驱 */
+            p-&gt;lchild = pre;       
+        }
+        /* 前驱没有右孩子 */
+        if (!pre-&gt;rchild)          
+        {
+            /* 后继线索 */
+            pre-&gt;RTag = Thread;    
+            /* 前驱右孩子指针指向后继（当前结点p） */
+            pre-&gt;rchild = p;       
+        }
+        /* 保持pre指向p的前驱 */
+        pre = p;                   
+        /* 递归右子树线索化 */
+        InThreading(p-&gt;rchild);    
+    }
+}
+</code></pre><p>4）二叉树线索化树的遍历</p>
+<pre><code>/* 中序遍历二叉线索树T(头结点)的非递归算法 */
+int InOrderTraverse_Thr(BiThrNode* T)
+{ 
+    BiThrNode* p;
+    p = T-&gt;lchild; /* p指向根结点 */
+    while (p != T)
+    { 
+        /* 空树或遍历结束时,p==T */
+        while (p-&gt;LTag == Link)
+            p = p-&gt;lchild;
+        printf(&quot;%c &quot;, p-&gt;data);
+
+        while (p-&gt;RTag==Thread &amp;&amp; p-&gt;rchild!=T)
+        {
+            p = p-&gt;rchild;
+            printf(&quot;%c &quot;, p-&gt;data);
+        }
+        p=p-&gt;rchild;
+    }
+    return 0;
+}
+</code></pre><p>时间复杂度为O(n)</p>
+<p>10.树、森林与二叉树的转换</p>
+<p>普通树 转换为 二叉树 ： 左孩子右兄弟表示法</p>
+<p>“将树转换为二叉树的步骤如下 1.加线。在所有兄弟结点之间加一条连线。 2.去线。对树中每个结点，只保留它与第一个孩子结点的连线，删除它与其他孩子结点之间的连线。 3.层次调整。以树的根结点为轴心，将整棵树顺时针旋转一定的角度，使之结构层次分明。注意第一个孩子是二叉树结点的左孩子，兄弟转换过来的孩子是结点的右孩子。”</p>
+<p>森林转换为二叉树：</p>
+<p>森林是由若干棵树组成的，所以完全可以理解为，森林中的每一棵树都是兄弟，可以按照兄弟的处理办法来操作。步骤如下： 1.把每个树转换为二叉树。 2.第一棵二叉树不动，从第二棵二叉树开始，依次把后一棵二叉树的根结点作为前一棵二叉树的根结点的右孩子，用线连接起来。当所有的二叉树连接起来后就得到了由森林转换来的二叉树。</p>
+<p>二叉树 转换为 树： 逆左孩子右兄弟表示法</p>
+<p>11.赫夫曼树及其应用</p>
+<p>1）定义</p>
+<p>“树的路径长度就是从树根到每一结点的路径长度之和”</p>
+<p>“如果考虑到带权的结点，结点的带权的路径长度为从该结点到树根之间的路径长度与结点上权的乘积。树的带权路径长度为树中所有叶子结点的带权路径长度之和。假设有n个权值{w1,w2,…,wn}，构造一棵有n个叶子结点的二叉树，每个叶子结点带权wk，每个叶子的路径长度为lk，我们通常记作，则其中带权路径长度WPL最小的二叉树称做赫夫曼树”</p>
+<p>2）构造赫夫曼树的赫夫曼算法</p>
+<p>1.根据给定的n个权值{w1,w2,…,wn}构成n棵二叉树的集合F={T1,T2,…,Tn}，其中每棵二叉树Ti中只有一个带权为wi根结点，其左右子树均为空。<br>2.在F中选取两棵根结点的权值最小的树作为左右子树构造一棵新的二叉树，且置新的二叉树的根结点的权值为其左右子树上根结点的权值之和。<br>3.在F中删除这两棵树，同时将新得到的二叉树加入F中。<br>4.重复2和3步骤，直到F只含一棵树为止。这棵树便是赫夫曼树。</p>
+<p>3）赫夫曼编码</p>
+<p>一般地，设需要编码的字符集为{d1,d2,…,dn}，各个字符在电文中出现的次数或频率集合为{w1,w2,…,wn}，以d1,d2,…,dn作为叶子结点，以w1,w2,…,wn作为相应叶子结点的权值来构造一棵赫夫曼树。规定赫夫曼树的左分支代表0，右分支代表1，则从根结点到叶子结点所经过的路径分支组成的0和1的序列便为该结点对应字符的编码，这就是赫夫曼编码。</p>
+<h2 id="六、图-Graph"><a href="#六、图-Graph" class="headerlink" title="六、图(Graph)"></a>六、图(Graph)</h2><p>1.定义</p>
+<p>图（Graph）是由顶点的有穷非空集合和顶点之间边的集合组成，通常表示为：G(V,E)，其中，G表示一个图，V是图G中顶点的集合，E是图G中边的集合。</p>
+<p>无向边：若顶点vi到vj之间的边没有方向，则称这条边为无向边（Edge），用无序偶对(vi,vj)来表示。如果图中任意两个顶点之间的边都是无向边，则称该图为无向图（Undirected graphs）。</p>
+<p>有向边：若从顶点vi到vj的边有方向，则称这条边为有向边，也称为弧（Arc）。用有序偶<vi,vj>来表示，vi称为弧尾（Tail），vj称为弧头（Head）。如果图中任意两个顶点之间的边都是有向边，则称该图为有向图（Directed graphs）</vi,vj></p>
+<p>有些图的边或弧具有与它相关的数字，这种与图的边或弧相关的数叫做权（Weight）。这些权可以表示从一个顶点到另一个顶点的距离或耗费。这种带权的图通常称为网（Network）</p>
+<p>对于无向图G=(V,{E})，如果边(v,v’)∈E，则称顶点v和v’互为邻接点（Adjacent），即v和v’相邻接。边(v,v’)依附（incident）于顶点v和v’，或者说(v,v’)与顶点v和v’相关联。顶点v的度（Degree）是和v相关联的边的数目，记为TD(v)。</p>
+<p>对于有向图G=(V,{E})，如果弧<v,v'>∈E，则称顶点v邻接到顶点v'，顶点v'邻接自顶点v。弧<v,v'>和顶点v，v’相关联。以顶点v为头的弧的数目称为v的入度（InDegree），记为ID(v)；以v为尾的弧的数目称为v的出度（OutDegree），记为OD(v)；顶点v的度为TD(v)=ID(v)+OD(v)</v,v'></v,v'></p>
+<p>第一个顶点和最后一个顶点相同的路径称为回路或环（Cycle）</p>
+<p>在无向图G中，如果从顶点v到顶点v’有路径，则称v和v’是连通的。如果对于图中任意两个顶点vi、vj∈V，vi和vj都是连通的，则称G是连通图（Connected Graph）</p>
+<p>无向图中的极大连通子图称为连通分量。注意连通分量的概念，它强调：</p>
+<p>要是子图；</p>
+<p>子图要是连通的；</p>
+<p>连通子图含有极大顶点数；</p>
+<p>具有极大顶点数的连通子图包含依附于这些顶点的所有边。</p>
+<p>无向图中连通且n个顶点n-1条边叫生成树</p>
+<p>2.图的存储结构</p>
+<p>A.邻接矩阵</p>
+<p>图的邻接矩阵（Adjacency Matrix）存储方式是用两个数组来表示图。一个一维数组存储图中顶点信息，一个二维数组（称为邻接矩阵）存储图中的边或弧的信息。相邻为1否则为0.</p>
+<p>对于无向图：邻接矩阵对称</p>
+<p>要知道某个顶点的度，其实就是这个顶点vi在邻接矩阵中第i行（或第i列）的元素之和</p>
+<p>对于有向图：邻接矩阵非对称</p>
+<p>有向图讲究入度与出度，顶点v1的入度是第v1列各数之和。顶点v1的出度即第v1行的各数之和。</p>
+<p>对于网图（有权图）：</p>
+<p>这里wij表示（vi,vj）或<vi,vj>上的权值。∞表示一个计算机允许的、大于所有边上权值的值，也就是一个不可能的极限值  ∞—表示2顶点之间不存在边</vi,vj></p>
+<p>B.邻接表</p>
+<p>出现原因： 对于边数相对顶点较少的图，邻接矩阵结构存在对存储空间的极大浪费</p>
+<p>邻接表：</p>
+<p>1.图中顶点用一个一维数组存储。另外，对于顶点数组中，每个数据元素还需要存储指向第一个邻接点的指针，以便于查找该顶点的边信息。</p>
+<p>2.图中每个顶点vi的所有邻接点构成一个线性表，由于邻接点的个数不定，所以用单链表存储，无向图称为顶点vi的边表，有向图则称为顶点vi作为弧尾的出边表。</p>
+<p><img src="/blog/2019/04/25/graph_adjlist.png" alt="img"></p>
+<p>这样的结构，对于我们要获得图的相关信息也是很方便的。比如我们要想知道某个顶点的度，就去查找这个顶点的边表中结点的个数。若要判断顶点vi到vj是否存在边，只需要测试顶点vi的边表中adjvex是否存在结点vj的下标j就行了。若求顶点的所有邻接点，其实就是对此顶点的边表进行遍历，得到的adjvex域对应的顶点就是邻接点。</p>
+<p>若是有向图，邻接表结构是类似的，比如图7-4-7中第一幅图的邻接表就是第二幅图。但要注意的是有向图由于有方向，我们是以顶点为弧尾来存储边表的，这样很容易就可以得到每个顶点的出度。但也有时为了便于确定顶点的入度或以顶点为弧头的弧，我们可以建立一个有向图的逆邻接表，“即对每个顶点vi都建立一个链接为vi为弧头的表”</p>
+<p><img src="/blog/2019/04/25/graph_rev_adjlist.png" alt="img"></p>
+<p>对于带权值的网图，可以在边表结点定义中再增加一个weight的数据域，存储权值信息即可</p>
+<p>C.十字链表</p>
+<p>“那么对于有向图来说，邻接表是有缺陷的。关心了出度问题，想了解入度就必须要遍历整个图才能知道，反之，逆邻接表解决了入度却不了解出度的情况。有没有可能把邻接表与逆邻接表结合起来呢？答案是肯定的，就是把它们整合在一起。这就是我们现在要讲的有向图的一种存储方法：十字链表（Orthogonal List）。”</p>
+<p>顶点表结点结构：</p>
+<p>{data, firstin,firstout}</p>
+<p>其中firstin表示入边表头指针，指向该顶点的入边表中第一个结点，firstout表示出边表头指针，指向该顶点的出边表中的第一个结点。</p>
+<p>边表结点结构：</p>
+<p>{tailvex, headvex, headlink, taillink}</p>
+<p>其中tailvex是指弧起点在顶点表的下标，headvex是指弧终点在顶点表中的下标，headlink是指入边表指针域，指向终点相同的下一条边，taillink是指边表指针域，指向起点相同的下一条边。如果是网，还可以再增加一个weight域来存储权值</p>
+<p><img src="/blog/2019/04/25/Orthogonal_list.png" alt="img"></p>
+<p>D.邻接多重表</p>
+<p>引入原因： 解决邻接表删除边的麻烦</p>
+<p>边表结点结构：</p>
+<p>{ivex, ilink, jvex, jlink}</p>
+<p>其中ivex和jvex是与某条边依附的两个顶点在顶点表中的下标。ilink指向依附顶点ivex的下一条边，jlink指向依附顶点jvex的下一条边。这就是邻接多重表结构</p>
+<p><img src="/blog/2019/04/25/mult_adjlist.png" alt="img"></p>
+<p>若要删除左图的(v0,v2)这条边，只需要“将右图的⑥⑨的链接指向改为∧即可</p>
+<p>E.边集数组</p>
+<p>边集数组是由两个一维数组构成。</p>
+<p>一个是存储顶点的信息；</p>
+<p>另一个是存储边的信息，这个边数组每个数据元素由一条边的起点下标（begin）、终点下标（end）和权（weight）组成</p>
+<p><img src="/blog/2019/04/25/graph_edges_array.png" alt="img"></p>
+<p>3）图的遍历</p>
+<p>A.深度优先遍历（Depth_First_Search），也有称为深度优先搜索，简称为DFS</p>
+<p>从图中某个顶点v出发，访问此顶点，然后从v的未被访问的邻接点出发深度优先遍历图，直至图中所有和v有路径相通的顶点都被访问到。事实上，我们这里讲到的是连通图，对于非连通图，只需要对它的连通分量分别进行深度优先遍历，即在先前一个顶点进行一次深度优先遍历后，若图中尚有顶点未被访问，则另选图中一个未曾被访问的顶点作起始点，重复上述过程，直至图中所有顶点都被访问到为止。</p>
+<p>B.广度优先遍历（Breadth_First_Search），又称为广度优先搜索，简称BFS</p>
+<p>4）最小生成树</p>
+<p>一个连通图的生成树是一个极小的连通子图，它含有图中全部的顶点，但只有足以构成一棵树的n-1条边。那么我们把构造连通网的最小代价生成树称为最小生成树（Minimum Cost SpanningTree）。</p>
+<p>找连通网的最小生成树，经典的有两种算法，普里姆算法和克鲁斯卡尔算法</p>
+<p>A.普里姆（Prim）算法</p>
+<p>找结点</p>
+<p>B.克鲁斯卡尔（Kruskal）算法</p>
+<p>找边</p>
+<p>5）最短路径</p>
+<p>所谓的最短路径，其实就是指两顶点之间经过的边数最少的路径；而对于网图来说，最短路径，是指两顶点之间经过的边上权值之和最少的路径，并且我们称路径上的第一个顶点是源点，最后一个顶点是终点。</p>
+<p>A.迪杰斯特拉（Dijkstra）算法</p>
+<p>B.弗洛伊德（Floyd）算法</p>
+<p>6）拓扑排序</p>
+<p>拓扑序列：设G=(V,E)是一个具有n个顶点的有向图，V中的顶点序列V1,V2,……,Vn满足若从顶点Vi到Vj有一条路径，则在顶点序列中顶点Vi必在顶点Vj之前。则我们称这样的顶点序列为一个拓扑序列。</p>
+<p>拓扑排序：所谓的拓扑排序，其实就是对一个有向图构造拓扑序列的过程。</p>
+<p>对AOV网进行拓扑排序的方法和步骤如下：</p>
+<p>从AOV网中选择一个没有前趋的顶点（该顶点的入度为0）并且输出它；</p>
+<p>从网中删去该顶点，并且删去从该顶点发出的全部有向边；</p>
+<p>重复上述两步，直到剩余网中不再存在没有前趋的顶点为止。</p>
+<p>7）关键路径</p>
+<p>AOE网：在一个表示工程的带权有向图中，用顶点表示事件，用有向边表示活动，用边上的权值表示活动的持续时间，这种有向图的边表示活动的网，我们称之为AOE网（Activity On Edge Network）。</p>
+<p>我们把AOE网中没有入边的顶点称为始点或源点，没有出边的顶点称为终点或汇点。</p>
+<h2 id="七、查找"><a href="#七、查找" class="headerlink" title="七、查找"></a>七、查找</h2><p>查找（Searching）就是根据给定的某个值，在查找表中确定一个其关键字等于给定值的数据元素（或记录）。</p>
+<p>查找表（Search Table）是由同一类型的数据元素（或记录）构成的集合</p>
+<p>关键字（Key）是数据元素中某个数据项的值，又称为键值，用它可以标识一个数据元素。也可以标识一个记录的某个数据项（字段），我们称为关键码，</p>
+<p>查找表按照操作方式来分有两大种：静态查找表和动态查找表。</p>
+<p>静态查找表（Static Search Table）：只作查找操作的查找表。它的主要操作有：（1）查询某个“特定的”数据元素是否在查找表中。（2）检索某个“特定的”数据元素和各种属性。</p>
+<p>动态查找表（Dynamic Search Table）：在查找过程中同时插入查找表中不存在的数据元素，或者从查找表中删除已经存在的某个数据元素。显然动态查找表的操作就是两个：（1）查找时插入数据元素。（2）查找时删除数据元素</p>
+<p>1.顺序表查找</p>
+<p>顺序查找（Sequential Search）又叫线性查找，是最基本的查找技术，它的查找过程是：从表中第一个（或最后一个）记录开始，逐个进行记录的关键字和给定值比较，若某个记录的关键字和给定值相等，则查找成功，找到所查的记录；如果直到最后一个（或第一个）记录，其关键字和给定值比较都不等时，则表中没有所查的记录，查找不成功。</p>
+<p>2.有序表查找</p>
+<p>A.折半查找: 关键码有序 、“线性表必须采用顺序存储”，high,low,middle</p>
+<p>折半查找的基本思想是：在有序表中，取中间记录作为比较对象，若给定值与中间记录的关键字相等，则查找成功；若给定值小于中间记录的关键字，则在中间记录的左半区继续查找；若给定值大于中间记录的关键字，则在中间记录的右半区继续查找。不断重复上述过程，直到查找成功，或所有查找区域无记录，查找失败为止。</p>
+<pre><code>/* 折半查找 */
+int Binary_Search(int *a, int n, int key)
+{
+    int low, high, mid;
+    /* 定义最低下标为记录首位 */
+    low = 1;                       
+    /* 定义最高下标为记录末位 */
+    high = n;                      
+    while (low &lt;= high)
+    {
+        /* 折半 */
+        mid = (low + high) / 2;    
+        /* 若查找值比中值小 */
+        if (key &lt; a[mid])          
+           /* 最高下标调整到中位下标小一位 */
+           high = mid - 1;        
+        /* 若查找值比中值大 */
+        else if (key &gt; a[mid])     
+            /* 最低下标调整到中位下标大一位 */
+            low = mid + 1;         
+        else
+            /* 若相等则说明mid即为查找到的位置 */
+            return mid;            
+    }
+    return 0;
+}
+</code></pre><p>B.插值查找</p>
+<p><img src="/blog/2019/04/25/search_half.png" alt="img"></p>
+<p>插值查找是折半查找的改进，将折半查找mid的1/2系数改为，</p>
+<p><img src="/blog/2019/04/25/search_insert.png" alt="img"></p>
+<p>使查找次数更少</p>
+<p>插值查找（Interpolation Search）是根据要查找的关键字key与查找表中最大最小记录的关键字比较后的查找方法，其核心就在于插值的计算公式(key-a[low])/(a[high]-a[low])。应该说，从时间复杂度来看，它也是O(logn)，但对于表长较大，而关键字分布又比较均匀的查找表来说，插值查找算法的平均性能比折半查找要好得多。</p>
+<p>C.斐波那契查找</p>
+<p>斐波那契查找算法的核心在于：</p>
+<p>1）当key=a[mid]时，查找就成功；</p>
+<p>2）当key&lt;a[mid]时，新范围是第low个到第mid-1个，此时范围个数为F[k-1]-1个</p>
+<p>3）当key&gt;a[mid]时，新范围是第m+1个到第high个，此时范围个数为F[k-2]-1个。</p>
+<p>3.线性索引查找</p>
+<p>所谓线性索引就是将索引项集合组织为线性结构，也称为索引表。我们重点介绍三种线性索引：稠密索引、分块索引和倒排索引。</p>
+<p>A.稠密索引是指在线性索引中，将数据集中的每个记录对应一个索引项，</p>
+<p>B.稠密索引因为索引项与数据集的记录个数相同，所以空间代价很大。为了减少索引项的个数，我们可以对数据集进行分块，使其分块有序，然后再对每一块建立一个索引项，从而减少索引项的个数。</p>
+<p>C.倒排索引: 搜索引擎搜索</p>
+<ol>
+<li>二叉排序树</li>
+</ol>
+<p>二叉排序树（Binary Sort Tree），又称为二叉查找树。它或者是一棵空树，或者是具有下列性质的二叉树。</p>
+<p>若它的左子树不空，则左子树上所有结点的值均小于它的根结构的值；<br>若它的右子树不空，则右子树上所有结点的值均大于它的根结点的值；<br>它的左、右子树也分别为二叉排序树。”</p>
+<p>构造一棵二叉排序树的目的，其实并不是为了排序，而是为了提高查找和插入删除关键字的速度。</p>
+<p>难点： 二叉排序树的查找、插入、插入创建、删除</p>
+<p>查找时为了能够快速；引入了平衡二叉树的概念： </p>
+<p>5.平衡二叉树（Self-Balancing Binary SearchTree或Height-Balanced Binary Search Tree），是一种二叉排序树，其中每一个节点的左子树和右子树的高度差至多等于1。</p>
+<p>6.多路查找树</p>
+<p>多路查找树（muitl-way search tree），其每一个结点的孩子数可以多于两个，且每一个结点处可以存储多个元素。由于它是查找树，所有元素之间存在某种特定的排序关系。</p>
+<p>在这里，每一个结点可以存储多少个元素，以及它的孩子数的多少是非常关键的。为此，我们讲解它的4种特殊形式：2-3树、2-3-4树、B树和B+树。</p>
+<p>A.2-3树</p>
+<p>2-3树是这样的一棵多路查找树：其中的每一个结点都具有两个孩子（我们称它为2结点）或三个孩子（我们称它为3结点）。</p>
+<p>一个2结点包含一个元素和两个孩子（或没有孩子），且与二叉排序树类似，左子树包含的元素小于该元素，右子树包含的元素大于该元素。不过，与二叉排序树不同的是，这个2结点要么没有孩子，要有就有两个，不能只有一个孩子。</p>
+<p>一个3结点包含一小一大两个元素和三个孩子（或没有孩子），一个3结点要么没有孩子，要么具有3个孩子。如果某个3结点有孩子的话，左子树包含小于较小元素的元素，右子树包含大于较大元素的元素，中间子树包含介于两元素之间的元素。</p>
+<p>并且2-3树中所有的叶子都在同一层次上。</p>
+<p>B.B树（B-tree）是一种平衡的多路查找树，2-3树和2-3-4树都是B树的特例。结点最大的孩子数目称为B树的阶（order），因此，2-3树是3阶B树，2-3-4树是4阶B树。</p>
+<p>一个m阶的B树具有如下属性：</p>
+<p>如果根结点不是叶结点，则其至少有两棵子树。</p>
+<p>每一个非根的分支结点都有k-1个元素和k个孩子，其中。每一个叶子结点n都有k-1个元素，其中。</p>
+<p>所有叶子结点都位于同一层次。</p>
+<p>所有分支结点包含下列信息数据</p>
+<p>7.哈希表（散列表查找）</p>
+<p>A.关键概念： 槽位<br>哈希函数，散列技术是在记录的存储位置和它的关键字之间建立一个确定的对应关系f，使得每个关键字key对应一个存储位置f（key）。查找时，根据这个确定的对应关系找到给定值key的映射f（key），若查找集合中存在这个记录，则必定在f（key）的位置上。</p>
+<p>把这种对应关系f称为散列函数，又称为哈希（Hash）函数。按这个思想，采用散列技术将记录存储在一块连续的存储空间中，这块连续存储空间称为散列表或哈希表（Hash table）。那么关键字对应的记录存储位置我们称为散列地址。</p>
+<p>两个关键字key1≠key2，但是却有f(key1)=f(key2)，这种现象我们称为冲突（colli-sion），并把key1和key2称为这个散列函数的同义词（synonym）</p>
+<p>B.查找过程</p>
+<p>1）在存储时，通过散列函数计算记录的散列地址，并按此散列地址存储该记录。</p>
+<p>2）当查找记录时，我们通过同样的散列函数计算记录的散列地址，按此散列地址访问该记录。</p>
+<p>C.散列函数的构造方法</p>
+<p>要求：计算简单 散列地址分布均匀</p>
+<p>1)直接定址法 f(key)=key</p>
+<p>2)数字分析法</p>
+<p>3)平方取中法</p>
+<p>4)折叠法</p>
+<p>5)除留余数法</p>
+<p>对于散列表长为m的散列函数公式为：</p>
+<p>f(key)=key mod p(p≤m)</p>
+<p>6)随机数法</p>
+<p>选择一个随机数，取关键字的随机函数值为它的散列地址。也就是f(key)=random(key)。这里random是随机函数</p>
+<p>D.处理散列冲突的方法</p>
+<p>1)开放定址法</p>
+<p>所谓的开放定址法就是一旦发生了冲突，就去寻找下一个空的散列地址，只要散列表足够大，空的散列地址总能找到，并将记录存入。</p>
+<p>它的公式是：</p>
+<p>fi(key)=(f(key)+di)MOD m(di=1,2,3,……,m-1) — 线性探测法（逐个往后寻找空位）</p>
+<p>fi(key)=(f(key)+di)MOD m(di=12,-12,22,-22,…,q2,-q2,q≤m/2) — 二次探测法（双向寻找到可能的空位置）</p>
+<p>fi(key)=(f(key)+di)MOD m(di是一个随机数列) — 随机探测法</p>
+<p>2)再散列函数法</p>
+<p>每当发生散列地址冲突时，就换一个散列函数计算，相信总会有一个可以把冲突解决掉。这种方法能够使得关键字不产生聚集，当然，相应地也增加了计算的时间。</p>
+<p>3)链地址法</p>
+<p>将所有关键字为同义词的记录存储在一个单链表中，我们称这种表为同义词子表，在散列表中只存储所有同义词子表的头指针。</p>
+<p>4)公共溢出区法</p>
+<p>我们为所有冲突的关键字建立了一个公共的溢出区来存放。</p>
+<p>在查找时，对给定值通过散列函数计算出散列地址后，先与基本表的相应位置进行比对，如果相等，则查找成功；如果不相等，则到溢出表去进行顺序查找。</p>
+<h2 id="八、排序"><a href="#八、排序" class="headerlink" title="八、排序"></a>八、排序</h2><p>1.排序的稳定性</p>
+<p>假定在待排序的记录序列中，存在多个具有相同的关键字的记录，若经过排序，这些记录的相对次序保持不变，即在原序列中，r[i]=r[j]，且r[i]在r[j]之前，而在排序后的序列中，r[i]仍在r[j]之前，则称这种排序算法是稳定的；否则称为不稳定的。</p>
+<p>“按照算法的复杂度分为两大类，冒泡排序、简单选择排序和直接插入排序属于简单算法，而“希尔排序、堆排序、归并排序、快速排序属于改进算法”</p>
+<p>2.冒泡排序</p>
+<p>相邻2个元素比较</p>
+<p>O(n2)</p>
+<p>3.简单选择排序</p>
+<p>简单选择排序法（Simple Selection Sort）就是通过n-i次关键字间的比较，从n-i＋1个记录中选出关键字最小的记录，并和第i（1≤i≤n）个记录交换之。</p>
+<p>O(n2)</p>
+<p>4.直接插入排序</p>
+<p>直接插入排序（Straight Insertion Sort）的基本操作是将一个记录插入到已经排好序的有序表中，从而得到一个新的、记录数增1的有序表。</p>
+<p>O(n2)</p>
+<p>5.希尔排序: 间隔插入排序</p>
+<p>排序过程：先取一个正整数d1&lt;n，把所有相隔d1的记录放一组，组内进行直接插入排序；然后取d2&lt;d1，重复上述分组和排序操作；直至di=1，即所有记录放进一个组中排序为止（分组元素越来越多，di=1时，包含全部元素）</p>
+<p>希尔排序是第一个时间复杂度低于O(n2)的算法</p>
+<p>非稳定</p>
+<p><img src="/blog/2019/04/25/sort_hill.png" alt="img"></p>
+<p>6.堆排序（HeapSort）</p>
+<p>A.大顶堆与小顶堆概念：</p>
+<p>堆是具有下列性质的完全二叉树：每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆；或者每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆</p>
+<p>B.堆排序算法</p>
+<p>1)堆的建立过程：找到它左右子结点的较大值，互换，再找到其子结点的较大值互换。</p>
+<p><img src="/blog/2019/04/25/sort_heap.png" alt="img"></p>
+<p>建堆的过程是从下到上、从非终端节点到根节点，再从根节点到子树的过程，时间复杂度O(n)</p>
+<p>2)交换堆顶元素后，重新建堆的过程，是堆顶（大顶堆）元素下移比较的过程，跟树的深度有关，因此时间复杂度是O(logn)</p>
+<p>总的时间复杂度：O(nlgn)</p>
+<p>7.归并排序算法</p>
+<p>归并排序（Merging Sort）就是利用归并的思想实现的排序方法。它的原理是假设初始序列含有n个记录，则可以看成是n个有序的子序列，每个子序列的长度为1，然后两两归并，得到|n/2|（|x|表示不小于x的最小整数）个长度为2或1的有序子序列；再两两归并，……，如此重复，直至得到一个长度为n的有序序列为止，这种排序方法称为2路归并排序。</p>
+<p>总的时间复杂度为O(nlogn)</p>
+<p>归并排序是一种比较占用内存，但却效率高且稳定的算法。</p>
+<p>8.快速排序算法</p>
+<p>A.快速排序（Quick Sort）的基本思想是：通过一趟排序将待排记录分割成独立的两部分，其中一部分记录的关键字均比另一部分记录的关键字小，则可分别对这两部分记录继续进行排序，以达到整个序列有序的目的。</p>
+<p>B.快速排序的优化</p>
+<p>1）主要是枢轴的选取方法优化</p>
+<p>三数取中（median-of-three）法。即取三个关键字先进行排序，将中间数作为枢轴，一般是取左端、右端和中间三个数，也可以随机选取</p>
+<p>九数取中（me-dian-of-nine），它先从数组中分三次取样，每次取三个数，三个样品各取出中数，然后从这三个中数当中再取出一个中数作为枢轴。显然这就更加保证了取到的pivotkey是比较接近中间值的关键字。</p>
+<p>2）优化不必要的交换</p>
+<p>3）优化小数组时的排序方案</p>
+<p><img src="/blog/2019/04/25/sort_summary.png" alt="img"></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/DataStructure/" rel="tag"># DataStructure</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/02/28/记录一下iOS视频播放器的开发过程.html" rel="next" title="记录一下iOS视频播放器的开发过程">
+                <i class="fa fa-chevron-left"></i> 记录一下iOS视频播放器的开发过程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/07/15/蓝牙系列一、iOS中的蓝牙.html" rel="prev" title="蓝牙系列一、iOS中的蓝牙">
+                蓝牙系列一、iOS中的蓝牙 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、算法时间复杂度"><span class="nav-number">1.</span> <span class="nav-text">一、算法时间复杂度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、线性表"><span class="nav-number">2.</span> <span class="nav-text">二、线性表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、栈"><span class="nav-number">3.</span> <span class="nav-text">三、栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、队列"><span class="nav-number">4.</span> <span class="nav-text">四、队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、树"><span class="nav-number">5.</span> <span class="nav-text">五、树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、图-Graph"><span class="nav-number">6.</span> <span class="nav-text">六、图(Graph)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、查找"><span class="nav-number">7.</span> <span class="nav-text">七、查找</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#八、排序"><span class="nav-number">8.</span> <span class="nav-text">八、排序</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2019/04/25/DataStructure.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

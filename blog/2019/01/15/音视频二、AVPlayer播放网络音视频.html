@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="最近在项目中使用了AVPlayer自定义视频播放器，具体包括播放、暂停、进度拖动、监听缓存状态（缓存慢的时候转菊花）、全屏播放等功能，在这里总结一下基本实现方法。">
+<meta name="keywords" content="音视频">
+<meta property="og:type" content="article">
+<meta property="og:title" content="音视频二、AVPlayer播放网络音视频">
+<meta property="og:url" content="http://foerst.github.io/blog/2019/01/15/音视频二、AVPlayer播放网络音视频.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="最近在项目中使用了AVPlayer自定义视频播放器，具体包括播放、暂停、进度拖动、监听缓存状态（缓存慢的时候转菊花）、全屏播放等功能，在这里总结一下基本实现方法。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.569Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="音视频二、AVPlayer播放网络音视频">
+<meta name="twitter:description" content="最近在项目中使用了AVPlayer自定义视频播放器，具体包括播放、暂停、进度拖动、监听缓存状态（缓存慢的时候转菊花）、全屏播放等功能，在这里总结一下基本实现方法。">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/blog/2019/01/15/音视频二、AVPlayer播放网络音视频.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>音视频二、AVPlayer播放网络音视频 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2019/01/15/音视频二、AVPlayer播放网络音视频.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">音视频二、AVPlayer播放网络音视频
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-01-15 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-15T00:00:00+08:00">2019-01-15</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/音视频/" itemprop="url" rel="index"><span itemprop="name">音视频</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在项目中使用了AVPlayer自定义视频播放器，具体包括播放、暂停、进度拖动、监听缓存状态（缓存慢的时候转菊花）、全屏播放等功能，在这里总结一下基本实现方法。<br><a id="more"></a></p>
+<h2 id="什么是AVPlayer"><a href="#什么是AVPlayer" class="headerlink" title="什么是AVPlayer"></a>什么是AVPlayer</h2><p>AVPlayer是AVFoundation框架里面提供的类，专门用于播放音视频(支持本地和流媒体)。详情参考<a href="https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/AVFoundationPG/Articles/02_Playback.html#//apple_ref/doc/uid/TP40010188-CH3-SW4" target="_blank" rel="noopener">AVFoundation Programming Guide</a>.</p>
+<h2 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h2><h3 id="播放音视频"><a href="#播放音视频" class="headerlink" title="播放音视频"></a>播放音视频</h3><pre><code>NSURL * url  = [NSURL URLWithString:self.currentSong.url];
+AVPlayerItem * videoItem = [[AVPlayerItem alloc]initWithURL:url];
+AVPlayer * player = [[AVPlayer alloc]initWithPlayerItem:songItem];
+</code></pre><h3 id="播放-暂停"><a href="#播放-暂停" class="headerlink" title="播放/暂停"></a>播放/暂停</h3><pre><code>[player play];
+[player pause];
+</code></pre><p>注意：由于视频刚开始播放的时候要先下载资源缓存下来，然后再进行解封装、解码、渲染播放等操作，所以立即调用play方法要等待一段时间才开始播放，更好的方法是在播放器转态变为AVPlayerStatusReadyToPlay时调用play方法。立即调用play方法有可能会黑屏一下子，就是这个原因。</p>
+<h3 id="KVO监听播放器播放当前资源时的状态"><a href="#KVO监听播放器播放当前资源时的状态" class="headerlink" title="KVO监听播放器播放当前资源时的状态"></a>KVO监听播放器播放当前资源时的状态</h3><pre><code>[self.player.currentItem addObserver:self forKeyPath:@&quot;status&quot; options:NSKeyValueObservingOptionNew context:nil];
+</code></pre><p>然后可以在KVO方法中获取其status的改变</p>
+<pre><code>- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary&lt;NSString *,id&gt; *)change context:(void *)context {
+    if ([keyPath isEqualToString:@&quot;status&quot;]) {
+        switch (self.player.status) {            
+            case AVPlayerStatusUnknown:                
+                NSLog(@&quot;未知状态，此时不能播放&quot;);                
+                break;            
+            case AVPlayerStatusReadyToPlay:                
+                NSLog(@&quot;准备完毕，可以播放&quot;); 
+                [self.player play];               
+                break;
+            case AVPlayerStatusFailed:
+                NSLog(@&quot;加载失败，网络或者服务器出现问题&quot;);
+                break;            
+            default:                
+                break;        
+        }
+    }
+}
+</code></pre><p><strong>注意</strong>：AVPlayer一共有3种状态AVPlayerStatusUnknown、AVPlayerStatusReadyToPlay、AVPlayerStatusFailed。一般初始化player到播放都会经历<br>Unknown到ReadyToPlay这个过程，网络情况良好时可能不会出现Unknown状态的提示，网络情况差的时候Unknown的状态可能会持续比较久甚至可能不进入ReadyToPlay状态，针对这种情况我们要做特殊的处理。</p>
+<p><strong>巨坑</strong>：播放有些在线音频文件的时候，在 currentItem 进入AVPlayerStatusReadyToPlay状态时， 获取资源的总时长时item.duration 仍有可能等于 CMTime.indefinite，CMTimeGetSeconds(item.duration)方法获取总时长为nan， 计算播放进度的时候老是crash。后来干脆在addPeriodicTimeObserverForInterval:queue:usingBlock:方法中获取总时长。</p>
+<p>另外，不要忘记在合适的时机移除观察者：</p>
+<pre><code>[self.player.currentItem removeObserver:self forKeyPath:@&quot;status&quot;];
+</code></pre><h3 id="如何实现播放视频的上一个-下一个切换"><a href="#如何实现播放视频的上一个-下一个切换" class="headerlink" title="如何实现播放视频的上一个/下一个切换"></a>如何实现播放视频的上一个/下一个切换</h3><p>这里我们有两种方式可以实现，一种是替换当前的item，这种方式据说是有性能问题。</p>
+<pre><code>[player replaceCurrentItemWithPlayerItem:songItem];
+</code></pre><p>另一种是使用AVPlayer的子类AVQueuePlayer来播放多个item，调用advanceToNextItem来播放下一个视频</p>
+<pre><code>NSArray * items = @[item1, item2, item3 ....];
+AVQueuePlayer * queuePlayer = [[AVQueuePlayer alloc]initWithItems:items];
+[queuePlayer advanceToNextItem];
+</code></pre><p><strong>巨坑</strong>：AVQueuePlayer默认的actionAtItemEnd会删掉当前播放的item。</p>
+<h3 id="监听播放进度更新UI"><a href="#监听播放进度更新UI" class="headerlink" title="监听播放进度更新UI"></a>监听播放进度更新UI</h3><p>使用player的addPeriodicTimeObserverForInterval:queue:usingBlock:方法来监听播放器的进度</p>
+<p>添加观察者：</p>
+<pre><code>id timeObserve = [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1.0, 1.0) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+        float current = CMTimeGetSeconds(time);        
+        float total = CMTimeGetSeconds(songItem.duration);        
+        if (current) {            
+              weakSelf.progress = current / total;            
+              weakSelf.playTime = [NSString stringWithFormat:@&quot;%.f&quot;,current];            
+              weakSelf.playDuration = [NSString stringWithFormat:@&quot;%.2f&quot;,total];        }
+}];
+</code></pre><p>移除观察者：</p>
+<pre><code>if (timeObserve) {
+        [player removeTimeObserver:_timeObserve];
+        timeObserve = nil;
+}
+</code></pre><p>注意点：</p>
+<ol>
+<li><p>方法传入一个CMTime结构体，每到一定时间都会回调一次，包括开始和结束播放</p>
+</li>
+<li><p>如果block里面的操作耗时太长，下次不一定会收到回调，所以尽量减少block的操作耗时</p>
+</li>
+<li><p>方法会返回一个观察者对象，当播放完毕时需要移除这个观察者   </p>
+</li>
+</ol>
+<h3 id="KVO监听数据缓冲进度"><a href="#KVO监听数据缓冲进度" class="headerlink" title="KVO监听数据缓冲进度"></a>KVO监听数据缓冲进度</h3><pre><code>[self.player.currentItem addObserver:self forKeyPath:@&quot;loadedTimeRanges&quot; options:NSKeyValueObservingOptionNew context:nil];
+</code></pre><p>然后可以在KVO方法中获取其数据缓冲状态的改变</p>
+<pre><code>- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary&lt;NSString *,id&gt; *)change context:(void *)context {   
+    AVPlayerItem * songItem = object;
+    if ([keyPath isEqualToString:@&quot;loadedTimeRanges&quot;]) {
+        NSArray * array = songItem.loadedTimeRanges;        
+        CMTimeRange timeRange = [array.firstObject CMTimeRangeValue]; //本次缓冲的时间范围
+        NSTimeInterval totalBuffer = CMTimeGetSeconds(timeRange.start) + CMTimeGetSeconds(timeRange.duration); //缓冲总长度
+        NSTimeInterval videoLength = CMTimeGetSeconds(songItem.duration);
+       CGFloat ratio = totalBuffer/videoLength;
+       NSLog(@&quot;共缓冲%.2f&quot;,totalBuffer);
+       NSLog(@&quot;缓冲比例%.2f&quot;, ratio);
+    }
+}
+</code></pre><p>如果你需要在进度条展示缓冲的进度，可以增加这个观察者。另外缓存的数据也可能是离散的。</p>
+<p>同样也要做合适的时机移除观察者：</p>
+<pre><code>[songItem removeObserver:self forKeyPath:@&quot;loadedTimeRanges&quot;];
+</code></pre><h3 id="KVO监听缓冲状态"><a href="#KVO监听缓冲状态" class="headerlink" title="KVO监听缓冲状态"></a>KVO监听缓冲状态</h3><pre><code>item.addObserver(self, forKeyPath: &quot;playbackLikelyToKeepUp&quot;, options: .new, context: nil)
+item.addObserver(self, forKeyPath: &quot;playbackBufferEmpty&quot;, options: .new, context: nil)
+</code></pre><p>playbackBufferEmpty 一般与 playbackLikelyToKeepUp 同时使用，二者均为Bool类型值。 playbackBufferEmpty 表示缓冲是否为空，为 true 时可以转菊花。playbackLikelyToKeepUp 表示缓冲是否可以足够播放， 为 true 时可以继续播放。</p>
+<pre><code>if path.elementsEqual(&quot;playbackBufferEmpty&quot;) {
+    if let playbackBufferEmpty = dict[NSKeyValueChangeKey.newKey] as? Bool {
+        PlayerLog(&quot;playbackBufferEmpty = \(playbackBufferEmpty)&quot;)
+        if playbackBufferEmpty {
+            playerStatus = .buffering
+        }
+    }
+} else if path.elementsEqual(&quot;playbackLikelyToKeepUp&quot;) {
+    if let playbackLikelyToKeepUp = dict[NSKeyValueChangeKey.newKey] as? Bool {
+        PlayerLog(&quot;playbackLikelyToKeepUp = \(playbackLikelyToKeepUp)&quot;)
+        if playbackLikelyToKeepUp {
+            if queuePlayer?.rate == 0 {
+                queuePlayer?.play()
+                playerStatus = .prepareToPlay
+            }
+        }
+    }
+}
+</code></pre><h3 id="定位播放点"><a href="#定位播放点" class="headerlink" title="定位播放点"></a>定位播放点</h3><p>要定位到指定时间点进行播放, 可以使用 seekToTime:如下:</p>
+<pre><code>CMTime fiveSecondsIn = CMTimeMake(5, 1);
+[player seekToTime:fiveSecondsIn];
+</code></pre><p>seekToTime:方法牺牲了精确度来优化性能, 如果需要精确定位, 使用 seekToTime:toleranceBefore:toleranceAfter:方法.</p>
+<pre><code>CMTime fiveSecondsIn = CMTimeMake(5, 1);
+[player seekToTime:fiveSecondsIn toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];    
+</code></pre><p>将容忍值设置为0意味着框架会解码大量的数据来保证精确度. 确保只有在真正需要的时候才会如此设置.</p>
+<p>播放完毕之后, 播放点会被设置为item的结束点. 要将播放点重新设置到item开头, 可以注册接收AVPlayerItemDidPlayToEndTimeNotification通知, 在处理通知的方法中, 调用seekToTime:并传入参数kCMTimeZero.  </p>
+<h3 id="监听播放完成"><a href="#监听播放完成" class="headerlink" title="监听播放完成"></a>监听播放完成</h3><pre><code>// 监听播放完成
+NotificationCenter.default.addObserver(self, selector: #selector(itemFinished(_:)), name: .AVPlayerItemDidPlayToEndTime, object: queuePlayer?.currentItem ?? nil)    
+</code></pre><p>这里有个<strong>巨坑</strong>： 该通知会发送多次，尽管已经切换到下一首，Notification.object为播放的item，需要与当前item进行比较，以判断是否是当前正在播放的歌曲播放结束。另外，播放某些网络音频文件时，一开始播放就接收到AVPlayerItemDidPlayToEndTime通知，尴尬！遇到这种情况根本无法确定是否真正播放完成，以完成切换下一首的需求。目前用isPlaybackLikelyToKeepUp简单判断，亦可以用当前播放时间跟总时长比较，差值在一定范围类判断为播放完成。</p>
+<p>最近发现使用原生AVPlayer进行资源加载后又没出现这个问题了， 推测使用AVPlayer+CacheSupport进行资源加载会导致这个问题。另外，AVPlayer+CacheSupport还会偶现有网情况下无法播放资源的情况。</p>
+<pre><code>// MARK: 播放完成
+
+@objc private func itemFinished(_ notif: Notification) {
+    PlayerLog(&quot;播放完成通知！&quot;)
+    guard let currentItem = queuePlayer?.currentItem else { return }
+    if let item = notif.object as? AVPlayerItem, item == currentItem {
+        PlayerLog(&quot;\(currentItem.mc_URL) 播放完成！&quot;)
+        // 播放完成回到开始位置
+        updateProgress(0) { [weak self](ret) in
+            guard let strongSelf = self else {
+                self?.playerStatus = .finished
+                return
+            }
+            strongSelf.playerStatus = .finished
+        }
+    }
+}
+</code></pre>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/音视频/" rel="tag"># 音视频</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/01/14/音视频一、AVAudioPlayer播放音频.html" rel="next" title="音视频一、AVAudioPlayer播放音频">
+                <i class="fa fa-chevron-left"></i> 音视频一、AVAudioPlayer播放音频
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/01/16/音视频三、AVPlayer离线缓存实现.html" rel="prev" title="音视频三、AVPlayer离线缓存实现">
+                音视频三、AVPlayer离线缓存实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是AVPlayer"><span class="nav-number">1.</span> <span class="nav-text">什么是AVPlayer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本使用"><span class="nav-number">2.</span> <span class="nav-text">基本使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#播放音视频"><span class="nav-number">2.1.</span> <span class="nav-text">播放音视频</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#播放-暂停"><span class="nav-number">2.2.</span> <span class="nav-text">播放/暂停</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KVO监听播放器播放当前资源时的状态"><span class="nav-number">2.3.</span> <span class="nav-text">KVO监听播放器播放当前资源时的状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何实现播放视频的上一个-下一个切换"><span class="nav-number">2.4.</span> <span class="nav-text">如何实现播放视频的上一个/下一个切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#监听播放进度更新UI"><span class="nav-number">2.5.</span> <span class="nav-text">监听播放进度更新UI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KVO监听数据缓冲进度"><span class="nav-number">2.6.</span> <span class="nav-text">KVO监听数据缓冲进度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KVO监听缓冲状态"><span class="nav-number">2.7.</span> <span class="nav-text">KVO监听缓冲状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定位播放点"><span class="nav-number">2.8.</span> <span class="nav-text">定位播放点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#监听播放完成"><span class="nav-number">2.9.</span> <span class="nav-text">监听播放完成</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: '/blog/2019/01/15/音视频二、AVPlayer播放网络音视频.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

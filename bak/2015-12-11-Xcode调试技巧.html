@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1.Enable NSZombie Objects（开启僵尸对象）Enable NSZombie Objects可能是整个Xcode开发环境中最有用的调试技巧。这个技巧非常非常容易追踪到重复释放的问题。该技巧会以非常简洁的方式打印指出重复释放的类和该类的内存地址。 怎么开启僵尸对象呢？首先打开“Edit Scheme”（或者通过热键?&amp;lt;），然后选择Diagnostics选项卡，勾选Enabl">
+<meta name="keywords" content="调试">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Xcode调试技巧">
+<meta property="og:url" content="http://foerst.github.io/bak/2015-12-11-Xcode调试技巧.html">
+<meta property="og:site_name" content="记录点滴">
+<meta property="og:description" content="1.Enable NSZombie Objects（开启僵尸对象）Enable NSZombie Objects可能是整个Xcode开发环境中最有用的调试技巧。这个技巧非常非常容易追踪到重复释放的问题。该技巧会以非常简洁的方式打印指出重复释放的类和该类的内存地址。 怎么开启僵尸对象呢？首先打开“Edit Scheme”（或者通过热键?&amp;lt;），然后选择Diagnostics选项卡，勾选Enabl">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-20T09:07:18.657Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Xcode调试技巧">
+<meta name="twitter:description" content="1.Enable NSZombie Objects（开启僵尸对象）Enable NSZombie Objects可能是整个Xcode开发环境中最有用的调试技巧。这个技巧非常非常容易追踪到重复释放的问题。该技巧会以非常简洁的方式打印指出重复释放的类和该类的内存地址。 怎么开启僵尸对象呢？首先打开“Edit Scheme”（或者通过热键?&amp;lt;），然后选择Diagnostics选项卡，勾选Enabl">
+
+
+
+
+
+
+  <link rel="canonical" href="http://foerst.github.io/bak/2015-12-11-Xcode调试技巧.html"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Xcode调试技巧 | 记录点滴</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录点滴</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+
+  
+
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/bak/2015-12-11-Xcode调试技巧.html"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CXY"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录点滴"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Xcode调试技巧
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2015-12-11 00:00:00" itemprop="dateCreated datePublished" datetime="2015-12-11T00:00:00+08:00">2015-12-11</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-01-20 17:07:18" itemprop="dateModified" datetime="2021-01-20T17:07:18+08:00">2021-01-20</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>1.Enable NSZombie Objects（开启僵尸对象）<br>Enable NSZombie Objects可能是整个Xcode开发环境中最有用的调试技巧。这个技巧非常非常容易追踪到重复释放的问题。该技巧会以非常简洁的方式打印指出重复释放的类和该类的内存地址。</p>
+<p>怎么开启僵尸对象呢？首先打开“Edit Scheme”（或者通过热键?&lt;），然后选择Diagnostics选项卡，勾选Enable NSZombie Objects选项。<a id="more"></a></p>
+<p>现在我们可以关掉ARC来测试重复释放的问题、异常和更容易产生的Crashs，但是即使开启ARC，重复释放和与内存相关的Crashs也经常发生。现在假设我们犯了一些错误导致了重复释放的发生来观察将要发生什么。<br>UIView* view = [[[UIView alloc] init] autorelease];<br>//…<br>//do something with view…clearly forgetting that it has been autoreleased.<br>//<br>[view release];   </p>
+<p>现在运行这段代码会发生重复释放的问题，程序将崩溃在主函数，会像下面这样：</p>
+<p>Enable NSZombie Objects会让调试器看起来像这样：</p>
+<p>这个例子看起来作用非常小，但是对于一个大工程通过Enable NSZombie Objects打印的信息是非常有用的。</p>
+<p>2.对于所有异常添加Global BreakPoint（全局断点）<br>当你的应用异常或者崩溃的时候Xcode喜欢做的一件事情是直接跳到主函数，就像第一个调试技巧中用到的那个例子一样。如果异常或者崩溃能够停留在异常或者崩溃发生的地方那该是多好呀。幸运的是有一个方法可以做到。Xcode有一个漂亮的功能叫做异常断点，允许我们在异常发生的时候在异常发生的地方放一个断点。你可以指定具体的异常也可以指定所有的异常。</p>
+<p>怎样开启异常断点呢？工程切换到异常浏览窗口，点击下方左侧的“Add Breakpoint”按钮，然后选择“Add Exception Breakpoint”确保可以捕获所有异常。</p>
+<p>现在异常发生时调试器不会直接跳转到主函数了，而是停留在了异常发生的地方。</p>
+<p>这个断点给了我们一个调试异常非常好的开始的点，不用我们再去遍历代买去找异常发生的地方了。</p>
+<p>3.Static Analyzer（静态分析）<br>Static Analyzer是一个非常好的工具去发现编译器警告不会提示的问题和一些个人的内错泄露和死存储（不会用到的赋了值的变量）错误。这个方法可能大大的提高内存使用和性能，以及提升应用的整体稳定性和代码质量。</p>
+<p>怎么打开Static Analyzer？打开Xcide的“Product”菜单，选择Analyzer选项（或者使用热键? shift B）。正像你看到的下面的截图，Static Analyzer会捕获任何应用内的可能的问题然后以蓝色的警告展示出来。</p>
+<p>我们也可以设置我们的应用在我们编译应用的时候自动开启Static Analyzer，打开项目project文件，设置“Run Static Analyzer”为YES，如下图：</p>
+<p>4.Condational Breakpoints（条件断点）<br>最后一个调试技巧条件断点，这只是普通的断点，当变量满足一定条件时程序停止。这个调试技巧在当你想要捕获一个循环中的变量的特定值或者一些不常发生的情况时是非常有用的，而不用你每次迭代都停止来查看。</p>
+<p>怎样开启条件变量？只不过是添加一个普通断点，然后右键点击断点选择“Edit Breakpoint”，这时就打开了一个断点编辑器，你可以在这里设置断点条件（以及一些其他的断点设置），然后选择“Done”，这个调试技巧非常简单吧。</p>
+<p>5.unrecognized selector send to instancd 快速定位<br>在Debug菜单中Breakpoints-&gt;Create Symbolic Breakpoint</p>
+<p>在Symbolic中填写如下方法签名<br>-[NSObject(NSObject) doesNotRecognizeSelector:]   </p>
+<p>设置完成后再遇到类似的错误就会定位到具体的代码。</p>
+<p>参考：<a href="http://crushbeercrushcode.org/2012/11/four-tips-for-debugging-in-xcode-like-a-bro/" target="_blank" rel="noopener"><em>http://crushbeercrushcode.org/2012/11/four-tips-for-debugging-in-xcode-like-a-bro/</em></a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/" rel="tag"># </a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MjcyMy8xOTI3MA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CXY</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CXY</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: 'bak/2015-12-11-Xcode调试技巧.html'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
