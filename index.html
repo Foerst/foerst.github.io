@@ -506,7 +506,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2021/01/22/CocoaPods组件化.html"/>
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2021/01/22/HTTPS与中间人攻击.html"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="CXY"/>
@@ -526,7 +526,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/blog/2021/01/22/CocoaPods组件化.html" class="post-title-link" itemprop="url">CocoaPods组件化</a>
+                <a href="/blog/2021/01/22/HTTPS与中间人攻击.html" class="post-title-link" itemprop="url">HTTPS与中间人攻击</a>
               
             
           </h1>
@@ -551,7 +551,7 @@
                 
               
 
-              <time title="Created: 2021-01-22 00:00:00 / Modified: 17:49:26" itemprop="dateCreated datePublished" datetime="2021-01-22T00:00:00+08:00">2021-01-22</time>
+              <time title="Created: 2021-01-22 00:00:00 / Modified: 17:54:26" itemprop="dateCreated datePublished" datetime="2021-01-22T00:00:00+08:00">2021-01-22</time>
             
 
             
@@ -573,7 +573,7 @@
                 <span class="post-meta-item-text">In</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/组件化/" itemprop="url" rel="index"><span itemprop="name">组件化</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/中间人攻击/" itemprop="url" rel="index"><span itemprop="name">中间人攻击</span></a></span>
 
                 
                 
@@ -609,14 +609,12 @@
 
       
         
-          <p>### </p>
-<h3 id="新建私有库"><a href="#新建私有库" class="headerlink" title="新建私有库"></a>新建私有库</h3><p>pod lib create XYLib</p>
-<p>过程中会回答一些问题，新建完成后会自动执行pod install (pod ‘XYLib’, :path =&gt; ‘../‘，本地调试Pod)命令，然后打开Example项目。接下来，我们可以在 XYLib/Classes文件夹下新建类文件并进行开发测试。</p>
-<h3 id="上传私有库并打tag"><a href="#上传私有库并打tag" class="headerlink" title="上传私有库并打tag"></a>上传私有库并打tag</h3>
+          <h2 id="预备知识"><a href="#预备知识" class="headerlink" title="预备知识"></a>预备知识</h2><h5 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h5><p>加密和解密使用同一个秘钥。在HTTPS建立连接的过程中如果只采用对称加密，双方通信的开始总会以明文的方式传输密钥，显然是不安全的。</p>
+<p>常见的对称加密算法有：DES(数据加密标准) AES<br></p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/blog/2021/01/22/CocoaPods组件化.html#more" rel="contents">
+              <a class="btn" href="/blog/2021/01/22/HTTPS与中间人攻击.html#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -676,7 +674,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2021/01/22/HTTPS与中间人攻击.html"/>
+    <link itemprop="mainEntityOfPage" href="http://foerst.github.io/blog/2021/01/22/CocoaPods组件化.html"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="CXY"/>
@@ -696,7 +694,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/blog/2021/01/22/HTTPS与中间人攻击.html" class="post-title-link" itemprop="url">HTTPS与中间人攻击</a>
+                <a href="/blog/2021/01/22/CocoaPods组件化.html" class="post-title-link" itemprop="url">CocoaPods组件化</a>
               
             
           </h1>
@@ -721,7 +719,7 @@
                 
               
 
-              <time title="Created: 2021-01-22 00:00:00 / Modified: 17:51:06" itemprop="dateCreated datePublished" datetime="2021-01-22T00:00:00+08:00">2021-01-22</time>
+              <time title="Created: 2021-01-22 00:00:00 / Modified: 17:54:21" itemprop="dateCreated datePublished" datetime="2021-01-22T00:00:00+08:00">2021-01-22</time>
             
 
             
@@ -743,7 +741,7 @@
                 <span class="post-meta-item-text">In</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/中间人攻击/" itemprop="url" rel="index"><span itemprop="name">中间人攻击</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/组件化/" itemprop="url" rel="index"><span itemprop="name">组件化</span></a></span>
 
                 
                 
@@ -779,13 +777,13 @@
 
       
         
-          <p>### </p>
-<h2 id="预备知识"><a href="#预备知识" class="headerlink" title="预备知识"></a>预备知识</h2><h5 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h5><p>加密和解密使用同一个秘钥。在HTTPS建立连接的过程中如果只采用对称加密，双方通信的开始总会以明文的方式传输密钥，显然是不安全的。</p>
-<p>常见的对称加密算法有：DES(数据加密标准) AES<br></p>
+          <h3 id="新建私有库"><a href="#新建私有库" class="headerlink" title="新建私有库"></a>新建私有库</h3><p>pod lib create XYLib</p>
+<p>过程中会回答一些问题，新建完成后会自动执行pod install (pod ‘XYLib’, :path =&gt; ‘../‘，本地调试Pod)命令，然后打开Example项目。接下来，我们可以在 XYLib/Classes文件夹下新建类文件并进行开发测试。</p>
+<h3 id="上传私有库并打tag"><a href="#上传私有库并打tag" class="headerlink" title="上传私有库并打tag"></a>上传私有库并打tag</h3>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/blog/2021/01/22/HTTPS与中间人攻击.html#more" rel="contents">
+              <a class="btn" href="/blog/2021/01/22/CocoaPods组件化.html#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
