@@ -104,7 +104,7 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="###  记录下APC工具的制作过程模拟点击首先需要开启系统辅助权限let opts = NSDictionary(object: kCFBooleanTrue,                         forKey: kAXTrustedCheckOptionPrompt.takeUnretainedValue() as NSString             ) as CFDicti">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2021-01-20T09:16:47.516Z">
+<meta property="og:updated_time" content="2021-01-20T09:55:31.301Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记录下APC工具的制作过程">
 <meta name="twitter:description" content="###  记录下APC工具的制作过程模拟点击首先需要开启系统辅助权限let opts = NSDictionary(object: kCFBooleanTrue,                         forKey: kAXTrustedCheckOptionPrompt.takeUnretainedValue() as NSString             ) as CFDicti">
@@ -383,7 +383,7 @@
                 
               
 
-              <time title="Created: 2021-01-20 00:00:00 / Modified: 17:16:47" itemprop="dateCreated datePublished" datetime="2021-01-20T00:00:00+08:00">2021-01-20</time>
+              <time title="Created: 2021-01-20 00:00:00 / Modified: 17:55:31" itemprop="dateCreated datePublished" datetime="2021-01-20T00:00:00+08:00">2021-01-20</time>
             
 
             
@@ -472,8 +472,8 @@ NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: {
         // self.startAction()
     }
 })
-</code></pre><h4 id="OpenCV图片匹配"><a href="#OpenCV图片匹配" class="headerlink" title="OpenCV图片匹配"></a>OpenCV图片匹配</h4><p>GitHub下载官方OpenCV， 使用Platform/osx/build_framework.sh 制作动态库。然后创建os x cocoa应用程序，一直build不过，从网上下了个模板可以跑。osx 命令行可以跑动。估计是build setting c++相关配置选项没搞正确。</p>
-<h4 id="截图工具"><a href="#截图工具" class="headerlink" title="截图工具"></a>截图工具</h4><pre><code>screencapture -t pathOfSaveFile
+</code></pre><h3 id="OpenCV图片匹配"><a href="#OpenCV图片匹配" class="headerlink" title="OpenCV图片匹配"></a>OpenCV图片匹配</h3><p>GitHub下载官方OpenCV， 使用Platform/osx/build_framework.sh 制作动态库。然后创建os x cocoa应用程序，一直build不过，从网上下了个模板可以跑。osx 命令行可以跑动。估计是build setting c++相关配置选项没搞正确。</p>
+<h3 id="截图工具"><a href="#截图工具" class="headerlink" title="截图工具"></a>截图工具</h3><pre><code>screencapture -t pathOfSaveFile
 </code></pre><p>使用pipopen()调用系统命令即可。</p>
 
       
@@ -520,6 +520,10 @@ NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: {
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2021/01/22/C++ STL.html" rel="prev" title="C++ STL">
+                C++ STL <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -594,7 +598,7 @@ NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: {
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">45</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -651,7 +655,9 @@ NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: {
                     
                       
                     
-                    <span class="site-state-item-count">22</span>
+                      
+                    
+                    <span class="site-state-item-count">23</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -736,7 +742,9 @@ NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: {
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -772,7 +780,7 @@ NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#记录下APC工具的制作过程"><span class="nav-number">1.</span> <span class="nav-text">记录下APC工具的制作过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模拟点击"><span class="nav-number">1.1.</span> <span class="nav-text">模拟点击</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#首先需要开启系统辅助权限"><span class="nav-number">1.1.1.</span> <span class="nav-text">首先需要开启系统辅助权限</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#发送点击事件"><span class="nav-number">1.1.2.</span> <span class="nav-text">发送点击事件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#OpenCV图片匹配"><span class="nav-number">1.1.3.</span> <span class="nav-text">OpenCV图片匹配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#截图工具"><span class="nav-number">1.1.4.</span> <span class="nav-text">截图工具</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#记录下APC工具的制作过程"><span class="nav-number">1.</span> <span class="nav-text">记录下APC工具的制作过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模拟点击"><span class="nav-number">1.1.</span> <span class="nav-text">模拟点击</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#首先需要开启系统辅助权限"><span class="nav-number">1.1.1.</span> <span class="nav-text">首先需要开启系统辅助权限</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#发送点击事件"><span class="nav-number">1.1.2.</span> <span class="nav-text">发送点击事件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OpenCV图片匹配"><span class="nav-number">1.2.</span> <span class="nav-text">OpenCV图片匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#截图工具"><span class="nav-number">1.3.</span> <span class="nav-text">截图工具</span></a></li></ol></li></ol></div>
             
 
           </div>
