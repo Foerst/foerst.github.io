@@ -104,7 +104,7 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="1、输入输出C++保留了C的scanf和printf，增加了额外的cin与cout 例子 1.1 C程序中输入输出123int a;scanf(&quot;%d&quot;,&amp;amp;a);printf(&quot;%d&quot;,a); 1.2 C++输入输出">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2021-02-02T05:57:41.709Z">
+<meta property="og:updated_time" content="2021-02-23T04:59:52.225Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C++ STL">
 <meta name="twitter:description" content="1、输入输出C++保留了C的scanf和printf，增加了额外的cin与cout 例子 1.1 C程序中输入输出123int a;scanf(&quot;%d&quot;,&amp;amp;a);printf(&quot;%d&quot;,a); 1.2 C++输入输出">
@@ -400,7 +400,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2021-02-02 13:57:41" itemprop="dateModified" datetime="2021-02-02T13:57:41+08:00">2021-02-02</time>
+                <time title="Modified: 2021-02-23 12:59:52" itemprop="dateModified" datetime="2021-02-23T12:59:52+08:00">2021-02-23</time>
               
             
           </span>
@@ -587,6 +587,10 @@
 <li>查找</li>
 </ul>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span>.find(item)!=<span class="built_in">set</span>.end() <span class="comment">//item存在于set中</span></span><br><span class="line"><span class="built_in">set</span>.count(item)&gt;<span class="number">0</span> <span class="comment">//item存在于set</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>删除</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;::iterator p = <span class="built_in">set</span>.find(item);</span><br><span class="line"><span class="keyword">if</span>(p != <span class="built_in">set</span>.end())&#123;</span><br><span class="line">	<span class="built_in">cout</span>&lt;&lt;<span class="string">"删除元素"</span>&lt;&lt;*p&lt;&lt;<span class="string">" "</span>;</span><br><span class="line">	<span class="built_in">set</span>.erase(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="9、STL——deque"><a href="#9、STL——deque" class="headerlink" title="9、STL——deque"></a>9、STL——deque</h3><p>概念：双端队列</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">deque</span>&lt;<span class="keyword">int</span>&gt; d;</span><br><span class="line"><span class="comment">// 4 9 1 2</span></span><br><span class="line">d.push_back(<span class="number">1</span>);</span><br><span class="line">d.push_back(<span class="number">2</span>);</span><br><span class="line">d.push_front(<span class="number">9</span>);</span><br><span class="line">d.push_front(<span class="number">4</span>);</span><br><span class="line">d.pop_back();</span><br><span class="line">d.pop_front();</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">auto</span> tmp:d) <span class="built_in">cout</span>&lt;&lt;tmp&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">auto</span> it=d.begin();it!=d.end();it++) <span class="built_in">cout</span>&lt;&lt;*it&lt;&lt;<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure>
 <ul>
