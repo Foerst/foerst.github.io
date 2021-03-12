@@ -104,7 +104,7 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="1、输入输出C++保留了C的scanf和printf，增加了额外的cin与cout 例子 1.1 C程序中输入输出123int a;scanf(&quot;%d&quot;,&amp;amp;a);printf(&quot;%d&quot;,a); 1.2 C++输入输出">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2021-03-12T02:33:04.287Z">
+<meta property="og:updated_time" content="2021-03-12T02:39:29.233Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C++ STL">
 <meta name="twitter:description" content="1、输入输出C++保留了C的scanf和printf，增加了额外的cin与cout 例子 1.1 C程序中输入输出123int a;scanf(&quot;%d&quot;,&amp;amp;a);printf(&quot;%d&quot;,a); 1.2 C++输入输出">
@@ -400,7 +400,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2021-03-12 10:33:04" itemprop="dateModified" datetime="2021-03-12T10:33:04+08:00">2021-03-12</time>
+                <time title="Modified: 2021-03-12 10:39:29" itemprop="dateModified" datetime="2021-03-12T10:39:29+08:00">2021-03-12</time>
               
             
           </span>
@@ -495,7 +495,17 @@
 <p>可以不填第二个参数，默认从字符串的开头进行查找。</p>
 <p>返回值为目标字符的位置，当没有找到目标字符时返回npos。</p>
 <p>string::npos其实就是-1</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> a=<span class="string">"abcdefghigklmn"</span>;</span><br><span class="line"><span class="built_in">string</span> b=<span class="string">"def"</span>;</span><br><span class="line"><span class="built_in">string</span> c=<span class="string">"123"</span>;</span><br><span class="line"><span class="built_in">string</span>::size_type idx;</span><br><span class="line"></span><br><span class="line">idx=a.find(b);<span class="comment">//在a中查找b.</span></span><br><span class="line"><span class="keyword">if</span>(idx == <span class="built_in">string</span>::npos)<span class="comment">//不存在。</span></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"not found\n"</span>;</span><br><span class="line"><span class="keyword">else</span><span class="comment">//存在。</span></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt;<span class="string">"found\n"</span>;</span><br></pre></td></tr></table></figure>
+<p>例1：找到目标字符的位置</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s = <span class="string">"hello world!"</span>;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; s.find(<span class="string">"e"</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">结果为：<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>例2：未找到目标字符</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s = <span class="string">"hello world!"</span>;</span><br><span class="line"><span class="keyword">if</span> (s.find(<span class="string">"a"</span>) == s.npos) &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"404 not found"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line">结果为：<span class="number">404</span> <span class="keyword">not</span> found</span><br></pre></td></tr></table></figure>
+<p>例3：指定查找位置</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s = <span class="string">"hello world!"</span>;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; s.find(<span class="string">"l"</span>,<span class="number">5</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">结果为：<span class="number">9</span></span><br></pre></td></tr></table></figure>
+<p>从空格开始（包含空格）的后半部分字符串中寻找字符”l”，结果找到了world中的”l”在整个字符串中的位置</p>
+<p>例4：找到目标字符在字符串中第一次出现和最后一次出现的位置</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s = <span class="string">"hello world!"</span>;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"first time occur in s:"</span>&lt;&lt;s.find_first_of(<span class="string">"l"</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"last time occur in s:"</span> &lt;&lt; s.find_last_of(<span class="string">"l"</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">结果为：</span><br><span class="line"></span><br><span class="line">first time occur in s:<span class="number">2</span></span><br><span class="line">last time occur in s:<span class="number">9</span></span><br></pre></td></tr></table></figure>
+<p>例5：反向查找：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s = <span class="string">"hello world!"</span>;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; s.rfind(<span class="string">"l"</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">结果为：<span class="number">9</span></span><br><span class="line"></span><br><span class="line">即从后往前第一次出现<span class="string">"l"</span>的位置</span><br></pre></td></tr></table></figure>
 <h5 id="3-10-字符串遍历-4种"><a href="#3-10-字符串遍历-4种" class="headerlink" title="3.10 字符串遍历(4种)"></a>3.10 字符串遍历(4种)</h5><p>1.for循环</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s=<span class="string">"5418340"</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;s.length();i++) <span class="built_in">cout</span>&lt;&lt;s[i];</span><br></pre></td></tr></table></figure>
 <p>2.迭代器</p>
@@ -650,8 +660,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2021/01/22/CocoaPods组件化.html" rel="next" title="CocoaPods组件化">
-                <i class="fa fa-chevron-left"></i> CocoaPods组件化
+              <a href="/blog/2021/01/22/HTTPS与中间人攻击.html" rel="next" title="HTTPS与中间人攻击">
+                <i class="fa fa-chevron-left"></i> HTTPS与中间人攻击
               </a>
             
           </div>
@@ -659,6 +669,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2021/01/22/CocoaPods组件化.html" rel="prev" title="CocoaPods组件化">
+                CocoaPods组件化 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
