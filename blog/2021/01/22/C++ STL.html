@@ -104,7 +104,7 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="输入输出C++保留了C的scanf和printf，增加了额外的cin与cout 例子 C程序中输入输出123int a;scanf(&quot;%d&quot;,&amp;amp;a);printf(&quot;%d&quot;,a); C++输入输出">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2021-06-25T03:18:00.649Z">
+<meta property="og:updated_time" content="2021-06-25T03:42:20.432Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C++ STL">
 <meta name="twitter:description" content="输入输出C++保留了C的scanf和printf，增加了额外的cin与cout 例子 C程序中输入输出123int a;scanf(&quot;%d&quot;,&amp;amp;a);printf(&quot;%d&quot;,a); C++输入输出">
@@ -400,7 +400,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2021-06-25 11:18:00" itemprop="dateModified" datetime="2021-06-25T11:18:00+08:00">2021-06-25</time>
+                <time title="Modified: 2021-06-25 11:42:20" itemprop="dateModified" datetime="2021-06-25T11:42:20+08:00">2021-06-25</time>
               
             
           </span>
@@ -607,27 +607,28 @@
 <h3 id="priority-queue"><a href="#priority-queue" class="headerlink" title="priority_queue"></a>priority_queue</h3><p>普通的队列是一种先进先出的数据结构，元素在队列尾追加，而从队列头删除。</p>
 <p>在优先队列中，元素被赋予优先级。当访问元素时，具有最高优先级的元素最先删除。优先队列具有最高级先出 （first in, largest out）的行为特征。</p>
 <p>首先要包含头文件#include<queue>, 他和queue不同的就在于我们可以自定义其中数据的优先级, 让优先级高的排在队列前面,优先出队。</queue></p>
-<p>优先队列具有队列的所有特性，包括队列的基本操作，只是在这基础上添加了内部的一个排序，它本质是一个堆实现的。</p>
+<p>优先队列具有队列的所有特性，包括队列的基本操作，只是在这基础上添加了内部的一个排序，它本质是一个堆实现的。优先队列可以以O(log n) 的效率查找一个队列中的最大值或者最小值，其中是最大值还是最小值是根据创建的优先队列的性质来决定的。</p>
 <p>和队列基本操作相同:</p>
 <ul>
-<li>top 访问队头元素</li>
-<li>empty 队列是否为空</li>
-<li>size 返回队列内元素个数</li>
-<li>push 插入元素到队尾 (并排序)</li>
-<li>emplace 原地构造一个元素并插入队列</li>
-<li>pop 弹出队头元素</li>
-<li>swap 交换内容</li>
+<li>top() 访问队头元素</li>
+<li>empty() 队列是否为空</li>
+<li>size() 返回队列内元素个数</li>
+<li>push() 插入元素到队尾 (并排序)</li>
+<li>emplace() 原地构造一个元素并插入队列</li>
+<li>pop() 弹出队头元素</li>
+<li>swap() 交换内容</li>
 </ul>
 <h4 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h4><p>priority_queue&lt; Type, Container, Functional &gt;</p>
 <p>Type 就是数据类型，Container 就是容器类型（Container必须是用数组实现的容器，比如vector,deque等等，但不能用 list。STL里面默认用的是vector），Functional 就是比较的方式。</p>
 <p>当需要用自定义的数据类型时才需要传入这三个参数，使用基本数据类型时，只需要传入数据类型，默认是大顶堆，即降序队列。</p>
 <pre><code>//升序队列，小顶堆
 priority_queue &lt;int,vector&lt;int&gt;,greater&lt;int&gt; &gt; q;
-//降序队列，大顶堆
+//降序队列，大顶堆，默认
 priority_queue &lt;int,vector&lt;int&gt;,less&lt;int&gt; &gt;q;
 
 //greater和less是std实现的两个仿函数（就是使一个类的使用看上去像一个函数。其实现就是类中实现一个operator()，这个类就有了类似函数的行为，就是一个仿函数类了）
-</code></pre><h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p>映射（map为树状表，unorderedmap为哈希表）。使用时要#include<map>。</map></p>
+</code></pre><p>更为复杂的比较规则参考<a href="https://blog.csdn.net/weixin_36888577/article/details/79937886" target="_blank" rel="noopener">这里</a></p>
+<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p>映射（map为树状表，unorderedmap为哈希表）。使用时要#include<map>。</map></p>
 <h4 id="初始化-1"><a href="#初始化-1" class="headerlink" title="初始化"></a>初始化</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="built_in">string</span>&gt; hashMap;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 直接字面量初始化</span></span><br><span class="line"><span class="built_in">map</span>&lt;<span class="keyword">char</span>, <span class="keyword">char</span>&gt; dict = &#123;&#123;<span class="string">'('</span>, <span class="string">')'</span>&#125;, &#123;<span class="string">'&#123;'</span>, <span class="string">'&#125;'</span>&#125;, &#123;<span class="string">'['</span>, <span class="string">']'</span>&#125;&#125;;</span><br></pre></td></tr></table></figure>
 <h4 id="常见方法-2"><a href="#常见方法-2" class="headerlink" title="常见方法"></a>常见方法</h4><ul>
 <li>插入</li>
@@ -710,8 +711,8 @@ priority_queue &lt;int,vector&lt;int&gt;,less&lt;int&gt; &gt;q;
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2021/01/22/CocoaPods组件化.html" rel="next" title="CocoaPods组件化">
-                <i class="fa fa-chevron-left"></i> CocoaPods组件化
+              <a href="/blog/2021/01/22/HTTPS与中间人攻击.html" rel="next" title="HTTPS与中间人攻击">
+                <i class="fa fa-chevron-left"></i> HTTPS与中间人攻击
               </a>
             
           </div>
