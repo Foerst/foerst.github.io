@@ -105,8 +105,9 @@
 <meta property="og:description" content="预备知识对称加密加密和解密使用同一个秘钥。在HTTPS建立连接的过程中如果只采用对称加密，双方通信的开始总会以明文的方式传输密钥，显然是不安全的。 常见的对称加密算法有：DES(数据加密标准) AES">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/1094075-898f13fa0077808e.png?imageMogr2/auto-orient/strip%7CimageView2/2">
+<meta property="og:image" content="http://foerst.github.io/blog/2021/01/22/cer_link.png">
 <meta property="og:image" content="https://static.oschina.net/uploads/img/201712/04095322_Ey4I.jpg">
-<meta property="og:updated_time" content="2021-01-22T09:54:26.700Z">
+<meta property="og:updated_time" content="2021-08-11T03:20:51.121Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTPS与中间人攻击">
 <meta name="twitter:description" content="预备知识对称加密加密和解密使用同一个秘钥。在HTTPS建立连接的过程中如果只采用对称加密，双方通信的开始总会以明文的方式传输密钥，显然是不安全的。 常见的对称加密算法有：DES(数据加密标准) AES">
@@ -386,12 +387,24 @@
                 
               
 
-              <time title="Created: 2021-01-22 00:00:00 / Modified: 17:54:26" itemprop="dateCreated datePublished" datetime="2021-01-22T00:00:00+08:00">2021-01-22</time>
+              <time title="Created: 2021-01-22 00:00:00" itemprop="dateCreated datePublished" datetime="2021-01-22T00:00:00+08:00">2021-01-22</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2021-08-11 11:20:51" itemprop="dateModified" datetime="2021-08-11T11:20:51+08:00">2021-08-11</time>
               
             
           </span>
@@ -461,7 +474,7 @@
 <p>2、服务端将申请信息发送到CA，CA通过线上、线下多种手段验证申请者提供信息的真实性，如组织是否存在、企业是否合法、该组织是否拥有本域名的所有权等。</p>
 <p>3、如果信息审核通过，CA会向申请者签发认证文件——证书。证书包含以下信息：申请者公钥、申请者组织信息、签发机构CA信息、有效时间、证书序列号等信息的明文，同时还会包含一个签名和签名产生的算法。</p>
 <p>4、客户端向服务器第一次发出请求时，服务端返回证书文件；</p>
-<p>5、客户端读取证书中的明文信息，采用相同的散列函数计算出信息摘要，然后利用对应CA的公钥解密证书中的签名数据，对比证书的信息摘要，如果一致，则可以认定证书合法。证书校验的过程是个递归的过程，因为是证书链。</p>
+<p>5、客户端读取证书中的明文信息，采用相同的散列函数计算出信息摘要，然后利用对应CA的公钥解密证书中的签名数据，对比证书的信息摘要，如果一致，则可以认定证书合法。</p>
 <p>6、客户端还会验证证书相关的其他信息，如域名信息、有效时间等。</p>
 <p>ps: </p>
 <p><a href="https://en.wikipedia.org/wiki/Self-signed_certificate" target="_blank" rel="noopener">自签名证书</a>：</p>
@@ -471,9 +484,15 @@
 <h2 id="HTTPS建立连接的过程"><a href="#HTTPS建立连接的过程" class="headerlink" title="HTTPS建立连接的过程"></a>HTTPS建立连接的过程</h2><p>图片来源于网络</p>
 <p><img src="https://upload-images.jianshu.io/upload_images/1094075-898f13fa0077808e.png?imageMogr2/auto-orient/strip%7CimageView2/2" alt=""></p>
 <p>HTTPS建立连接握手的过程采用非对称加密，后续通信过程使用对称加密。</p>
-<h3 id="HTTPS证书校验过程"><a href="#HTTPS证书校验过程" class="headerlink" title="HTTPS证书校验过程"></a>HTTPS证书校验过程</h3><p>证书以证书链的形式组织，在颁发证书的时候首先要有根CA机构颁发的根证书，再由根CA机构颁发一个中级CA机构的证书，最后由中级CA机构颁发具体的SSL证书。在验证证书的时候，浏览器会调用系统的证书管理器接口对证书路径中的所有证书一级一级的进行验证，只有路径中所有的证书都是受信的，整个验证的结果才是受信。</p>
+<h3 id="HTTPS证书校验过程"><a href="#HTTPS证书校验过程" class="headerlink" title="HTTPS证书校验过程"></a>HTTPS证书校验过程</h3><p>HTTPS证书以证书链的形式组织，在颁发证书的时候首先要有根CA机构颁发的根证书，再由根CA机构颁发一个中级CA机构的证书，最后由中级CA机构颁发具体的SSL证书。在验证证书的时候，浏览器会调用系统的证书管理器接口对证书路径中的所有证书一级一级的进行验证，只有路径中所有的证书都是受信的，整个验证的结果才是受信。</p>
 <p>根证书是最关键的一个证书，如果根证书不受信任，它下面颁发的所有证书都不受信任。操作系统在安装过程中会默认安装一些受信任的CA机构的根证书。根证书的有效期长，支持的用途多以方便颁发不同用途类型的中级证书；中级证书用途单一，有效期相对短一些，但是比具体的SSL证书要长很多。</p>
-<p>SSL证书验证失败有以下三点原因：<br>1、SSL证书不是由受信任的CA机构颁发的<br>2、证书过期<br>3、访问的网站域名与证书绑定的域名不一致</p>
+<p>SSL证书验证失败有以下三点原因：</p>
+<p>1、SSL证书不是由受信任的CA机构颁发的</p>
+<p>2、证书过期</p>
+<p>3、访问的网站域名与证书绑定的域名不一致</p>
+<p><img src="/blog/2021/01/22/cer_link.png" alt="img"></p>
+<p>当客户端走 HTTPS 访问站点时，服务器会返回整个证书链。以上图的证书链为例：</p>
+<p>要验证 <em>.wikipedia.org 这个证书有没被篡改，就要用到 GlobalSign Organization Validation CA - SHA256 - G2 提供的公钥解密前者的签名得到摘要 Digest1，我们的客户端也计算前者证书的内容得到摘要 Digest2。对比这两个摘要就能知道前者是否被篡改。后者同理，使用 GlobalSign Root CA 提供的公钥验证。当验证到到受信任的根证书时，就能确定 </em>.wikipedia.org 这个证书是可信的。</p>
 <h3 id="HTTPS中间人攻击"><a href="#HTTPS中间人攻击" class="headerlink" title="HTTPS中间人攻击"></a>HTTPS中间人攻击</h3><p>HTTPS也不是绝对安全的，对HTTPS最常见的攻击手段就是SSL证书欺骗或者叫SSL劫持，是一种典型的中间人攻击，Charles抓包就是利用中间人攻击。如下图所示为中间人劫持攻击，中间人可以获取到客户端与服务器之间所有的通信内容。</p>
 <p>图片来源于网络</p>
 <p><img src="https://static.oschina.net/uploads/img/201712/04095322_Ey4I.jpg" alt=""></p>
@@ -563,10 +582,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/blog/2021/01/22/C++ STL.html" rel="prev" title="C++ STL">
-                C++ STL <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
