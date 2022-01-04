@@ -105,7 +105,7 @@
 <meta property="og:description" content="预备知识对称加密加密和解密使用同一个秘钥。在HTTPS建立连接的过程中如果只采用对称加密，双方通信的开始总会以明文的方式传输密钥，显然是不安全的。 常见的对称加密算法有：DES(数据加密标准) AES">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/1094075-898f13fa0077808e.png?imageMogr2/auto-orient/strip%7CimageView2/2">
-<meta property="og:image" content="http://foerst.github.io/blog/2021/01/22/cer_link.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2021/01/22/HTTPS与中间人攻击.htm/cer_link.png">
 <meta property="og:image" content="https://static.oschina.net/uploads/img/201712/04095322_Ey4I.jpg">
 <meta property="og:updated_time" content="2021-08-11T03:20:51.121Z">
 <meta name="twitter:card" content="summary">
@@ -490,7 +490,7 @@
 <p>1、SSL证书不是由受信任的CA机构颁发的</p>
 <p>2、证书过期</p>
 <p>3、访问的网站域名与证书绑定的域名不一致</p>
-<p><img src="/blog/2021/01/22/cer_link.png" alt="img"></p>
+<p><img src="/blog/2021/01/22/HTTPS与中间人攻击.htm/cer_link.png" alt="img"></p>
 <p>当客户端走 HTTPS 访问站点时，服务器会返回整个证书链。以上图的证书链为例：</p>
 <p>要验证 <em>.wikipedia.org 这个证书有没被篡改，就要用到 GlobalSign Organization Validation CA - SHA256 - G2 提供的公钥解密前者的签名得到摘要 Digest1，我们的客户端也计算前者证书的内容得到摘要 Digest2。对比这两个摘要就能知道前者是否被篡改。后者同理，使用 GlobalSign Root CA 提供的公钥验证。当验证到到受信任的根证书时，就能确定 </em>.wikipedia.org 这个证书是可信的。</p>
 <h3 id="HTTPS中间人攻击"><a href="#HTTPS中间人攻击" class="headerlink" title="HTTPS中间人攻击"></a>HTTPS中间人攻击</h3><p>HTTPS也不是绝对安全的，对HTTPS最常见的攻击手段就是SSL证书欺骗或者叫SSL劫持，是一种典型的中间人攻击，Charles抓包就是利用中间人攻击。如下图所示为中间人劫持攻击，中间人可以获取到客户端与服务器之间所有的通信内容。</p>
@@ -573,8 +573,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2021/01/20/记录下APC工具的制作过程.html" rel="next" title="记录下APC工具的制作过程">
-                <i class="fa fa-chevron-left"></i> 记录下APC工具的制作过程
+              <a href="/blog/2021/01/22/C++ STL.html" rel="next" title="C++ STL">
+                <i class="fa fa-chevron-left"></i> C++ STL
               </a>
             
           </div>
@@ -583,8 +583,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/blog/2021/01/22/C++ STL.html" rel="prev" title="C++ STL">
-                C++ STL <i class="fa fa-chevron-right"></i>
+              <a href="/blog/2021/01/22/CocoaPods组件化.html" rel="prev" title="CocoaPods组件化">
+                CocoaPods组件化 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -870,7 +870,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

@@ -104,14 +104,14 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="iOS中缓存无处不在，从底层的方法缓存到应用层的网络缓存等，缓存的存在，大大提高了应用的运行速度，提升了用户体验。这里讨论一下如何设计一个好的缓存框架。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://foerst.github.io/blog/2018/09/25/11.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2018/09/25/level.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2018/09/25/urlcache_path.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2018/09/25/如何设计一个高效的缓存框架.htm/11.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2018/09/25/如何设计一个高效的缓存框架.htm/level.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2018/09/25/如何设计一个高效的缓存框架.htm/urlcache_path.png">
 <meta property="og:updated_time" content="2021-01-20T09:07:18.510Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如何设计一个高效的缓存框架">
 <meta name="twitter:description" content="iOS中缓存无处不在，从底层的方法缓存到应用层的网络缓存等，缓存的存在，大大提高了应用的运行速度，提升了用户体验。这里讨论一下如何设计一个好的缓存框架。">
-<meta name="twitter:image" content="http://foerst.github.io/blog/2018/09/25/11.png">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2018/09/25/如何设计一个高效的缓存框架.htm/11.png">
 
 
 
@@ -467,11 +467,11 @@
 <p>举个简单的例子：</p>
 <p>假设缓存大小为3，数据访问序列为set(2,2),set(1,1),get(2),get(1),get(2),set(3,3),set(4,4)，<br>则在set(4,4)时对于LFU算法应该淘汰(3,3)，而LRU应该淘汰(1,1)，FIFO应该淘汰（2，2）。</p>
 <h2 id="实现思路"><a href="#实现思路" class="headerlink" title="实现思路"></a>实现思路</h2><p>用哈希表存储key-value键值对, 为了解决冲突，采用链地址法。为了实现LRU算法，还使用了<strong>双向链表</strong>将哈希表中的元素”串起来”，最新插入和最近访问的元素被插入或者移动到链表头部，这样当元素总量或者元素的总cost达到阈值时，从链表尾部开始删除元素（淘汰）。原理图如下：</p>
-<p><img src="/blog/2018/09/25/11.png" alt=""></p>
+<p><img src="/blog/2018/09/25/如何设计一个高效的缓存框架.htm/11.png" alt=""></p>
 <h2 id="二级缓存设计"><a href="#二级缓存设计" class="headerlink" title="二级缓存设计"></a>二级缓存设计</h2><p>缓存通常采用二级缓存设计。内存缓存是临时的、可以高速访问的，如果内存缓存没命中需要的数据，则需要在磁盘缓存中查找，若还未命中，则进行网络请求。</p>
 <p>下面谈谈iOS自带的有缓存功能的类。</p>
 <h2 id="NSURLCache"><a href="#NSURLCache" class="headerlink" title="NSURLCache"></a>NSURLCache</h2><p>NSURLCache专门用于对iOS中的网络请求进行缓存，使用起来十分简单。NSURLCache工作原理如下：</p>
-<p><img src="/blog/2018/09/25/level.png" alt=""></p>
+<p><img src="/blog/2018/09/25/如何设计一个高效的缓存框架.htm/level.png" alt=""></p>
 <p>NSURLCache内部一个NSURLRequest对应一个NSCachedURLResponse，缓存的数据都保存到数据库中，对于大文件如视频、音频文件，以文件的形式另外保存。</p>
 <h3 id="NSURLCache的常见用法"><a href="#NSURLCache的常见用法" class="headerlink" title="NSURLCache的常见用法"></a>NSURLCache的常见用法</h3><p>（1）获得全局缓存对象</p>
 <pre><code>NSURLCache *cache = [NSURLCache sharedURLCache]; 
@@ -540,7 +540,7 @@ if (response) {
 }
 </code></pre><p>注意： 启动的时候设置缓存为更大的容量十分重要，使用默认的你会发现无法缓存视频文件。</p>
 <p>缓存下来的文件如下图所示：</p>
-<p><img src="/blog/2018/09/25/urlcache_path.png" alt=""></p>
+<p><img src="/blog/2018/09/25/如何设计一个高效的缓存框架.htm/urlcache_path.png" alt=""></p>
 <p>更多NSURLCache内容参考：<a href="https://nshipster.com/nsurlcache/" target="_blank" rel="noopener">这里</a></p>
 <h2 id="NSCache"><a href="#NSCache" class="headerlink" title="NSCache"></a>NSCache</h2><p>NSCache是专门用来处理内存缓存的类，使用方法跟NSMutableDictionary类似，但却又有很大的不同：</p>
 <pre><code>1. NSMutableDictionary会对key进行copy，value retain, NSCache不会对key进行copy，所以NSMutableDictionary的key要遵守NSCopy协议。
@@ -883,7 +883,7 @@ if (response) {
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

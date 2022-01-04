@@ -104,13 +104,13 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="数据封装iOS 蓝牙框架默认会进行发送数据的分包，默认20字节一个包，但是传输大一点的数据还是会被截断。这种情况下，需要开发者自行控制分包。虽然接收端按序接收数据，但为了合并数据的方便，一般要将数据按照一定的格式进行封装，然后再分包发送。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/07/22/EOM_ble.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/07/22/tlv.png">
-<meta property="og:updated_time" content="2021-08-11T03:30:07.191Z">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/07/22/蓝牙系列八、数据封装和分包.htm/EOM_ble.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/07/22/蓝牙系列八、数据封装和分包.htm/tlv.png">
+<meta property="og:updated_time" content="2021-08-11T05:44:05.153Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="蓝牙系列八、数据封装和分包">
 <meta name="twitter:description" content="数据封装iOS 蓝牙框架默认会进行发送数据的分包，默认20字节一个包，但是传输大一点的数据还是会被截断。这种情况下，需要开发者自行控制分包。虽然接收端按序接收数据，但为了合并数据的方便，一般要将数据按照一定的格式进行封装，然后再分包发送。">
-<meta name="twitter:image" content="http://foerst.github.io/blog/2019/07/22/EOM_ble.png">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2019/07/22/蓝牙系列八、数据封装和分包.htm/EOM_ble.png">
 
 
 
@@ -403,7 +403,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2021-08-11 11:30:07" itemprop="dateModified" datetime="2021-08-11T11:30:07+08:00">2021-08-11</time>
+                <time title="Modified: 2021-08-11 13:44:05" itemprop="dateModified" datetime="2021-08-11T13:44:05+08:00">2021-08-11</time>
               
             
           </span>
@@ -457,7 +457,7 @@
       
         <h1 id="数据封装"><a href="#数据封装" class="headerlink" title="数据封装"></a>数据封装</h1><p>iOS 蓝牙框架默认会进行发送数据的分包，默认20字节一个包，但是传输大一点的数据还是会被截断。这种情况下，需要开发者自行控制分包。虽然接收端按序接收数据，但为了合并数据的方便，一般要将数据按照一定的格式进行封装，然后再分包发送。<br><a id="more"></a></p>
 <h2 id="一种简单的封装格式"><a href="#一种简单的封装格式" class="headerlink" title="一种简单的封装格式"></a>一种简单的封装格式</h2><p>在Apple Documents里有一个叫BTLE的Demo。它通过数据末尾添加EOM标识符来表示一个包数据的结束。</p>
-<p><img src="/blog/2019/07/22/EOM_ble.png" alt="img"></p>
+<p><img src="/blog/2019/07/22/蓝牙系列八、数据封装和分包.htm/EOM_ble.png" alt="img"></p>
 <p>如上图所示,模拟命令分成15个包传输过来，每个包大小固定位最大20个字符，第1-14包为模拟命令数据，第十五个包只发送了一个EOM字符串，接收端每接收到一个包则把这个数据追加到上一个包数据上，直到收到EOM标识，则把当前收到的所有数据进行解析，解析完成就可以进行下一步业务处理了。</p>
 <h3 id="收包关键代码"><a href="#收包关键代码" class="headerlink" title="收包关键代码"></a>收包关键代码</h3><pre><code>//更新特征值后（调用readValueForCharacteristic:方法或者外围设备在订阅后更新特征值都会调用此代理方法）
 -(void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error{
@@ -602,7 +602,7 @@ u.data[2] = 0x02;
 u.data[3] = 0x01;
 printf(&quot;i = 0x%x \n&quot;, u.i);
 </code></pre><h5 id="短整型大小端互换算法："><a href="#短整型大小端互换算法：" class="headerlink" title="短整型大小端互换算法："></a>短整型大小端互换算法：</h5><pre><code>#define BigLittleSwap16(A)  ((((uint16)(A) &amp; 0xff00) &gt;&gt; 8) | (((uint16)(A) &amp; 0x00ff) &lt;&lt; 8))
-</code></pre><h3 id="蓝牙TLV数据报格式："><a href="#蓝牙TLV数据报格式：" class="headerlink" title="蓝牙TLV数据报格式："></a>蓝牙TLV数据报格式：</h3><p><img src="/blog/2019/07/22/tlv.png" alt="img"></p>
+</code></pre><h3 id="蓝牙TLV数据报格式："><a href="#蓝牙TLV数据报格式：" class="headerlink" title="蓝牙TLV数据报格式："></a>蓝牙TLV数据报格式：</h3><p><img src="/blog/2019/07/22/蓝牙系列八、数据封装和分包.htm/tlv.png" alt="img"></p>
 <p>一个完整的数据报包含Header、 Extent、Message、Checkout字段，每个字段都是TLV格式，并且支持TLV嵌套。</p>
 <h1 id="数据分包"><a href="#数据分包" class="headerlink" title="数据分包"></a>数据分包</h1><p>一个完整的TLV数据报很大可能超过20个字节，这里MTU = 20字节，发送数据时按20字节发送，并根据接收模块的处理能力做相应延时发送。</p>
 <pre><code># define MTU = 20 是蓝牙单次可处理最大字节长度
@@ -1003,7 +1003,7 @@ private func receiveData(_ data: Data) {
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

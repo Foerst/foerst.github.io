@@ -104,12 +104,12 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="什么是FFmpegFFmpeg是一套可以用来记录、转换数字音频、视频，并能将其转化为流的开源计算机程序。FFmpeg支持mac命令行、也支持iOS平台。由于在iOS8之前未开放音视频硬件编解码接口（AudioToolBox和VideoToolBox）,大多数具有音视频功能的APP都是使用FFmpeg去实现视频的编码和解码（软解）。值得注意的是FFmpeg iOS 最新版已加入了AudioToolB">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/02/23/ffmpeg_lib.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/02/23/直播系列五、FFmpeg.htm/ffmpeg_lib.png">
 <meta property="og:updated_time" content="2021-01-20T09:07:18.581Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="直播系列五、FFmpeg">
 <meta name="twitter:description" content="什么是FFmpegFFmpeg是一套可以用来记录、转换数字音频、视频，并能将其转化为流的开源计算机程序。FFmpeg支持mac命令行、也支持iOS平台。由于在iOS8之前未开放音视频硬件编解码接口（AudioToolBox和VideoToolBox）,大多数具有音视频功能的APP都是使用FFmpeg去实现视频的编码和解码（软解）。值得注意的是FFmpeg iOS 最新版已加入了AudioToolB">
-<meta name="twitter:image" content="http://foerst.github.io/blog/2019/02/23/ffmpeg_lib.png">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2019/02/23/直播系列五、FFmpeg.htm/ffmpeg_lib.png">
 
 
 
@@ -473,7 +473,7 @@
 <p>FFmpeg-iOS-build-script是编译生成iOS库的脚本。执行下面命令生成动态framework。FFmpeg-iOS-build-script会先下载FFmpeg库，然后再编译，如果已经下载了FFmpeg库，可直接拖到脚本同级目录下。</p>
 <pre><code>./build-ffmpeg-iOS-framework.sh
 </code></pre><p>可选择使用./build-ffmpeg.sh 可生成静态库。生成情况如下图：</p>
-<p><img src="/blog/2019/02/23/ffmpeg_lib.png" alt="img"></p>
+<p><img src="/blog/2019/02/23/直播系列五、FFmpeg.htm/ffmpeg_lib.png" alt="img"></p>
 <h4 id="iOS下集成测试"><a href="#iOS下集成测试" class="headerlink" title="iOS下集成测试"></a>iOS下集成测试</h4><p>新建FFmpegDemo iOS single app项目，拖入FFmpeg.framwork, 在linked libray中添加libz.tbd、libbz2.tbd、libiconv.tbd。添加以下代码打印版本库信息。</p>
 <pre><code>#import &quot;TestVersionViewController.h&quot;
 #import &lt;FFmpeg/FFmpeg.h&gt;
@@ -823,7 +823,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

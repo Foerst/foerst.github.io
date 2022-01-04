@@ -104,14 +104,14 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="事件分类 Touch events(触摸事件,经常用) motion events(运动事件，比如重力感应和摇一摇等) remote control event(远程控制事件，比如用耳机上得按键来控制手机) press event(按压事件)">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://foerst.github.io/blog/2016/10/30/runloop_hit_testing_pic.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2016/10/30/hit_test_process_step.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2016/10/30/runloop_responder_chain.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2016/10/30/iOS事件机制.htm/runloop_hit_testing_pic.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2016/10/30/iOS事件机制.htm/hit_test_process_step.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2016/10/30/iOS事件机制.htm/runloop_responder_chain.png">
 <meta property="og:updated_time" content="2021-01-20T09:07:18.504Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS事件机制">
 <meta name="twitter:description" content="事件分类 Touch events(触摸事件,经常用) motion events(运动事件，比如重力感应和摇一摇等) remote control event(远程控制事件，比如用耳机上得按键来控制手机) press event(按压事件)">
-<meta name="twitter:image" content="http://foerst.github.io/blog/2016/10/30/runloop_hit_testing_pic.png">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2016/10/30/iOS事件机制.htm/runloop_hit_testing_pic.png">
 
 
 
@@ -472,14 +472,14 @@
 <li>First responder</li>
 </ul>
 <h4 id="Direct-delivery（直接传递）"><a href="#Direct-delivery（直接传递）" class="headerlink" title="Direct delivery（直接传递）"></a>Direct delivery（直接传递）</h4><p>直接传递是最简单的传递方式。某些事件会触发特定的对象。这些事件知道谁能够处理自己，并且它们是被runloop直接分派处理的，比如Swift函数调用。其他能触发特定对象(或一组对象)事件是：通知(notifications)、定时器(timer events)、用户界面更新。</p>
-<h4 id="Hit-Test"><a href="#Hit-Test" class="headerlink" title="Hit-Test"></a>Hit-Test</h4><p>Hit-Test传递事件基于用户界面视图的层次关系，并且它<code>仅用于触摸事件</code>。Hit-Test的目的是找到触摸事件发生的且位于最上层的视图，该视图被称为<code>Hit-Test View</code>.<br>以下图为例：<br><img src="/blog/2016/10/30/runloop_hit_testing_pic.png" alt="img"></p>
+<h4 id="Hit-Test"><a href="#Hit-Test" class="headerlink" title="Hit-Test"></a>Hit-Test</h4><p>Hit-Test传递事件基于用户界面视图的层次关系，并且它<code>仅用于触摸事件</code>。Hit-Test的目的是找到触摸事件发生的且位于最上层的视图，该视图被称为<code>Hit-Test View</code>.<br>以下图为例：<br><img src="/blog/2016/10/30/iOS事件机制.htm/runloop_hit_testing_pic.png" alt="img"></p>
 <ul>
 <li>UIApplication对象给KeyWindow发送sendEvent(_:)消息，参数是event对象</li>
 <li>UIWindow对象执行Hit-Test. 从视图层次的最上层开始，对子视图发送hitTest(_:,withEvent:)消息，如上图第二个图所示，即控制器的view.</li>
 <li>上层的子视图判断触摸点是否在自己的bounds中，如果在，则它会继续执行Hit-Test，这是一个递归的过程.图中view包含三个部分：顶部的导航条，中间的webview,底部的工具条。触摸点在工具条的范围内，所以会向工具条发送hitTest(_:,withEvent:)消息。工具条继续重复这个过程，寻找包含触摸点的子视图，最后发现左侧的button包含这个事件的触摸点并且button没有子视图，于是，这个button就被返回作为<code>Hit-Test View</code></li>
 <li>最后，这个button处理该事件，判断是否点击该按钮，然后给target发送action消息。</li>
 </ul>
-<p>Hit-Test整个过程的示意图：<br><img src="/blog/2016/10/30/hit_test_process_step.png" alt="img"></p>
+<p>Hit-Test整个过程的示意图：<br><img src="/blog/2016/10/30/iOS事件机制.htm/hit_test_process_step.png" alt="img"></p>
 <p>Hit-Test过程中用到的是UIView的方法：</p>
 <pre><code>- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event; 
 - (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event;
@@ -510,7 +510,7 @@
 </ul>
 <p>UITextField和UITextView被设计为第一响应者，canBecomeFirstResponder()被重写返回YES.在控制器的viewDidAppear()方法中显示调用becomeFirstResponder()方法，可使UITextField或UITextView对象成为第一响应者。</p>
 <h3 id="响应者链-The-Responder-Chain"><a href="#响应者链-The-Responder-Chain" class="headerlink" title="响应者链(The Responder Chain)"></a>响应者链(The Responder Chain)</h3><p>响应者链由一系列UIResponder子类对象构成。</p>
-<p>如下图所示：响应者链始于<code>initial responder</code>(初始化响应者)。当传递motion, key, 和remote events时, 第一响应者是initial responder;传递触摸事件时, Hit-Test View是initial responder.<br><img src="/blog/2016/10/30/runloop_responder_chain.png" alt="img"></p>
+<p>如下图所示：响应者链始于<code>initial responder</code>(初始化响应者)。当传递motion, key, 和remote events时, 第一响应者是initial responder;传递触摸事件时, Hit-Test View是initial responder.<br><img src="/blog/2016/10/30/iOS事件机制.htm/runloop_responder_chain.png" alt="img"></p>
 <h4 id="响应者链的构建"><a href="#响应者链的构建" class="headerlink" title="响应者链的构建"></a>响应者链的构建</h4><p>响应者链的构建是自动完成的。</p>
 <p>在UIKit中有一个类：UIResponder，我们可以看看头文件的几个属性和方法：</p>
 <pre><code>NS_CLASS_AVAILABLE_IOS(2_0) @interface UIResponder : NSObject &lt;UIResponderStandardEditActions&gt;
@@ -898,7 +898,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

@@ -104,13 +104,13 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="什么是RuntimeObjective-C语言尽可能地将一些决定从编译时推迟到运行时，也就是说只有编译器是不够的，还需要一个运行时系统 (runtime system) 来执行编译后的代码。Objective-C Runtime系统是整个Objective-C语言的基石，它使Objective-C的动态特性成为可能。 与Runtime交互Objc从三种不同的层级上与Runtime系统进行交互，分别">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://foerst.github.io/blog/2016/07/09/class-diagram.jpg">
-<meta property="og:image" content="http://foerst.github.io/blog/2016/07/09/messaging1.gif">
+<meta property="og:image" content="http://foerst.github.io/blog/2016/07/09/OC%20Runtime简述.htm/class-diagram.jpg">
+<meta property="og:image" content="http://foerst.github.io/blog/2016/07/09/OC%20Runtime简述.htm/messaging1.gif">
 <meta property="og:updated_time" content="2021-01-20T09:07:18.500Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OC Runtime简述">
 <meta name="twitter:description" content="什么是RuntimeObjective-C语言尽可能地将一些决定从编译时推迟到运行时，也就是说只有编译器是不够的，还需要一个运行时系统 (runtime system) 来执行编译后的代码。Objective-C Runtime系统是整个Objective-C语言的基石，它使Objective-C的动态特性成为可能。 与Runtime交互Objc从三种不同的层级上与Runtime系统进行交互，分别">
-<meta name="twitter:image" content="http://foerst.github.io/blog/2016/07/09/class-diagram.jpg">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2016/07/09/OC%20Runtime简述.htm/class-diagram.jpg">
 
 
 
@@ -508,7 +508,7 @@ struct objc_method_list {
 }
 </code></pre><p>objc_ivar_list结构体存储着objc_ivar数组列表，而objc_ivar结构体存储了类的单个成员变量的信息；同理objc_method_list结构体存储着objc_method数组列表，而objc_method结构体存储了类的某个方法的信息。</p>
 <p>OC中可以给类发送消息，比如[NSObject alloc],因为OC中类也是对象，那么类对象的类型是什么呢？答案就是<code>元类</code>（Meta Class）,类对象所属类型就叫做元类，它用来定义类方法。所以当 [NSObject alloc] 这条消息发给类对象的时候，会去它的元类里面去查找能够响应消息的方法，如果找到了，然后对这个类对象执行方法调用。</p>
-<p>OC Runtime类结构图：<br><img src="/blog/2016/07/09/class-diagram.jpg" alt="img"><br>从图中可以看出：一个类对象只有一个与之相对应的元类，根元类的父类是NSObject，而NSObject的父类为nil，也就是它没有父类，所有元类的isa都指向根元类（根元类isa指向自己）。</p>
+<p>OC Runtime类结构图：<br><img src="/blog/2016/07/09/OC Runtime简述.htm/class-diagram.jpg" alt="img"><br>从图中可以看出：一个类对象只有一个与之相对应的元类，根元类的父类是NSObject，而NSObject的父类为nil，也就是它没有父类，所有元类的isa都指向根元类（根元类isa指向自己）。</p>
 <h3 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h3><p>Method代表类中的某个方法。</p>
 <pre><code>typedef struct objc_method *Method;
 
@@ -620,7 +620,7 @@ return isa == (Class)aClass;
 
 PS:这里说的分发表其实就是Class中的方法列表，它将方法选择器和方法实现地址联系起来。
 </code></pre><p>OC消息框架图：</p>
-<p><img src="/blog/2016/07/09/messaging1.gif" alt="img"></p>
+<p><img src="/blog/2016/07/09/OC Runtime简述.htm/messaging1.gif" alt="img"></p>
 <h3 id="使用隐藏参数"><a href="#使用隐藏参数" class="headerlink" title="使用隐藏参数"></a>使用隐藏参数</h3><p>当objc_msgSend找到方法对应的实现时，它将直接调用该方法实现，并将消息中所有的参数都传递给方法实现,同时,它还将传递两个隐藏的参数:</p>
 <ul>
 <li>接收消息的对象（也就是self指向的内容）</li>
@@ -982,7 +982,7 @@ for ( i = 0 ; i &lt; 1000 ; i++ )
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

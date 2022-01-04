@@ -104,13 +104,13 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="相关基础知识蓝牙常见名称和缩写">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/07/18/ble_01.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/07/18/ble_02.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/07/18/蓝牙系列四、蓝牙相关基础知识.htm/ble_01.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/07/18/蓝牙系列四、蓝牙相关基础知识.htm/ble_02.png">
 <meta property="og:updated_time" content="2021-01-20T09:07:18.652Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="蓝牙系列四、蓝牙相关基础知识">
 <meta name="twitter:description" content="相关基础知识蓝牙常见名称和缩写">
-<meta name="twitter:image" content="http://foerst.github.io/blog/2019/07/18/ble_01.png">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2019/07/18/蓝牙系列四、蓝牙相关基础知识.htm/ble_01.png">
 
 
 
@@ -463,7 +463,7 @@
 <li>Description:每个characteristic可以对应一个或者多个Description用于描述characteristic的信息或属性(eg.范围,计量单位)</li>
 </ul>
 <h3 id="蓝牙基础知识"><a href="#蓝牙基础知识" class="headerlink" title="蓝牙基础知识"></a>蓝牙基础知识</h3><ul>
-<li><p>CoreBluetooth框架的核心其实是俩东西:peripheral和central,对应他们分别有一组相关的API和类<br><img src="/blog/2019/07/18/ble_01.png" alt="图4.1.1"></p>
+<li><p>CoreBluetooth框架的核心其实是俩东西:peripheral和central,对应他们分别有一组相关的API和类<br><img src="/blog/2019/07/18/蓝牙系列四、蓝牙相关基础知识.htm/ble_01.png" alt="图4.1.1"></p>
 </li>
 <li><p>这两组api分别对应不同的业务场景:左侧叫中心模式,就是以你的app作为中心,连接其他的外设的场景;而右侧称为外设模式,使用<code>手机作为外设</code>连接其他中心设备操作的场景</p>
 </li>
@@ -478,7 +478,7 @@
 </ul>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="built_in">NS_OPTIONS</span>(<span class="built_in">NSUInteger</span>, CBCharacteristicProperties) &#123;</span><br><span class="line">	CBCharacteristicPropertyBroadcast												= <span class="number">0x01</span>,</span><br><span class="line">	CBCharacteristicPropertyRead													= <span class="number">0x02</span>,</span><br><span class="line">	CBCharacteristicPropertyWriteWithoutResponse									= <span class="number">0x04</span>,</span><br><span class="line">	CBCharacteristicPropertyWrite													= <span class="number">0x08</span>,</span><br><span class="line">	CBCharacteristicPropertyNotify													= <span class="number">0x10</span>,</span><br><span class="line">	CBCharacteristicPropertyIndicate												= <span class="number">0x20</span>,</span><br><span class="line">	CBCharacteristicPropertyAuthenticatedSignedWrites								= <span class="number">0x40</span>,</span><br><span class="line">	CBCharacteristicPropertyExtendedProperties										= <span class="number">0x80</span>,</span><br><span class="line">	CBCharacteristicPropertyNotifyEncryptionRequired <span class="built_in">NS_ENUM_AVAILABLE</span>(NA, <span class="number">6</span>_0)		= <span class="number">0x100</span>,</span><br><span class="line">	CBCharacteristicPropertyIndicateEncryptionRequired <span class="built_in">NS_ENUM_AVAILABLE</span>(NA, <span class="number">6</span>_0)	= <span class="number">0x200</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <ul>
-<li>外设,服务,特征的关系<br><img src="/blog/2019/07/18/ble_02.png" alt="图4.1.2"></li>
+<li>外设,服务,特征的关系<br><img src="/blog/2019/07/18/蓝牙系列四、蓝牙相关基础知识.htm/ble_02.png" alt="图4.1.2"></li>
 </ul>
 <h2 id="BLE中心模式流程"><a href="#BLE中心模式流程" class="headerlink" title="BLE中心模式流程"></a>BLE中心模式流程</h2><ul>
 <li>1.建立中心角色</li>
@@ -864,7 +864,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

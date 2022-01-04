@@ -104,14 +104,14 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="iOS 中的多线程分为以下四种:pthread、 NSThread、GCD、NSOperation/NSOperationQueue。 其中 NSOperation/NSOperationQueue 是对 GCD 面向对象的封装。 基本概念线程 VS. 进程">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://foerst.github.io/blog/2017/05/18/Concurrency_vs_Parallelism.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2017/05/18/Serial-Queue.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2017/05/18/Concurrent-Queue.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2017/05/18/iOS多线程.htm/Concurrency_vs_Parallelism.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2017/05/18/iOS多线程.htm/Serial-Queue.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2017/05/18/iOS多线程.htm/Concurrent-Queue.png">
 <meta property="og:updated_time" content="2021-01-20T09:07:18.509Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS多线程">
 <meta name="twitter:description" content="iOS 中的多线程分为以下四种:pthread、 NSThread、GCD、NSOperation/NSOperationQueue。 其中 NSOperation/NSOperationQueue 是对 GCD 面向对象的封装。 基本概念线程 VS. 进程">
-<meta name="twitter:image" content="http://foerst.github.io/blog/2017/05/18/Concurrency_vs_Parallelism.png">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2017/05/18/iOS多线程.htm/Concurrency_vs_Parallelism.png">
 
 
 
@@ -472,16 +472,16 @@
 </ul>
 <h4 id="串行-VS-并发-concurrency-VS-并行-parallelism"><a href="#串行-VS-并发-concurrency-VS-并行-parallelism" class="headerlink" title="串行 VS. 并发(concurrency) VS. 并行(parallelism)"></a>串行 VS. 并发(concurrency) VS. 并行(parallelism)</h4><p>从本质上来说，串行和并发的主要区别在于允许同时执行的任务数量。串行，指的是一次只能执行一个任务，必须等一个任务执行完成后才能执行下一个任务；并发，则指的是允许多个任务同时执行。</p>
 <p>并行(parallelism)：单核心机器上通过时间片和上下文切换来实现多线程的并发（宏观意义上的同时执行）；真正的多核心机器上，多个线程可以真正并行(真正的同时)执行。原理如图:</p>
-<p><img src="/blog/2017/05/18/Concurrency_vs_Parallelism.png" alt="img"></p>
+<p><img src="/blog/2017/05/18/iOS多线程.htm/Concurrency_vs_Parallelism.png" alt="img"></p>
 <h4 id="串行队列-VS-并发队列"><a href="#串行队列-VS-并发队列" class="headerlink" title="串行队列 VS. 并发队列"></a>串行队列 VS. 并发队列</h4><ul>
 <li><p>队列: 队列 (queue),是先进先出（FIFO, First-In-First-Out）的线性表.</p>
 </li>
 <li><p>串行队列: 串行队列是指队列中的任务是按照先后顺序一个接一个地执行的,队首的任务执行后才会执行其后的任务,直至执行到队尾的任务.</p>
 </li>
 </ul>
-<p><img src="/blog/2017/05/18/Serial-Queue.png" alt="img"></p>
+<p><img src="/blog/2017/05/18/iOS多线程.htm/Serial-Queue.png" alt="img"></p>
 <ul>
-<li>并发队列: 并发队列是指队列中的任务可以同时地执行,即开始执行队首的任务后,不必等其执行完毕就可以接着开始执行队首之后的任务,因此在某一时刻可能存在同时执行的多个任务。先添加的任务的先执行。<br><img src="/blog/2017/05/18/Concurrent-Queue.png" alt="img"></li>
+<li>并发队列: 并发队列是指队列中的任务可以同时地执行,即开始执行队首的任务后,不必等其执行完毕就可以接着开始执行队首之后的任务,因此在某一时刻可能存在同时执行的多个任务。先添加的任务的先执行。<br><img src="/blog/2017/05/18/iOS多线程.htm/Concurrent-Queue.png" alt="img"></li>
 </ul>
 <h4 id="队列-VS-线程"><a href="#队列-VS-线程" class="headerlink" title="队列 VS. 线程"></a>队列 VS. 线程</h4><p>在 iOS 中，有两种不同类型的队列，分别是串行队列和并发队列。正如我们上面所说的，串行队列一次只能执行一个任务，而并发队列则可以允许多个任务同时执行。iOS 系统就是使用这些队列来进行任务调度的，它会根据调度任务的需要和系统当前的负载情况动态地创建和销毁线程，而不需要我们手动地管理。</p>
 <h3 id="iOS的并发编程模型"><a href="#iOS的并发编程模型" class="headerlink" title="iOS的并发编程模型"></a>iOS的并发编程模型</h3><p>与直接创建线程的方式不同，我们只需定义好要调度的任务，然后让系统帮我们去执行这些任务就可以了。我们可以完全不需要关心线程的创建与销毁、以及多线程之间的同步等问题，苹果已经在系统层面帮我们处理好了，并且比我们手动地管理这些线程要高效得多。</p>
@@ -1102,7 +1102,7 @@ static id _instance;
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

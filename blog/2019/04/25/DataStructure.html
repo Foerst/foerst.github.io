@@ -104,24 +104,24 @@
 <meta property="og:site_name" content="记录点滴">
 <meta property="og:description" content="一、算法时间复杂度1.大O表示法 二、线性表1.定义 零个或多个数据元素组成的有限序列 注意点： a. 一个序列，有先来后到关系。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/linear_list.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/linked_list.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/thread_tree.jpg">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/graph_adjlist.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/graph_rev_adjlist.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/Orthogonal_list.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/mult_adjlist.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/graph_edges_array.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/search_half.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/search_insert.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/sort_hill.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/sort_heap.png">
-<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/sort_summary.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/linear_list.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/linked_list.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/thread_tree.jpg">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/graph_adjlist.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/graph_rev_adjlist.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/Orthogonal_list.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/mult_adjlist.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/graph_edges_array.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/search_half.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/search_insert.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/sort_hill.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/sort_heap.png">
+<meta property="og:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/sort_summary.png">
 <meta property="og:updated_time" content="2021-01-20T09:07:18.582Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="复习一下数据结构">
 <meta name="twitter:description" content="一、算法时间复杂度1.大O表示法 二、线性表1.定义 零个或多个数据元素组成的有限序列 注意点： a. 一个序列，有先来后到关系。">
-<meta name="twitter:image" content="http://foerst.github.io/blog/2019/04/25/linear_list.png">
+<meta name="twitter:image" content="http://foerst.github.io/blog/2019/04/25/DataStructure.htm/linear_list.png">
 
 
 
@@ -477,11 +477,11 @@
 <p>2.线性表顺序存储</p>
 <p>线性表的顺序存储结构，指的是用一段地址连续的存储单元依次存储线性表的数据元素</p>
 <p>通过地址计算公式，可以随时算出线性表中任意位置的地址，对每个线性表位置的存入或者取出数据，它的时间复杂度都是O(1)。通常把具有这一特点的存储结构称为随机存取结构。</p>
-<p><img src="/blog/2019/04/25/linear_list.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/linear_list.png" alt="img"></p>
 <p>3.线性表链式存储</p>
 <p>线性表的链式存储结构的特点是用一组任意的存储单元存储线性表的数据元素，这组存储单元可以是连续的，也可以是不连续的。</p>
 <p>在链式结构中，除了要存数据元素信息外，还要存储它的后继元素的存储地址。</p>
-<p><img src="/blog/2019/04/25/linked_list.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/linked_list.png" alt="img"></p>
 <p>4.常见线性结构</p>
 <p>a.单链表: 链表的每个结点中只包含一个指针域</p>
 <p>有时，我们为了更加方便地对链表进行操作，会在单链表的第一个结点前附设一个结点，称为头结点。头结点的数据域可以不存储任何信息</p>
@@ -700,7 +700,7 @@ void  BiTree_Free(BiTNode* T) {
 <p>线索化的目标： 中序遍历这棵树===》转换成链表访问</p>
 <p>“有了线索二叉树后，我们对它进行遍历时发现，其实就等于是操作一个双向链表结构。</p>
 <p>和双向链表结构一样，在二叉树线索链表上添加一个头结点，并令其lchild域的指针指向二叉树的根结点，其rchild域的指针指向中序遍历时访问的最后一个结点。反之，令二叉树的中序序列中的第一个结点中，lchild域指针和最后一个结点的rchild域指针均指向头结点。这样定义的好处就是我们既可以从第一个结点起顺后继进行遍历，也可以从最后一个结点起顺前驱进行遍历。”</p>
-<p><img src="/blog/2019/04/25/thread_tree.jpg" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/thread_tree.jpg" alt="img"></p>
 <p>2）线索化树结点定义：</p>
 <pre><code>typedef  struct BiThrNode    /* 二叉线索存储结点结构 */
 {
@@ -811,10 +811,10 @@ int InOrderTraverse_Thr(BiThrNode* T)
 <p>邻接表：</p>
 <p>1.图中顶点用一个一维数组存储。另外，对于顶点数组中，每个数据元素还需要存储指向第一个邻接点的指针，以便于查找该顶点的边信息。</p>
 <p>2.图中每个顶点vi的所有邻接点构成一个线性表，由于邻接点的个数不定，所以用单链表存储，无向图称为顶点vi的边表，有向图则称为顶点vi作为弧尾的出边表。</p>
-<p><img src="/blog/2019/04/25/graph_adjlist.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/graph_adjlist.png" alt="img"></p>
 <p>这样的结构，对于我们要获得图的相关信息也是很方便的。比如我们要想知道某个顶点的度，就去查找这个顶点的边表中结点的个数。若要判断顶点vi到vj是否存在边，只需要测试顶点vi的边表中adjvex是否存在结点vj的下标j就行了。若求顶点的所有邻接点，其实就是对此顶点的边表进行遍历，得到的adjvex域对应的顶点就是邻接点。</p>
 <p>若是有向图，邻接表结构是类似的，比如图7-4-7中第一幅图的邻接表就是第二幅图。但要注意的是有向图由于有方向，我们是以顶点为弧尾来存储边表的，这样很容易就可以得到每个顶点的出度。但也有时为了便于确定顶点的入度或以顶点为弧头的弧，我们可以建立一个有向图的逆邻接表，“即对每个顶点vi都建立一个链接为vi为弧头的表”</p>
-<p><img src="/blog/2019/04/25/graph_rev_adjlist.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/graph_rev_adjlist.png" alt="img"></p>
 <p>对于带权值的网图，可以在边表结点定义中再增加一个weight的数据域，存储权值信息即可</p>
 <p>C.十字链表</p>
 <p>“那么对于有向图来说，邻接表是有缺陷的。关心了出度问题，想了解入度就必须要遍历整个图才能知道，反之，逆邻接表解决了入度却不了解出度的情况。有没有可能把邻接表与逆邻接表结合起来呢？答案是肯定的，就是把它们整合在一起。这就是我们现在要讲的有向图的一种存储方法：十字链表（Orthogonal List）。”</p>
@@ -824,19 +824,19 @@ int InOrderTraverse_Thr(BiThrNode* T)
 <p>边表结点结构：</p>
 <p>{tailvex, headvex, headlink, taillink}</p>
 <p>其中tailvex是指弧起点在顶点表的下标，headvex是指弧终点在顶点表中的下标，headlink是指入边表指针域，指向终点相同的下一条边，taillink是指边表指针域，指向起点相同的下一条边。如果是网，还可以再增加一个weight域来存储权值</p>
-<p><img src="/blog/2019/04/25/Orthogonal_list.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/Orthogonal_list.png" alt="img"></p>
 <p>D.邻接多重表</p>
 <p>引入原因： 解决邻接表删除边的麻烦</p>
 <p>边表结点结构：</p>
 <p>{ivex, ilink, jvex, jlink}</p>
 <p>其中ivex和jvex是与某条边依附的两个顶点在顶点表中的下标。ilink指向依附顶点ivex的下一条边，jlink指向依附顶点jvex的下一条边。这就是邻接多重表结构</p>
-<p><img src="/blog/2019/04/25/mult_adjlist.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/mult_adjlist.png" alt="img"></p>
 <p>若要删除左图的(v0,v2)这条边，只需要“将右图的⑥⑨的链接指向改为∧即可</p>
 <p>E.边集数组</p>
 <p>边集数组是由两个一维数组构成。</p>
 <p>一个是存储顶点的信息；</p>
 <p>另一个是存储边的信息，这个边数组每个数据元素由一条边的起点下标（begin）、终点下标（end）和权（weight）组成</p>
-<p><img src="/blog/2019/04/25/graph_edges_array.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/graph_edges_array.png" alt="img"></p>
 <p>3）图的遍历</p>
 <p>A.深度优先遍历（Depth_First_Search），也有称为深度优先搜索，简称为DFS</p>
 <p>从图中某个顶点v出发，访问此顶点，然后从v的未被访问的邻接点出发深度优先遍历图，直至图中所有和v有路径相通的顶点都被访问到。事实上，我们这里讲到的是连通图，对于非连通图，只需要对它的连通分量分别进行深度优先遍历，即在先前一个顶点进行一次深度优先遍历后，若图中尚有顶点未被访问，则另选图中一个未曾被访问的顶点作起始点，重复上述过程，直至图中所有顶点都被访问到为止。</p>
@@ -900,9 +900,9 @@ int Binary_Search(int *a, int n, int key)
     return 0;
 }
 </code></pre><p>B.插值查找</p>
-<p><img src="/blog/2019/04/25/search_half.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/search_half.png" alt="img"></p>
 <p>插值查找是折半查找的改进，将折半查找mid的1/2系数改为，</p>
-<p><img src="/blog/2019/04/25/search_insert.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/search_insert.png" alt="img"></p>
 <p>使查找次数更少</p>
 <p>插值查找（Interpolation Search）是根据要查找的关键字key与查找表中最大最小记录的关键字比较后的查找方法，其核心就在于插值的计算公式(key-a[low])/(a[high]-a[low])。应该说，从时间复杂度来看，它也是O(logn)，但对于表长较大，而关键字分布又比较均匀的查找表来说，插值查找算法的平均性能比折半查找要好得多。</p>
 <p>C.斐波那契查找</p>
@@ -986,13 +986,13 @@ int Binary_Search(int *a, int n, int key)
 <p>排序过程：先取一个正整数d1&lt;n，把所有相隔d1的记录放一组，组内进行直接插入排序；然后取d2&lt;d1，重复上述分组和排序操作；直至di=1，即所有记录放进一个组中排序为止（分组元素越来越多，di=1时，包含全部元素）</p>
 <p>希尔排序是第一个时间复杂度低于O(n2)的算法</p>
 <p>非稳定</p>
-<p><img src="/blog/2019/04/25/sort_hill.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/sort_hill.png" alt="img"></p>
 <p>6.堆排序（HeapSort）</p>
 <p>A.大顶堆与小顶堆概念：</p>
 <p>堆是具有下列性质的完全二叉树：每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆；或者每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆</p>
 <p>B.堆排序算法</p>
 <p>1)堆的建立过程：找到它左右子结点的较大值，互换，再找到其子结点的较大值互换。</p>
-<p><img src="/blog/2019/04/25/sort_heap.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/sort_heap.png" alt="img"></p>
 <p>建堆的过程是从下到上、从非终端节点到根节点，再从根节点到子树的过程，时间复杂度O(n)</p>
 <p>2)交换堆顶元素后，重新建堆的过程，是堆顶（大顶堆）元素下移比较的过程，跟树的深度有关，因此时间复杂度是O(logn)</p>
 <p>总的时间复杂度：O(nlgn)</p>
@@ -1008,7 +1008,7 @@ int Binary_Search(int *a, int n, int key)
 <p>九数取中（me-dian-of-nine），它先从数组中分三次取样，每次取三个数，三个样品各取出中数，然后从这三个中数当中再取出一个中数作为枢轴。显然这就更加保证了取到的pivotkey是比较接近中间值的关键字。</p>
 <p>2）优化不必要的交换</p>
 <p>3）优化小数组时的排序方案</p>
-<p><img src="/blog/2019/04/25/sort_summary.png" alt="img"></p>
+<p><img src="/blog/2019/04/25/DataStructure.htm/sort_summary.png" alt="img"></p>
 
       
     </div>
@@ -1342,7 +1342,7 @@ int Binary_Search(int *a, int n, int key)
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
